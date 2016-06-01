@@ -1,9 +1,30 @@
+import matplotlib.pyplot as plt
+import numpy as np
+import random as r 
 def main():
-	p, q = leEntrada("arquivo.txt")
-	simulaQuad(10,10,q,1)
+	tipo, listaVivas = leEntrada("arquivo.txt")	
+	simulaQuad(10,10,listaVivas,1)	
+	
+	print(listaVivas)
+	print(type(listaVivas))
+	n = m = 10
 
-	print(p)
-	print(q)
+	print(geraMatriz(m,n,listaVivas))
+	desenhaQuad(n,m,listaVivas,0)
+
+def geraMatriz(n,m,listaVivas):	
+	dim = (n,m)
+	matriz = np.zeros(dim)
+	vivas = list(listaVivas)
+	for cel in vivas:
+		matriz[cel[0]][cel[1]] = 1
+	matriz = np.flipud(matriz)
+	return matriz
+
+
+
+	#print(p)
+	#print(q)
 	
 def leEntrada(nome):
 	with open(nome) as f:
@@ -13,11 +34,7 @@ def leEntrada(nome):
 	return 0 if content[0]=="Q" else 1,content[1:]
 
 def simulaQuad(n,m,lista,t):
- 	
-	'''
-	Células que vivem!
-	'''
- 	listOriginal = lista.copy()
+ 	listOriginal = list(lista)
  	listaViva = []
  	for cel in lista:
  		x,y  = cel[0],cel[1] 
@@ -26,23 +43,23 @@ def simulaQuad(n,m,lista,t):
 		Quando a célula não está no extremo
 		'''		
  		if all([x!=0,x!=n-1,y!=0,y!=m-1]): 			
- 			for x in [[x+1,y-1],[x+1,y],[x+1,y+1],[x,y+1],[x-1,y+1],[x-1,y],[x-1,y-1]]:
- 				print("x = ",x)
- 				if any((x==item for item in listOriginal)): 					
- 					listOriginal.remove(x)
+ 			for vizinho in [[x+1,y-1],[x+1,y],[x+1,y+1],[x,y+1],[x-1,y+1],[x-1,y],[x-1,y-1]]:
+ 				print("vizinho = ",vizinho)
+ 				if any((vizinho==celViva for celViva in listOriginal)): 					
+ 					listOriginal.remove(vizinho)
  					controle+=1
  					if controle>3:
  						break 			
  			if controle==2 or controle==3: 			
-	 				print("APPENDANDO",cel)
- 				listaViva.append(cel)
- 		'''
- 		Quando a célula está no extremo
- 		'''
+	 			print("APPENDANDO",cel)
+ 				listaViva.append(cel) 		
  		else:
  			pass
 
-def 
+def desenhaQuad(n,m,lista,figura):	
+	plt.matshow(geraMatriz(n,m,lista), vmin=0, vmax=1, cmap="PuRd")	
+	plt.show()
+
 
 	
 	
