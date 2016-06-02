@@ -2,15 +2,18 @@ import matplotlib.pyplot as plt
 import numpy as np
 import random as r 
 def main():
-	n = m = 24
+	#Entrada dos dados
+	m = 24
 	n = 24
-	t = 11
+	t = 13
 	arquivo = "arquivo.txt"
+
 	tipo, listaVivas = leEntrada(arquivo)	
-	if tipo=="Q":
+	
+	if tipo==0:
 		nova = simulaQuad(n,m,listaVivas,t)
 		desenhaQuad(n,m,nova,"fig1.png")
-
+		
 def geraMatriz(n,m,listaVivas):	
 	dim = (n,m)
 	matriz = np.zeros(dim)
@@ -49,7 +52,7 @@ def simulaQuad(n,m,lista,t):
 				listaViva.append(cel)
 			VizinhosMortas = [[cord,calculaVizinhosQ(cord,matriz,n,m)] for cord in calculaVizinhosQ(cel,matriz,n,m,cord = True)]
 			listaViva.extend([morta[0] for morta in VizinhosMortas if morta[1]==3])			
-		listOriginal = list(set(listaViva))		
+		listOriginal = list(set(listaViva))	#Remove entradas duplicadas	
 	return listOriginal	
  		
 
@@ -59,11 +62,16 @@ def desenhaQuad(n,m,lista,figura):
 	for cel in lista:
 		mImprime[cel[0]][cel[1]] = r.randint(10,100)	
 	mImprime = np.flipud(mImprime)
+	#Matplotlib
 	fig = plt.figure(figsize=(4,3))
 	ax = fig.add_subplot(111)	
-	ax.matshow(mImprime, vmin=0, vmax=100, cmap="gist_ncar_r")
-	ax.set_yticks(())
-	ax.set_xticks(())
+	ax.matshow(mImprime, vmin=0, vmax=100, cmap="gist_ncar_r")	
+	ax.set_yticks(np.arange(0.5,m+(0.5)))
+	ax.set_xticks(np.arange(0.5,n+(0.5)))	
+	ax.set_xticklabels([])
+	ax.set_yticklabels([])
+	ax.grid()	
+	fig.tight_layout()
 	fig.savefig(figura, dpi = 300)	
 	
 

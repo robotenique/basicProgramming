@@ -1,42 +1,55 @@
-"""Simple matshow() example."""
 import matplotlib.pyplot as plt
+from matplotlib.patches import RegularPolygon
+from matplotlib.collections import PatchCollection
 import numpy as np
-import random as r 
 
-n = 10
-x = 0
-y = 0
-m = 10
-LISTA VIVA =  [(6, 4), (5, 4), (5, 5), (4, 5), (4, 4), (6, 5)]
-LISTA VIVA =  [(6, 4), (5, 4), (5, 5), (4, 5), (4, 4), (6, 5)]
-LISTA VIVA =  [(6, 4), (5, 4), (5, 5), (4, 5), (4, 4), (6, 5)]
+# set up figure
+fig, ax = plt.subplots(1)
 
-vizinhosComuns =[
-			[(x+1)%n,(y-1)%m],
-			[(x+1)%n,y],
-			[(x+1)%n,(y+1)%m],	 			
-			[(x-1)%n,(y+1)%m],	 			
-			[(x-1)%n,(y-1)%m],
-			[(x-1)%n,y],
-			[x,(y+1)%m],
-			[x,(y-1)%m]
-]
-d = np.zeros((10,10))
-for x in range(10):
-	for j in range(10):
-		d[x][j] = str(x)+str(j)
-print(np.flipud(d))
-vetor = sum([d[item[0]][item[1]] for item in vizinhosComuns])
-print(vetor)
+# positions
+pixel_x, pixel_y = np.indices((2, 2))
+
+pixel_color = np.random.random_sample(12).reshape(4, 3)
+print(len(pixel_color))
+dx = 5    # horizontal stride
+dy = 5    # vertical stride 
+
+# set static radius
+poly_radius = 2.5
 '''
-[[ 90.  91.  92.  93.  94.  95.  96.  97.  98.  99.]
- [ 80.  81.  82.  83.  84.  85.  86.  87.  88.  89.]
- [ 70.  71.  72.  73.  74.  75.  76.  77.  78.  79.]
- [ 60.  61.  62.  63.  64.  65.  66.  67.  68.  69.]
- [ 50.  51.  52.  53.  54.  55.  56.  57.  58.  59.]
- [ 40.  41.  42.  43.  44.  45.  46.  47.  48.  49.]
- [ 30.  31.  32.  33.  34.  35.  36.  37.  38.  39.]
- [ 20.  21.  22.  23.  24.  25.  26.  27.  28.  29.]
- [ 10.  11.  12.  13.  14.  15.  16.  17.  18.  19.]
- [  0.   1.   2.   3.   4.   5.   6.   7.   8.   9.]]
+		dx = 5
+		dy = 5
+	else:
+		dx = 10
+		dy = 2.5
 '''
+# list to hold patches
+patch_list = []
+
+# creat the patches
+controle = 0
+for c, x, y in zip(pixel_color, pixel_x.flat, pixel_y.flat):    
+	if controle%3==0:
+		dx = 5
+		dy = 5
+	else:
+		dx = 10
+		dy = 2.5
+	patch_list.append(
+			RegularPolygon(
+				xy=(x*dx, y*dy),
+				numVertices=6,
+				radius=poly_radius,
+				orientation=0.,
+				facecolor=c,
+				edgecolor='k'  
+			)
+		)
+	
+
+
+pc = PatchCollection(patch_list, match_original=True)
+ax.add_collection(pc)
+
+ax.axis([-3, 80, -3, 80])
+plt.show()
