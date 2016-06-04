@@ -4,28 +4,33 @@ from matplotlib.collections import PatchCollection
 import numpy as np
 import random as r 
 def main():
-	#Entrada dos dados
-	m = 28
-	n = 17
-	t = 11
-	arquivo = "arquivo2.txt"
-
+	#Entrada dos dados	
+	#Linhas
+	n = 20
+	#Colunas
+	m = 20
+	#Iterações
+	t = int(input("Digite a quantidade de iterações = "))
+	arquivo = "arquivo.txt"
+	'''
+	#Gerador de Células Vivas Aleatórias (20 por vez. copiar do terminal p/ arquivox.txt)
 	
-	#Gerador de Células Vivas Aleatórias (20 por vez. copiar do terminal p/ arquivo)
 	s = [(np.random.randint(0,n-1),np.random.randint(0,m-1)) for t in range(50)]
 	for t in s:
 		t =  str(t).replace(" ","")
 		print(t.strip("() "),sep="")
-	
+	'''
 	tipo, listaVivas = leEntrada(arquivo)	
-	
+	listaVivas = set(listaVivas)
 	if tipo==0:
-		nova = simulaQuad(n,m,listaVivas,t)
+		#Regra padrão : b="3" e s="23" (N3S23)
+		nova = simulaQuadGenerica(n,m,listaVivas,t,"3","23")
 		desenhaQuad(n,m,nova,"fig1.png")
-	else:
-		desenhaHex(n,m,listaVivas,"fig2.png")
+	elif tipo==1:
+		nova = simulaHex(n,m,listaVivas,t)		
+		desenhaHex(n,m,nova,"fig2.png")
 		
-def geraMatrizQ(n,m,listaVivas):	
+def geraMatriz(n,m,listaVivas):	
 	dim = (n,m)
 	matriz = np.zeros(dim)
 	vivas = list(listaVivas)
@@ -46,26 +51,56 @@ def calculaVizinhosQ(cel,matriz,n,m,cord = False):
 			(x,(y-1)%m)
 	]
 	if cord:
-		return vizinhosComuns		
+		return vizinhosComuns	
+	return sum([matriz[item[0]][item[1]] for item in vizinhosComuns])
+
+def simulaQuadGenerica(n,m,lista,t,b,s):
+	'''
+	if b=="3" and s=="23":
+		simulaQuad(n,m,lista,t)
 	else:
-		return sum([matriz[item[0]][item[1]] for item in vizinhosComuns])
+	'''
+	vB , vS = [int(val) for val in b],[int(val) for val in s]
+	listOriginal = list(lista)
+	for t in range(t):
+		matriz = geraMatriz(n,m,listOriginal)
+		listaViva = []
+		for cel in listOriginal:
+			VizinhosMortas = []
+			#I - Células Sobreviventes		
+			soma1 = calculaVizinhosQ(cel,matriz,n,m)			
+			if any([soma1==s for s in vS]):
+				listaViva.append(cel)
+			#Células que vão nascer
+			for cord in calculaVizinhosQ(cel,matriz,n,m,cord = True):
+				if matriz[cord[0]][cord[1]]!=1:	
+					VizinhosMortas.append([cord,calculaVizinhosQ(cord,matriz,n,m)])
+			listaViva.extend([novaCel[0] for novaCel in VizinhosMortas if any(novaCel[1]==b for b in vB)])	
+		listOriginal = list(set(listaViva))	#Remove entradas duplicadas
+	return listOriginal
 
 
+
+'''
 def simulaQuad(n,m,lista,t):
 	listOriginal = list(lista)	
 	for t in range(t):
-		matriz = geraMatrizQ(n,m,listOriginal)		
+		matriz = geraMatriz(n,m,listOriginal)		
 		listaViva = []
 		for cel in listOriginal:
+			VizinhosMortas = []
 			#I - Células Sobreviventes		
 			soma1 = calculaVizinhosQ(cel,matriz,n,m)			
 			if any([soma1==2,soma1==3]):
 				listaViva.append(cel)
-			VizinhosMortas = [[cord,calculaVizinhosQ(cord,matriz,n,m)] for cord in calculaVizinhosQ(cel,matriz,n,m,cord = True)]
-			listaViva.extend([morta[0] for morta in VizinhosMortas if morta[1]==3])			
+			#Células que vão nascer
+			for cord in calculaVizinhosQ(cel,matriz,n,m,cord = True):
+				if matriz[cord[0]][cord[1]]!=1:	
+					VizinhosMortas.append([cord,calculaVizinhosQ(cord,matriz,n,m)])
+			listaViva.extend([novaCel[0] for novaCel in VizinhosMortas if novaCel[1]==3])	
 		listOriginal = list(set(listaViva))	#Remove entradas duplicadas	
 	return listOriginal	
- 		
+ '''		
 
 def desenhaQuad(n,m,lista,figura):
 	dim = (n,m)
@@ -76,7 +111,7 @@ def desenhaQuad(n,m,lista,figura):
 	#Matplotlib
 	fig = plt.figure(figsize=(4,3))
 	ax = fig.add_subplot(111)	
-	ax.matshow(mImprime, vmin=-5, vmax=100, cmap="gist_ncar_r")	
+	ax.matshow(mImprime, vmin=0, vmax=100, cmap="gist_ncar_r")	
 	ax.set_yticks(np.arange(0.5,m+(0.5)))
 	ax.set_xticks(np.arange(0.5,n+(0.5)))	
 	ax.set_xticklabels([])
@@ -85,8 +120,54 @@ def desenhaQuad(n,m,lista,figura):
 	fig.tight_layout()
 	fig.savefig(figura, dpi = 300)	
 
-def desenhaHex(n,m,lista,figura):
+def simulaHex(n,m,lista,t):
+	listOriginal = list(lista)
+	for t in range(t):
+		matriz = geraMatriz(n,m,listOriginal)
+		listaViva = []
+		for cel in listOriginal:
+			VizinhosMortas = []	
+			#Células Sobreviventes
+			soma1 = calculaVizinhosH(cel,matriz,n,m)			
+			if soma1 == 2:
+				listaViva.append(cel)
+			#Células que vão nascer					
+			for cord in calculaVizinhosH(cel,matriz,n,m,cord=True):			
+				if matriz[cord[0]][cord[1]]!=1:					
+					VizinhosMortas.append([cord,calculaVizinhosH(cord,matriz,n,m)])
+			listaViva.extend([novaCel[0] for novaCel in VizinhosMortas if any([novaCel[1]==3,novaCel[1]==5])])			
+		listOriginal = list(set(listaViva))
+	return listOriginal
+			    		
 	
+
+def calculaVizinhosH(cel,matriz,n,m,cord=False):
+	'''
+	1. Calcular as coordenadas:
+		I) Verifica se o número de colunas é ímpar
+		II) Se for ímpar, adiciono uma coluna a mais (a tal da ponte invisível)
+		III) Faço os calculos das coordenadas dos vizinhos da célula. Para a grid hexagonal,
+			esse cálculo é diferente se a célula em questão é par ou ímpar.
+		IV) Se o número de colunas é ímpar, ele remove os 'vizinhos' que estão na 'coluna invisivel'
+
+	'''
+	isOdd = (m%2!=0)
+	m += isOdd
+	x,y = cel[0],cel[1]
+	if (y+1)%2==0:
+		vizinhos = [((x+1)%n,y),(x,(y+1)%m),((x-1)%n,(y+1)%m),((x-1)%n,y),((x-1)%n,(y-1)%m),(x,(y-1)%m)]	
+	else:
+		vizinhos = [((x+1)%n,(y+1)%m),((x+1)%n,y),((x+1)%n,(y-1)%m),(x,(y-1)%m),((x-1)%n,y),(x,(y+1)%m)]
+	if isOdd:
+		for cel in list(vizinhos):			
+			if cel[1]==(m-1):
+				vizinhos.remove(cel)
+	if cord:
+		return vizinhos
+	return sum([matriz[item[0]][item[1]] for item in vizinhos])
+
+	
+def desenhaHex(n,m,lista,figura):	
 	#Variáveis Iniciais p/ Hexágono
 	vizinhos = []
 	patch_list = []
@@ -97,23 +178,30 @@ def desenhaHex(n,m,lista,figura):
 	#Matriz p/ grade hexagonal n x m
 	points_Y,points_X = (np.indices((n,m))+1)
 	
-	#Vizinhos TODO: OTIMIZAR AQUI!!
-	for x,y in lista:
-		if (y+1)%2==0:
-			vizinhos.extend([[x+1,y],[x,y+1],[x-1,y+1],[x-1,y],[x-1,y-1],[x,y-1]])
-		else:
-			vizinhos.extend([[x+1,y+1],[x+1,y],[x+1,y-1],[x,y-1],[x-1,y],[x,y+1]])
+				
 
 	#Cores
-	cor = [[1, 1 ,1] for x in range(n*m)]
+
+	nColor = np.random.rand(3,1)
+	cor = [[0.9, 0.85 ,0.9] for x in range(n*m)]
 	auxC = np.arange(0,n*m,m)	
+	vizinhos = []
+
+	matriz = geraMatriz(n,m,lista)
+
+	'''
 	for x,y in lista:		
-		cor[auxC[x]+y] = np.random.rand(3,1)
+		vizinhos.extend(calculaVizinhosH((x,y),matriz,n,m,cord=True))
+
 	for x,y in vizinhos:		
-		cor[auxC[x]+y] = [0.5,0.5,1]		
+		cor[auxC[x]+y] = nColor	
+	'''
+	for x,y in lista:
+		cor[auxC[x]+y] = [0.3, 0.9 ,0.3]
+	
 	
 	#Criação da lista de Patches com Hexágonos
-	for c, x, y in zip(cor, points_X.flat, points_Y.flat):	
+	for c, x, y in zip(cor, points_X.flat, points_Y.flat):
 		#Coordenada coluna Ímpar
 		cordI = (x*dx,apothem * (2*indL+1))
 		#Coordenada coluna Par
