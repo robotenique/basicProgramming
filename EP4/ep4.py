@@ -4,18 +4,27 @@ from matplotlib.collections import PatchCollection
 import numpy as np
 import random as r 
 def main():
-#-->Entrada dos dados<--
-	#Linhas
-	n = 20
-	#Colunas
-	m = 20
-	#Iterações
-	t = 7
-	#Nome do arquivo
+	'''
+	-Função main() do programa
+
+	Variáveis:
+		n - num. linhas da matriz (>0)
+		m - colunas da matriz (>0)
+		t - número de iterações (>=0) (se ==0, imprime a conf. Original)
+		arquivo - nome do arquivo para ser lido.		
+	'''
+
+	#Dados Iniciais	
+	n = 20	
+	m = 20	
+	t = 7	
 	arquivo = "arquivo.txt"
 	
+	#Lê arquivo inicial
 	tipo, listaVivas = leEntrada(arquivo)	
-	listaVivas = set(listaVivas)
+	listaVivas = set(listaVivas) #Remove possíveis coordenadas duplicadas
+
+	#Executa o programa de acordo com o tipo (quadrada ou hexagonal)
 	if tipo==0:
 		#Regra padrão Quad : b="3" e s="23" (N3S23)
 		nova = simulaQuadGenerica(n,m,listaVivas,t,"3","23")
@@ -27,6 +36,10 @@ def main():
 		desenhaHex(n,m,nova,"fig2.png")
 		
 def geraMatriz(n,m,listaVivas):	
+	'''
+	- Função que gera a matriz de 0's e 1's de dimensão (n x m).
+	  Células vivas tem valor 1 e mortas valor 0.	  
+	'''
 	dim = (n,m)
 	matriz = np.zeros(dim)
 	vivas = list(listaVivas)
@@ -35,6 +48,23 @@ def geraMatriz(n,m,listaVivas):
 	return matriz
 
 def simulaQuadGenerica(n,m,lista,t,b,s):
+	'''
+	-Função para simular o jogo da vida quadrado em 't' iterações;
+	
+	Algoritmo:	  
+	-->Por 't' vezes:
+
+	    I) Para cada célula viva, calcula a soma dos vizinhos dela na matriz;
+		II) Se a soma é igual a algum termo de 's', então a célula sobrevive;
+		III) Para cada célula viva, calcula as coordenadas dos vizinhos dela;
+			-->Para cada um desses vizinhos, calcula a soma dos vizinhos destes na matriz;
+			-->Se a soma dos vizinhos é igual a algum termo de 'b' (e ela está morta),
+			   então ela nasce;
+		IV) A lista inicial de células é substituída com a nova lista gerada;
+		V) Volta para o início do loop com a lista nova de células vivas;
+
+	-->Retorna a lista final após 't' iterações.
+	'''
 	vB , vS = [int(val) for val in b],[int(val) for val in s]
 	listOriginal = list(lista)
 	for t in range(t):
@@ -51,11 +81,19 @@ def simulaQuadGenerica(n,m,lista,t,b,s):
 				if matriz[cord[0]][cord[1]]!=1:	
 					VizinhosMortas.append([cord,calculaVizinhosQ(cord,matriz,n,m)])
 			listaViva.extend([novaCel[0] for novaCel in VizinhosMortas if any(novaCel[1]==b for b in vB)])	
-		listOriginal = list(set(listaViva))	#Remove elementos duplicados
+		listOriginal = list(set(listaViva))	#Remove possíveis coordenadas duplicadas
 	return listOriginal
 
 def calculaVizinhosQ(cel,matriz,n,m,cord = False):
+	'''
+	-Função que calcula as coordenadas / soma dos vizinhos da célula 'cel',
+	 na grade Quadrada;
+
+	* cord = False por padrão, retorna a soma dos vizinhos;
+		    Se True, retorna as coordenadas dos vizinhos;
+	'''
 	x,y = cel[0],cel[1]
+	#Usando '%' p/ também calcular vizinhos extremos na matriz
 	vizinhosComuns =[
 			((x+1)%n,(y-1)%m),
 			((x+1)%n,y),
@@ -71,11 +109,26 @@ def calculaVizinhosQ(cel,matriz,n,m,cord = False):
 	return sum([matriz[item[0]][item[1]] for item in vizinhosComuns])
 
 def desenhaQuad(n,m,lista,figura):
+	'''
+	 Função que salva o grafico do jogo em uma grade quadrada.
+
+	 I) Gera a matriz 'mImprime', igual a função geraMatriz(), porém as células
+		vivas recebem valores aleatórios entre 10 e 100.
+	II) Inverte as linhas da matriz, para ficar igual ao modelo na especificação
+		 do EP4 ( (0,0) é a coluna inferior esquerda, não superior )
+   III) Cria a figura usando o matplotlib, com configurações de exibição específicas.
+		 A função usada é a matshow(), que recebe a 'mImprime' como argumento.
+		 Uso o colorMap "gist_ncar_r", e então cada célula viva recebe uma cor aleatória,
+		  de acordo com o valor aleatório gerado no item I).
+	IV) Salva a figura com o nome especificado pela variável 'figura'.
+
+	'''
 	dim = (n,m)
 	mImprime = np.zeros(dim)	
 	for cel in lista:
-		mImprime[cel[0]][cel[1]] = r.randint(10,100)	
+		mImprime[cel[0]][cel[1]] = r.randint(10,100) #Cores aleatórias, why not?	
 	mImprime = np.flipud(mImprime)
+	
 	#Matplotlib
 	fig = plt.figure(figsize=(4,3))
 	ax = fig.add_subplot(111)	
@@ -89,6 +142,23 @@ def desenhaQuad(n,m,lista,figura):
 	fig.savefig(figura, dpi = 300)	
 
 def simulaHexGenerica(n,m,lista,t,b,s):
+	'''
+	-Função para simular o jogo da vida hexagonal em 't' iterações;
+	
+	Algoritmo:	  
+	-->Por 't' vezes:
+
+	    I) Para cada célula viva, calcula a soma dos vizinhos dela na matriz;
+		II) Se a soma é igual a algum termo de 's', então a célula sobrevive;
+		III) Para cada célula viva, calcula as coordenadas dos vizinhos dela;
+			-->Para cada um desses vizinhos, calcula a soma dos vizinhos destes na matriz;
+			-->Se a soma dos vizinhos é igual a algum termo de 'b' (e ela está morta),
+			   então ela nasce;
+		IV) A lista inicial de células é substituída com a nova lista gerada;
+		V) Volta para o início do loop com a lista nova de células vivas;
+
+	-->Retorna a lista final após 't' iterações.
+	'''
 	vB , vS = [int(val) for val in b],[int(val) for val in s]
 	listOriginal = list(lista)
 	for t in range(t):
@@ -110,12 +180,16 @@ def simulaHexGenerica(n,m,lista,t,b,s):
 
 def calculaVizinhosH(cel,matriz,n,m,cord=False):
 	'''
+	-Função que calcula as coordenadas / soma dos vizinhos da célula 'cel',
+	 na grade HEXAGONAL;
+	
 	1. Calcular as coordenadas:
 		I) Verifica se o número de colunas é ímpar
-		II) Se for ímpar, adiciono uma coluna a mais (a tal da ponte invisível)
-		III) Faço os calculos das coordenadas dos vizinhos da célula. Para a grid hexagonal,
+		II) Se for ímpar, adiciona uma coluna a mais (a tal da ponte invisível)
+		III) Faz os calculos das coordenadas dos vizinhos da célula. Para a grid hexagonal,
 			esse cálculo é diferente se a célula em questão é par ou ímpar.
 		IV) Se o número de colunas é ímpar, ele remove os 'vizinhos' que estão na 'coluna invisivel'
+	2. Retorna a soma dos vizinhos de uma determinada célula.
 
 	'''
 	isOdd = (m%2!=0)
@@ -134,8 +208,23 @@ def calculaVizinhosH(cel,matriz,n,m,cord=False):
 	return sum([matriz[item[0]][item[1]] for item in vizinhos])
 
 def desenhaHex(n,m,lista,figura):	
+	'''
+	-Função que gera uma grid hexagonal (n x m), e salva uma figura com 
+	 os valores passados através da 'lista'.
+	'''
+	
 	#Variáveis Iniciais p/ Hexágono
-	vizinhos = []
+	'''
+	Variáveis Iniciais:
+	  patch_list - Lista que irá conter todos os Hexágonos da grid
+	  hexagonRatio - O "raio" do hexágono. Valor padrão é 5
+	  indL , indC - indíces da Linha e da Coluna, respectivamente
+	  apothem - apótema do hexágono
+	  dx - valor para variar a coordenada x do centro de cada hexágono
+	  points_Y - Valores das coordenadas Y
+	  points_X - Valores das coordenadas X
+	'''	
+	
 	patch_list = []
 	hexagonRatio = 5
 	indL,indC = 0 , 0	
@@ -148,8 +237,8 @@ def desenhaHex(n,m,lista,figura):
 	nColor = np.random.rand(3,1)
 	cor = [[0.9, 0.85 ,0.9] for x in range(n*m)]
 	auxC = np.arange(0,n*m,m)	
-	vizinhos = []
 	matriz = geraMatriz(n,m,lista)
+	#As células vivas recebem a cor padrão VERDE!
 	for x,y in lista:
 		cor[auxC[x]+y] = [0.3, 0.9 ,0.3]
 
@@ -160,7 +249,7 @@ def desenhaHex(n,m,lista,figura):
 		#Coordenada coluna Par
 		cordP = (cordI[0],cordI[1]+apothem)	
 		#Tupla com ambas as coordenadas	
-		tCordenadas = (cordP,cordI)	
+		tcoordenadas = (cordP,cordI)	
 		'''
 		-->Se tenho colunas pares, a ordem estabelecida é a normal.
 		-->Se tenho colunas ímpares, Preciso trocar a ordem a cada linha ,
@@ -168,14 +257,13 @@ def desenhaHex(n,m,lista,figura):
 			 a ordem é mantida)
 		'''
 		if m%2==0:
-			cord =  tCordenadas[0] if indC%2==0 else tCordenadas[1]
+			cord =  tcoordenadas[0] if indC%2==0 else tcoordenadas[1]
 		else:
 			ehPar = (indL%2==0)
-			cord = tCordenadas[not(ehPar)] if indC%2==0 else tCordenadas[ehPar]	
+			cord = tcoordenadas[not(ehPar)] if indC%2==0 else tcoordenadas[ehPar]	
 		#Incrementa o Índice de colunas e o índice de linhas
 		indC+=1
-		indL+=(indC%m == 0)
-		
+		indL+=(indC%m == 0)		
 		#Cria um Hexágono com as características escolhidas
 		patch_list.append(
 				RegularPolygon(
@@ -202,6 +290,15 @@ def desenhaHex(n,m,lista,figura):
 	fig.savefig(figura, dpi = 300)
 
 def haRepeticoes(n,m,lista,t):
+	'''
+	Função que verifica se houve repetição de algum padrão em alguma
+	  das 't' simulações do jogo da vida na grade quadrada, incluindo o
+	  padrão inicial.
+
+	I) Cria uma lista com todas as listas de células vivas a cada iteração
+   II) Verifica se algum padrão se repetiu. Caso sim, retorna True.
+  III) Se nenhum padrão foi observado, retorna False.
+	'''
 	listOriginal = [list(lista)]
 	for i in range(t):
 		listOriginal.append(simulaQuadGenerica(n,m,listOriginal[i],1,"3","23"))
@@ -212,13 +309,10 @@ def haRepeticoes(n,m,lista,t):
 			return True
 	return False
 
-	'''
-	for padrao in listOriginal:
-		if any((padrao == confCel for confCel in listOriginal)):
-			return True
-	return False
-	'''
 def leEntrada(nome):
+	'''
+	Função que lê o arquvo de entrada e retorna o tipo e a lista de células vivas.	
+	'''
 	with open(nome) as f:
 		content = [x.strip("\n") for x in f.readlines()]	
 	for x in range(1,len(content)):
