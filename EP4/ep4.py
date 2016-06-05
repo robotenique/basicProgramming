@@ -4,30 +4,26 @@ from matplotlib.collections import PatchCollection
 import numpy as np
 import random as r 
 def main():
-	#Entrada dos dados	
+#-->Entrada dos dados<--
 	#Linhas
 	n = 20
 	#Colunas
 	m = 20
 	#Iterações
-	t = int(input("Digite a quantidade de iterações = "))
+	t = 7
+	#Nome do arquivo
 	arquivo = "arquivo.txt"
-	'''
-	#Gerador de Células Vivas Aleatórias (20 por vez. copiar do terminal p/ arquivox.txt)
 	
-	s = [(np.random.randint(0,n-1),np.random.randint(0,m-1)) for t in range(50)]
-	for t in s:
-		t =  str(t).replace(" ","")
-		print(t.strip("() "),sep="")
-	'''
 	tipo, listaVivas = leEntrada(arquivo)	
 	listaVivas = set(listaVivas)
 	if tipo==0:
-		#Regra padrão : b="3" e s="23" (N3S23)
+		#Regra padrão Quad : b="3" e s="23" (N3S23)
 		nova = simulaQuadGenerica(n,m,listaVivas,t,"3","23")
+		print("Há repetições = ",haRepeticoes(n,m,listaVivas,t))
 		desenhaQuad(n,m,nova,"fig1.png")
 	elif tipo==1:
-		nova = simulaHex(n,m,listaVivas,t)		
+		#Regra padrão Hex : b="35" e s="2" (N35S2)
+		nova = simulaHexGenerica(n,m,listaVivas,t,"35","2")		
 		desenhaHex(n,m,nova,"fig2.png")
 		
 def geraMatriz(n,m,listaVivas):	
@@ -37,29 +33,8 @@ def geraMatriz(n,m,listaVivas):
 	for cel in vivas:
 		matriz[cel[0]][cel[1]] = 1
 	return matriz
-	
-def calculaVizinhosQ(cel,matriz,n,m,cord = False):
-	x,y = cel[0],cel[1]
-	vizinhosComuns =[
-			((x+1)%n,(y-1)%m),
-			((x+1)%n,y),
-			((x+1)%n,(y+1)%m),	 			
-			((x-1)%n,(y+1)%m),	 			
-			((x-1)%n,(y-1)%m),
-			((x-1)%n,y),
-			(x,(y+1)%m),
-			(x,(y-1)%m)
-	]
-	if cord:
-		return vizinhosComuns	
-	return sum([matriz[item[0]][item[1]] for item in vizinhosComuns])
 
 def simulaQuadGenerica(n,m,lista,t,b,s):
-	'''
-	if b=="3" and s=="23":
-		simulaQuad(n,m,lista,t)
-	else:
-	'''
 	vB , vS = [int(val) for val in b],[int(val) for val in s]
 	listOriginal = list(lista)
 	for t in range(t):
@@ -76,31 +51,24 @@ def simulaQuadGenerica(n,m,lista,t,b,s):
 				if matriz[cord[0]][cord[1]]!=1:	
 					VizinhosMortas.append([cord,calculaVizinhosQ(cord,matriz,n,m)])
 			listaViva.extend([novaCel[0] for novaCel in VizinhosMortas if any(novaCel[1]==b for b in vB)])	
-		listOriginal = list(set(listaViva))	#Remove entradas duplicadas
+		listOriginal = list(set(listaViva))	#Remove elementos duplicados
 	return listOriginal
 
-
-
-'''
-def simulaQuad(n,m,lista,t):
-	listOriginal = list(lista)	
-	for t in range(t):
-		matriz = geraMatriz(n,m,listOriginal)		
-		listaViva = []
-		for cel in listOriginal:
-			VizinhosMortas = []
-			#I - Células Sobreviventes		
-			soma1 = calculaVizinhosQ(cel,matriz,n,m)			
-			if any([soma1==2,soma1==3]):
-				listaViva.append(cel)
-			#Células que vão nascer
-			for cord in calculaVizinhosQ(cel,matriz,n,m,cord = True):
-				if matriz[cord[0]][cord[1]]!=1:	
-					VizinhosMortas.append([cord,calculaVizinhosQ(cord,matriz,n,m)])
-			listaViva.extend([novaCel[0] for novaCel in VizinhosMortas if novaCel[1]==3])	
-		listOriginal = list(set(listaViva))	#Remove entradas duplicadas	
-	return listOriginal	
- '''		
+def calculaVizinhosQ(cel,matriz,n,m,cord = False):
+	x,y = cel[0],cel[1]
+	vizinhosComuns =[
+			((x+1)%n,(y-1)%m),
+			((x+1)%n,y),
+			((x+1)%n,(y+1)%m),	 			
+			((x-1)%n,(y+1)%m),	 			
+			((x-1)%n,(y-1)%m),
+			((x-1)%n,y),
+			(x,(y+1)%m),
+			(x,(y-1)%m)
+	]
+	if cord:
+		return vizinhosComuns	
+	return sum([matriz[item[0]][item[1]] for item in vizinhosComuns])
 
 def desenhaQuad(n,m,lista,figura):
 	dim = (n,m)
@@ -120,7 +88,8 @@ def desenhaQuad(n,m,lista,figura):
 	fig.tight_layout()
 	fig.savefig(figura, dpi = 300)	
 
-def simulaHex(n,m,lista,t):
+def simulaHexGenerica(n,m,lista,t,b,s):
+	vB , vS = [int(val) for val in b],[int(val) for val in s]
 	listOriginal = list(lista)
 	for t in range(t):
 		matriz = geraMatriz(n,m,listOriginal)
@@ -129,17 +98,15 @@ def simulaHex(n,m,lista,t):
 			VizinhosMortas = []	
 			#Células Sobreviventes
 			soma1 = calculaVizinhosH(cel,matriz,n,m)			
-			if soma1 == 2:
+			if any([soma1==s for s in vS]):
 				listaViva.append(cel)
 			#Células que vão nascer					
 			for cord in calculaVizinhosH(cel,matriz,n,m,cord=True):			
 				if matriz[cord[0]][cord[1]]!=1:					
 					VizinhosMortas.append([cord,calculaVizinhosH(cord,matriz,n,m)])
-			listaViva.extend([novaCel[0] for novaCel in VizinhosMortas if any([novaCel[1]==3,novaCel[1]==5])])			
-		listOriginal = list(set(listaViva))
-	return listOriginal
-			    		
-	
+			listaViva.extend([novaCel[0] for novaCel in VizinhosMortas if any(novaCel[1]==b for b in vB)])			
+		listOriginal = list(set(listaViva)) #Remove elementos duplicados
+	return listOriginal		    		
 
 def calculaVizinhosH(cel,matriz,n,m,cord=False):
 	'''
@@ -166,7 +133,6 @@ def calculaVizinhosH(cel,matriz,n,m,cord=False):
 		return vizinhos
 	return sum([matriz[item[0]][item[1]] for item in vizinhos])
 
-	
 def desenhaHex(n,m,lista,figura):	
 	#Variáveis Iniciais p/ Hexágono
 	vizinhos = []
@@ -177,29 +143,16 @@ def desenhaHex(n,m,lista,figura):
 	dx = 1.5 * hexagonRatio
 	#Matriz p/ grade hexagonal n x m
 	points_Y,points_X = (np.indices((n,m))+1)
-	
-				
 
 	#Cores
-
 	nColor = np.random.rand(3,1)
 	cor = [[0.9, 0.85 ,0.9] for x in range(n*m)]
 	auxC = np.arange(0,n*m,m)	
 	vizinhos = []
-
 	matriz = geraMatriz(n,m,lista)
-
-	'''
-	for x,y in lista:		
-		vizinhos.extend(calculaVizinhosH((x,y),matriz,n,m,cord=True))
-
-	for x,y in vizinhos:		
-		cor[auxC[x]+y] = nColor	
-	'''
 	for x,y in lista:
 		cor[auxC[x]+y] = [0.3, 0.9 ,0.3]
-	
-	
+
 	#Criação da lista de Patches com Hexágonos
 	for c, x, y in zip(cor, points_X.flat, points_Y.flat):
 		#Coordenada coluna Ímpar
@@ -234,8 +187,8 @@ def desenhaHex(n,m,lista,figura):
 					edgecolor = [0,0,0]			
 				)
 			)
-	#Configurando e salvando a figura
-	
+
+	#Configurando e salvando a figura	
 	fig = plt.figure(figsize=(4,3))
 	ax = fig.add_subplot(111)
 	pc = PatchCollection(patch_list, match_original=True)
@@ -248,8 +201,23 @@ def desenhaHex(n,m,lista,figura):
 	fig.tight_layout()
 	fig.savefig(figura, dpi = 300)
 
+def haRepeticoes(n,m,lista,t):
+	listOriginal = [list(lista)]
+	for i in range(t):
+		listOriginal.append(simulaQuadGenerica(n,m,listOriginal[i],1,"3","23"))
+	for padrao in listOriginal:
+		nLista = list(listOriginal)	
+		nLista.remove(padrao)	
+		if any((set(padrao) == set(confCel) for confCel in nLista)):
+			return True
+	return False
 
-
+	'''
+	for padrao in listOriginal:
+		if any((padrao == confCel for confCel in listOriginal)):
+			return True
+	return False
+	'''
 def leEntrada(nome):
 	with open(nome) as f:
 		content = [x.strip("\n") for x in f.readlines()]	
