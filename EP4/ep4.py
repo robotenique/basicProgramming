@@ -2,7 +2,8 @@ import matplotlib.pyplot as plt
 from matplotlib.patches import RegularPolygon
 from matplotlib.collections import PatchCollection
 import numpy as np
-import random as r 
+import random as r
+
 def main():
 	'''
 	-Função main() do programa
@@ -15,10 +16,10 @@ def main():
 	'''
 
 	#Dados Iniciais	
-	n = 20	
-	m = 20	
+	n = 4	
+	m = 5	
 	t = 7	
-	arquivo = "arquivo.txt"
+	arquivo = "arquivo2.txt"
 	
 	#Lê arquivo inicial
 	tipo, listaVivas = leEntrada(arquivo)	
@@ -29,11 +30,11 @@ def main():
 		#Regra padrão Quad : b="3" e s="23" (N3S23)
 		nova = simulaQuadGenerica(n,m,listaVivas,t,"3","23")
 		print("Há repetições = ",haRepeticoes(n,m,listaVivas,t))
-		desenhaQuad(n,m,nova,"fig1.png")
+		desenhaQuad(n,m,nova,"fig1")
 	elif tipo==1:
 		#Regra padrão Hex : b="35" e s="2" (N35S2)
 		nova = simulaHexGenerica(n,m,listaVivas,t,"35","2")		
-		desenhaHex(n,m,nova,"fig2.png")
+		desenhaHex(n,m,nova,"fig2")
 		
 def geraMatriz(n,m,listaVivas):	
 	'''
@@ -139,7 +140,7 @@ def desenhaQuad(n,m,lista,figura):
 	ax.set_yticklabels([])
 	ax.grid()	
 	fig.tight_layout()
-	fig.savefig(figura, dpi = 300)	
+	fig.savefig(figura+".png", dpi = 300)	
 
 def simulaHexGenerica(n,m,lista,t,b,s):
 	'''
@@ -161,7 +162,9 @@ def simulaHexGenerica(n,m,lista,t,b,s):
 	'''
 	vB , vS = [int(val) for val in b],[int(val) for val in s]
 	listOriginal = list(lista)
-	for t in range(t):
+	#Mais uma coluna se é ímpar!
+	m += (m%2!=0)
+	for t in range(t):			
 		matriz = geraMatriz(n,m,listOriginal)
 		listaViva = []
 		for cel in listOriginal:
@@ -187,23 +190,18 @@ def calculaVizinhosH(cel,matriz,n,m,cord=False):
 		I) Verifica se o número de colunas é ímpar
 		II) Se for ímpar, adiciona uma coluna a mais (a tal da ponte invisível)
 		III) Faz os calculos das coordenadas dos vizinhos da célula. Para a grid hexagonal,
-			esse cálculo é diferente se a célula em questão é par ou ímpar.
-		IV) Se o número de colunas é ímpar, ele remove os 'vizinhos' que estão na 'coluna invisivel'
+			esse cálculo é diferente se a célula em questão é par ou ímpar		
 	2. Retorna a soma dos vizinhos de uma determinada célula.
 
-	'''
-	isOdd = (m%2!=0)
-	m += isOdd
+	'''	
 	x,y = cel[0],cel[1]
 	if (y+1)%2==0:
 		vizinhos = [((x+1)%n,y),(x,(y+1)%m),((x-1)%n,(y+1)%m),((x-1)%n,y),((x-1)%n,(y-1)%m),(x,(y-1)%m)]	
 	else:
-		vizinhos = [((x+1)%n,(y+1)%m),((x+1)%n,y),((x+1)%n,(y-1)%m),(x,(y-1)%m),((x-1)%n,y),(x,(y+1)%m)]
-	if isOdd:
-		for cel in list(vizinhos):			
-			if cel[1]==(m-1):
-				vizinhos.remove(cel)
+		vizinhos = [((x+1)%n,(y+1)%m),((x+1)%n,y),((x+1)%n,(y-1)%m),(x,(y-1)%m),((x-1)%n,y),(x,(y+1)%m)]	
 	if cord:
+		print("CEL =(%d , %d)",x,y)
+		print(vizinhos)
 		return vizinhos
 	return sum([matriz[item[0]][item[1]] for item in vizinhos])
 
@@ -279,7 +277,7 @@ def desenhaHex(n,m,lista,figura):
 	#Configurando e salvando a figura	
 	fig = plt.figure(figsize=(4,3))
 	ax = fig.add_subplot(111)
-	pc = PatchCollection(patch_list, match_original=True)
+	pc = PatchCollection(patch_list, match_original=True) #Manter as cores originais
 	ax.add_collection(pc)
 	ax.set_xlim(0,cordI[0]+dx)
 	ax.set_ylim(-hexagonRatio,cordI[1]+3*apothem)
@@ -287,7 +285,7 @@ def desenhaHex(n,m,lista,figura):
 	ax.set_xticks(())
 	ax.set_yticks(())
 	fig.tight_layout()
-	fig.savefig(figura, dpi = 300)
+	fig.savefig(figura+".png", dpi = 300)
 
 def haRepeticoes(n,m,lista,t):
 	'''
