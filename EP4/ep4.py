@@ -1,3 +1,5 @@
+#.n Juliano Garcia de Oliveira
+#.u 9277086
 import matplotlib.pyplot as plt
 from matplotlib.patches import RegularPolygon
 from matplotlib.collections import PatchCollection
@@ -16,9 +18,9 @@ def main():
 	'''
 
 	#Dados Iniciais	
-	n = 4	
-	m = 5	
-	t = 7	
+	n = 9
+	m = 8
+	t = 0
 	arquivo = "arquivo2.txt"
 	
 	#Lê arquivo inicial
@@ -125,7 +127,8 @@ def desenhaQuad(n,m,lista,figura):
 
 	'''
 	dim = (n,m)
-	mImprime = np.zeros(dim)	
+	mImprime = np.zeros(dim)
+
 	for cel in lista:
 		mImprime[cel[0]][cel[1]] = r.randint(10,100) #Cores aleatórias, why not?	
 	mImprime = np.flipud(mImprime)
@@ -199,13 +202,11 @@ def calculaVizinhosH(cel,matriz,n,m,cord=False):
 		vizinhos = [((x+1)%n,y),(x,(y+1)%m),((x-1)%n,(y+1)%m),((x-1)%n,y),((x-1)%n,(y-1)%m),(x,(y-1)%m)]	
 	else:
 		vizinhos = [((x+1)%n,(y+1)%m),((x+1)%n,y),((x+1)%n,(y-1)%m),(x,(y-1)%m),((x-1)%n,y),(x,(y+1)%m)]	
-	if cord:
-		print("CEL =(%d , %d)",x,y)
-		print(vizinhos)
+	if cord:		
 		return vizinhos
 	return sum([matriz[item[0]][item[1]] for item in vizinhos])
 
-def desenhaHex(n,m,lista,figura):	
+def desenhaHex(n,m,lista,figura):
 	'''
 	-Função que gera uma grid hexagonal (n x m), e salva uma figura com 
 	 os valores passados através da 'lista'.
@@ -222,7 +223,11 @@ def desenhaHex(n,m,lista,figura):
 	  points_Y - Valores das coordenadas Y
 	  points_X - Valores das coordenadas X
 	'''	
-	
+	#Se for ímpar, remove todas as células vivas da coluna invisível!	
+	if m%2!=0:
+		for x,y in list(lista):
+			if y==m:
+				lista.remove((x,y))
 	patch_list = []
 	hexagonRatio = 5
 	indL,indC = 0 , 0	
@@ -231,14 +236,13 @@ def desenhaHex(n,m,lista,figura):
 	#Matriz p/ grade hexagonal n x m
 	points_Y,points_X = (np.indices((n,m))+1)
 
-	#Cores
-	nColor = np.random.rand(3,1)
+	#Cores	
 	cor = [[0.9, 0.85 ,0.9] for x in range(n*m)]
 	auxC = np.arange(0,n*m,m)	
 	matriz = geraMatriz(n,m,lista)
-	#As células vivas recebem a cor padrão VERDE!
+	#As células vivas recebem a cor RANDOM!
 	for x,y in lista:
-		cor[auxC[x]+y] = [0.3, 0.9 ,0.3]
+		cor[auxC[x]+y] = np.random.rand(3,1) #[0.3, 0.9 ,0.3]
 
 	#Criação da lista de Patches com Hexágonos
 	for c, x, y in zip(cor, points_X.flat, points_Y.flat):
