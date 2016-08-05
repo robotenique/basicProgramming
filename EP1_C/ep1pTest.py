@@ -1,10 +1,6 @@
-import time
 import sys
 
-
-
-from math import log2
-time1 = time.time()
+static const
 
 def main():	
 	mA = 0
