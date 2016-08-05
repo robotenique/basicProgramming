@@ -1,9 +1,5 @@
 # basicProgramming
-Basic and intermediate programming lessons are uploaded regularly right here. 
+Repository where I commit the EP's (Programming Exercises) I made, mostly. Sometimes, I add some random exercises in different programming languages... Feel free to check them out.
 
+For students, remember: http://www.ime.usp.br/~mac2166/plagio/ !
 =====================================================================================================================
-
-- DIfferent types of algorithms
-- Different programming languages
-- Programming Exercises
-- Lots of other random things!
