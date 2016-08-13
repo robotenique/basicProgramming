@@ -1,0 +1,43 @@
+100;5
+0;+3182;Ler um numero e salvar em [82] (numero a).
+1;+3181;Ler um numero e salvar em [81] (numero b).
+2;+1182;AC recebe a.
+3;+5307; Se a!=0, vai para [07].
+4;+1181;AC recebe b.
+5;+5312;Se b!=0, vai para o [12].
+6;+4160;Imprime [60] (+0000).
+7;+5409;Se AC>0, vai para o [09].
+8;+7000;Termina a execucao.
+9;+1181;AC recebe b.
+10;+5715;Se b>=0, vai para [15].
+11;+7000;Termina a execucao.
+12;+5611; Se b<0, vai para [11]
+13;+4181;Imprime b.
+14;+7000;Termina a execucao.
+15;+5517;Se AC==0, vai para [17].
+16;+5119;Desvia para [19].
+17;+4182;Imprime a.
+18;+7000;Termina a execucao.
+19;+1182;AC recebe a.
+20;+2281;AC recebe AC - b.
+21;+5623;Se AC<0, vai para [23].
+22;+5129;Desvia para [29].
+23;+1182;AC recebe a.
+24;+1270;[70] recebe a.
+25;+1181;AC recebe b.
+26;+1282;[82] recebe b.
+27;+1170;AC recebe a.
+28;+1281;b recebe a.
+29;+1181;AC recebe b.
+30;+5539;Se b==0, desvia para [39].
+31;+1182;AC recebe a.
+32;+1270;[70] recebe a.
+33;+1181;AC recebe b.
+34;+1282;a recebe b.
+35;+1170;AC recebe [70] (que esta com o valor antigo de a).
+36;+2581;AC recebe AC%b (resto de AC/b).
+37;+1281;b recebe AC.
+38;+5130;Desvia para [30].
+39;+4182;Imprime a.
+40;+7000;Termina a execucao.
+60;+0000;
