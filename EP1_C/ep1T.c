@@ -1,13 +1,13 @@
 #include <stdio.h> /* printf, scanf, NULL */
-#include <limits.h> /* Type Max and Min limits */
 #include <stdlib.h> /* malloc, free, rand */
-#include <math.h>   /* Max and Min Functions*/
-typedef long int intL;
- intL *numbersCalc;
 
-intL calcCollatz(intL n)
+
+typedef long int intL;
+intL *numbersCalc;
+
+int calcCollatz(int n)
 {
-	intL auxN = n;
+	int auxN = n;
 	int steps = 0;
 	while(1)
 	{
@@ -30,17 +30,24 @@ intL calcCollatz(intL n)
 
 int main()
 {	
-	intL begin = 0;
-	intL end = 0 ;
-	intL step = 0;
+	int begin = 0;
+	int end = 0 ;
+	int step = 0;
 	intL index = 0;
 	intL i = 0;	
-	int size;
+	intL size;
 	
-	
-	scanf("%ld %ld",&begin,&end);
-	size = labs(end-begin) * sizeof(numbersCalc[0]);
-	numbersCalc = malloc(size);	
+	/* É garantido que:
+	    - begin >  0;
+	    - end   >= begin;
+	    - begin e end são inteiros.
+	*/
+
+	/* Versão 1 - Os índices vão de {0,1,2,...,end} endereços */
+	scanf("%d %d",&begin,&end);
+	size = end * sizeof(numbersCalc[0]);
+	printf("%ld\n",size);
+	numbersCalc = malloc(size);
 	if (numbersCalc == NULL)	
 		printf("Alert: Failure in memory allocation, the processing time can increase drastically.\n");	
 	numbersCalc[1] = 1;
@@ -49,13 +56,10 @@ int main()
 			printf("I = %ld\n",i );
 			index ++;
 			step = numbersCalc[index] = calcCollatz(i);
-			printf("%ld\n",step );
+			/*printf("%d\n",step );*/
 		}	
 	printf("%ld\n",sizeof(numbersCalc)/sizeof(numbersCalc[0]));
 
-
-	   printf("The minimum value of LONG = %ld\n", LONG_MIN);
-	   printf("The maximum value of LONG = %ld\n", LONG_MAX);
 
 	/* Main process */
 	/* 
