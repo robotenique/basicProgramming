@@ -1,14 +1,14 @@
 #include <stdio.h> /* printf, scanf, NULL */
 #include <stdlib.h> /* malloc, free, rand */
 
-
+/* Mudar nome das variaveis */
 typedef long int intL;
-intL *numbersCalc;
+int *numbersCalc;
 
 int calcCollatz(int n)
 {
 	int auxN = n;
-	int steps = 0;
+	int steps = 1;
 	while(1)
 	{
 		if(auxN%2!=0)
@@ -46,20 +46,23 @@ int main()
 	/* Versão 1 - Os índices vão de {0,1,2,...,end} endereços */
 	scanf("%d %d",&begin,&end);
 	size = end * sizeof(numbersCalc[0]);
-	printf("%ld\n",size);
+	printf("%ld\n",size );
 	numbersCalc = malloc(size);
 	if (numbersCalc == NULL)	
 		printf("Alert: Failure in memory allocation, the processing time can increase drastically.\n");	
 	numbersCalc[1] = 1;
-	for (i = begin; i <= end; i++)
-		{
-			printf("I = %ld\n",i );
-			index ++;
-			step = numbersCalc[index] = calcCollatz(i);
-			/*printf("%d\n",step );*/
-		}	
-	printf("%ld\n",sizeof(numbersCalc)/sizeof(numbersCalc[0]));
+	for (i = 2; i <= end; i++){
+		numbersCalc[i] = calcCollatz(i);		
+		/*printf("colz(%ld) = %d\n", i,numbersCalc[i]-1 );*/
+	}
+	printf("FIM\n");
 
+	/*
+	for (i = begin; i <=end; i++)
+	{
+		printf("%ld\n", numbersCalc[i]-1 );
+	}
+	*/
 
 	/* Main process */
 	/* 

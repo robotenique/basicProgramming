@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <inttypes.h>
 
-#define DEFAULT_MAXNUM  100000000
+#define DEFAULT_MAXNUM  1000000
 
 static uint16_t *result;
 
@@ -39,16 +39,19 @@ int main(int argc, char *argv[])
     }
 
     result[1] = 1;
-    for(i=2; i<maxNum; i++) {
+    for(i=2; i<=maxNum; i++) {
         count = result[i] = collatz(i);
+        printf("colz(%" PRIu64 ") = %d\n", i,(count-1) );
         if (count > bestCount) {
             bestCount = count;
             bestNum   = i;
         }
     }
-
+    
     printf("Max considered: %" PRIu64 "\n", maxNum);
+    /*
     printf("Largest number: %" PRIu64 "\n", bestNum);
     printf("Largest count : %d\n", bestCount);
+    */
     return 0;
 }
