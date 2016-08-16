@@ -3,13 +3,15 @@
 
 /* Mudar nome das variaveis 2147483647 1000000 */
 
-typedef ulint
+typedef unsigned long int uLint;
+typedef unsigned short int uSint;
+typedef unsigned int uInt;
 static unsigned short int *numbersCalc;
 
-unsigned short int calcCollatz(int n)
+uSint calcCollatz(uInt n)
 {
-	unsigned long int auxN = n;
-	unsigned short int steps = 1;
+	uLint auxN = n;
+	uSint steps = 1;
 	
 	while(1)
 	{		
@@ -32,9 +34,9 @@ unsigned short int calcCollatz(int n)
 
 int main()
 {	
-	unsigned int begin = 0;
-	unsigned int end = 0 ;
-	unsigned int i = 0;	
+	uInt begin = 0;
+	uInt end = 0 ;
+	uInt i = 0;	
 	
 	/* É garantido que:
 	    - begin >  0;
@@ -57,7 +59,10 @@ int main()
 	}
 	for (i = begin; i <= end; i++){		
 		numbersCalc[i] = calcCollatz(i);		
-		
+		if (i==2147483647)
+		{
+			printf("PRINTANDO %hu\n",numbersCalc[i] );
+		}
 		/*if (i>=begin)
 			printf("colz(%u) = %hu\n", i,numbersCalc[i] );
 		*/
