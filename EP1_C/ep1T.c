@@ -3,12 +3,12 @@
 
 /* Mudar nome das variaveis 2147483647 1000000 */
 
-typedef long int intL;
+typedef ulint
 static unsigned short int *numbersCalc;
 
 unsigned short int calcCollatz(int n)
 {
-	unsigned int auxN = n;
+	unsigned long int auxN = n;
 	unsigned short int steps = 1;
 	
 	while(1)
@@ -62,7 +62,7 @@ int main()
 			printf("colz(%u) = %hu\n", i,numbersCalc[i] );
 		*/
 	}
-	free(numbersCalc)
+	free(numbersCalc);
 	
 
 	return 0;
