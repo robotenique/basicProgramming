@@ -3,12 +3,12 @@
 
 /* Mudar nome das variaveis */
 typedef long int intL;
-int *numbersCalc;
+static unsigned short int *numbersCalc;
 
-int calcCollatz(int n)
+unsigned short int calcCollatz(int n)
 {
-	int auxN = n;
-	int steps = 1;
+	unsigned int auxN = n;
+	unsigned short int steps = 1;
 	while(1)
 	{
 		if(auxN%2!=0)
@@ -17,7 +17,7 @@ int calcCollatz(int n)
 		}
 		else
 		{
-			auxN /= 2;
+			auxN = auxN >> 1;
 			if (auxN < n)			
 				return steps + numbersCalc[auxN];			
 		}
@@ -30,12 +30,9 @@ int calcCollatz(int n)
 
 int main()
 {	
-	int begin = 0;
-	int end = 0 ;
-	int step = 0;
-	intL index = 0;
-	intL i = 0;	
-	intL size;
+	unsigned int begin = 0;
+	unsigned int end = 0 ;
+	unsigned int i = 0;	
 	
 	/* É garantido que:
 	    - begin >  0;
@@ -44,57 +41,17 @@ int main()
 	*/
 
 	/* Versão 1 - Os índices vão de {0,1,2,...,end} endereços */
-	scanf("%d %d",&begin,&end);
-	size = end * sizeof(numbersCalc[0]);
-	printf("%ld\n",size );
-	numbersCalc = malloc(size);
+	scanf("%u %u",&begin,&end);
+	numbersCalc = malloc(end * sizeof(numbersCalc[0]));	
 	if (numbersCalc == NULL)	
 		printf("Alert: Failure in memory allocation, the processing time can increase drastically.\n");	
 	numbersCalc[1] = 1;
-	for (i = 2; i <= end; i++){
+	for (i = 2; i <= end; i++){		
 		numbersCalc[i] = calcCollatz(i);		
-		/*printf("colz(%ld) = %d\n", i,numbersCalc[i]-1 );*/
+		if (i>=begin)
+			printf("colz(%u) = %hu\n", i,numbersCalc[i]-1 );
 	}
-	printf("FIM\n");
 
-	/*
-	for (i = begin; i <=end; i++)
-	{
-		printf("%ld\n", numbersCalc[i]-1 );
-	}
-	*/
-
-	/* Main process */
-	/* 
-	gcc -Wall -Wextra -std=c99 -O4 -o ep1 ep1T.c -Ofast -fwhole-program
-	*/
-
-
-	/*
-	for (long long int i = 1; i < 55555555; i++)	
-		{
-		//printf("i = %llu ,  %llu\n",i,colz(i));
-		recColz(i);		
-		//colz(i);
-		}
-	*/
 	return 0;
 }
 
-/*
-
-long long int colz(long long int n);
-long long int recColz(long long int n);
-
-long long int recColz(long long int n)
-{	
-
-	if(n==1)
-		return 0;
-    if(n%2==0)
-        return (1+recColz(n/2));
-    else
-        return (1+recColz(3*n+1));	
-
-}
-*/
