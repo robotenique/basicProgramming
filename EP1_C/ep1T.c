@@ -1,7 +1,10 @@
 #include <stdio.h> /* printf, scanf, NULL */
 #include <stdlib.h> /* malloc, free, rand */
 
-/* Mudar nome das variaveis 2147483647 1000000 */
+/* Mudar nome das variaveis 2147483647 1000000 
+t1 = 51.70s
+t2 = 
+*/
 
 typedef unsigned long int uLint;
 typedef unsigned short int uSint;
@@ -10,22 +13,26 @@ static unsigned short int *numbersCalc;
 
 uSint calcCollatz(uInt n)
 {
+	/* uLint auxN = n; */
 	uLint auxN = n;
 	uSint steps = 1;
 	
 	while(1)
-	{		
+	{	
 		if(auxN%2!=0)
 		{
-			auxN = 3*auxN + 1;
+			auxN = (3*auxN + 1)/2;
+			steps += 2;
 		}
 		else
 		{
-			auxN = auxN >> 1;
+			auxN >>= 1;
 			if (auxN < n)			
-				return steps + numbersCalc[auxN];			
+				return steps + numbersCalc[auxN];
+			steps += 1;			
 		}
-		steps += 1;
+		
+	
 	}
 }
 
@@ -37,6 +44,9 @@ int main()
 	uInt begin = 0;
 	uInt end = 0 ;
 	uInt i = 0;	
+	
+	uInt p = 0;
+	uInt j = 1000000000;
 	
 	/* É garantido que:
 	    - begin >  0;
@@ -57,16 +67,29 @@ int main()
 		printf("0\n");
 		begin ++;
 	}
-	for (i = begin; i <= end; i++){		
-		numbersCalc[i] = calcCollatz(i);		
-		if (i==2147483647)
-		{
-			printf("PRINTANDO %hu\n",numbersCalc[i] );
-		}
-		/*if (i>=begin)
+	/*
+	for (i = 2; i <= end; i++){		
+		numbersCalc[i] = calcCollatz(i);
+		if (i>=begin)
 			printf("colz(%u) = %hu\n", i,numbersCalc[i] );
-		*/
+		
+	}*/
+
+	 /* TEST WITH 1Bi */
+	
+	while(j!=1){		
+		while (j%2!=0)	{		
+			j = (3*j + 1)/2;
+			p+=2;
+		}
+		while (j%2==0)	{		
+			j >>= 1;
+			p += 1;
+		}
 	}
+	printf("JOTA = %u \n",p);
+
+
 	free(numbersCalc);
 	
 
