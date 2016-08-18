@@ -1,6 +1,6 @@
 #include <stdio.h> /* printf, scanf, NULL */
 #include <stdlib.h> /* malloc, free, rand */
-
+#define MAX_ALLOC 1500000000
 /* Mudar nome das variaveis 2147483647 1000000 
 
 */
@@ -8,11 +8,13 @@
 typedef unsigned long int uLint;
 typedef unsigned short int uSint;
 typedef unsigned int uInt;
-static unsigned short int *numbersCalc;
+static uSint *numbersCalc;
+
+
 
 uSint calcCollatz(uInt n)
 {
-	/* uLint auxN = n; */
+	
 	uLint auxN = n;
 	uSint steps = 1;
 	
@@ -40,6 +42,7 @@ uSint calcCollatz(uInt n)
 
 
 
+
 int main()
 {	
 	uInt begin = 0;
@@ -53,6 +56,7 @@ int main()
 	    - begin e end são inteiros.
 	*/
 
+	
 	scanf("%u %u",&begin,&end);
 	numbersCalc = calloc(end,sizeof(numbersCalc[0]));	
 	if (numbersCalc == NULL) {
@@ -67,12 +71,21 @@ int main()
 	}
 	for (i = 2; i <=end; i++){
 		numbersCalc[i] = calcCollatz(i);
+		
+		
 		if(i>=begin)
-			printf("colz(%u) = %hu\n", i,(numbersCalc[i]-1) );
+			printf("colz(%u) = %hu\n", i,numbersCalc[i]-1 );
+			
 	}
 	
 
-	 /* No need to free() as the program is terminated at this point */
+	 /* No need to free() as the program is terminated at this point 
+	
+		if(i>=begin)
+			printf("colz(%u) = %hu\n", i,(numbersCalc[i]-1) );
+			
+
+	 */
 	
 	
 
