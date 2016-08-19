@@ -1,9 +1,17 @@
 import sys
 
 def main():	
-	maxVal = 23
+	maxVal = 10000
+	par = 0
+	impar = 0
 	for n in range(2,maxVal+1):
-		print("Colz(",n,") = ",colz(n))
+		if(colz(n)%2==0):
+			par += 1
+		else:
+			impar += 1
+
+	print("IMPAR = ",impar)
+	print("PAR = ",par)
 
 
 '''
