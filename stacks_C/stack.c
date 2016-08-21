@@ -1,4 +1,7 @@
-/* Stack data structure definition */
+/* Stack data structure definition
+ * basic usage: gcc -o stk file.c stack.c  -Wall -ansi -pedantic -O2
+ *
+ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -27,7 +30,7 @@ void reallocStack(stack *s)
 	int newMax = s -> max * 1.2;
 	int i;
 	int * w;
-
+	printf("Reallocation in progress...\n");
 	w = malloc(newMax * sizeof(int));
 	for (i = 0; i < s -> max; i++)
 		w[i] = s -> v[i];

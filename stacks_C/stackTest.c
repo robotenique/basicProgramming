@@ -8,10 +8,20 @@ int main(int argc, char const *argv[])
 	int i;
 
 	p = newStack(10);
-	for (i = 10; i > 0; i --)	
+	/* Pushing elements into Stack */
+	for (i = 0; i < 10; i ++)	
 		push(p,i);
-	for (i = 0; i < p -> top; i ++)
+	
+	printf("isEmpty? %d\n",isEmpty(*p));
+
+	push(p,123);
+
+	/* Popping elements from stack */
+	for (i = 0; i < p -> max; i ++)	
 		printf("%d\n",pop(p));
+
+	printf("isEmpty? %d\n",isEmpty(*p));
+
 	
 	return 0;
 }
