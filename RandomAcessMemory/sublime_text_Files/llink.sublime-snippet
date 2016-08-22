@@ -1,0 +1,12 @@
+<snippet>
+	<content><![CDATA[
+<li class="list-group-item">&#8594;
+	<a href="$1">
+		$2
+	</a> 
+	- $3
+</li>
+]]></content>
+	<tabTrigger>llink</tabTrigger>
+	<scope>text.html</scope> 
+</snippet>
