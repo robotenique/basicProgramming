@@ -8,7 +8,7 @@
 #include <stdlib.h> /* malloc, free, rand */
 
 /* Definindo constantes de alocação máxima de memória */ 
-#define MAX_ALLOC 600000000
+#define MAX_ALLOC 300000000
 #define DESVIO     10000001
 
 typedef unsigned long  int uLint;
@@ -109,7 +109,7 @@ int main()
       if (i > DESVIO && (i - begin) < MAX_ALLOC) {
         dynamicAloc[i-begin] = steps;
       }
-      printf("%hu\n",steps);
+    /*printf("%hu\n",steps);*/
       
     }
     /* Como o programa é terminado nesse exato momento, toda memória alocada é
