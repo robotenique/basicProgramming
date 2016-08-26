@@ -4,7 +4,7 @@
 typedef struct 
 {
 	/*Int type stack */
-	char *v;
+	int *v;
 	int top;
 	int max;
 } stack;
@@ -12,7 +12,7 @@ typedef struct
 stack * newStack (int max);
 int isEmpty (stack s);
 void reallocStack(stack *s);
-void push (stack *s, char n);
-char pop (stack  *s);
+void push (stack *s, int n);
+int pop (stack  *s);
 
 #endif
