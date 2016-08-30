@@ -25,7 +25,7 @@
 
  int isSymmetric (char *s)
  {
- 	int i,j,k,ok;
+ 	int i,j,ok;
  	stack *wList;
  	
  	i = 0;
@@ -37,7 +37,7 @@
  	while (s[i]!='\0')		
  		i++; 
  	if (j != i-1-j) { 		
- 		return NULL;
+ 		return 1;
  	}
  	i = 0;
  	wList = newStack(j);
