@@ -14,9 +14,9 @@
  	char *s;
  	int n;
  	printf("Length: "); 
- 	scanf("%d ",&n); 	
+ 	scanf("%d ",&n);	
  	s = malloc(n * sizeof(char)); 	
- 	fgets(s,n+1,stdin); 	
+ 	fgets(s,n+1,stdin); 
  	printf("\nString ='%s'\n",s );
  	sepWord(s,n);
 

@@ -10,7 +10,7 @@ typedef struct
 typedef struct 
 {
 	/*Int type stack */
-	pair *v;
+	int *v;
 	int top;
 	int max;
 } stack;
@@ -18,7 +18,7 @@ typedef struct
 stack * newStack (int max);
 int isEmpty (stack s);
 void reallocStack(stack *s);
-void push (stack *s, pair n);
-pair pop (stack  *s);
+void push (stack *s, int n);
+int pop (stack  *s);
 
 #endif

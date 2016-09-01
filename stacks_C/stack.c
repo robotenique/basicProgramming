@@ -11,9 +11,9 @@
 
 stack * newStack (int max)
 {
-	stack *s;	
+	stack *s;		
 	s = malloc(sizeof(stack));
-	s -> v    = malloc(max*sizeof(pair));
+	s -> v    = malloc(max*sizeof(int));
 	s -> top = 0;
 	s -> max = max;
 	return s;
@@ -29,16 +29,16 @@ void reallocStack(stack *s)
 	/*Increase the max in 20% */
 	int newMax = s -> max * 1.2;
 	int i;
-	pair * w;
+	int * w;
 	printf("Reallocation in progress...\n");
-	w = malloc(newMax * sizeof(pair));
+	w = malloc(newMax * sizeof(int));
 	for (i = 0; i < s -> max; i++)
 		w[i] = s -> v[i];
 	free(s -> v);
 	s -> v = w;
 }
 
-void push (stack *s, pair n)
+void push (stack *s, int n)
 {
 	if (s -> top == s -> max)
 		reallocStack(s);
@@ -46,10 +46,10 @@ void push (stack *s, pair n)
 	(s -> top)++;
 }
 
-pair pop (stack  *s)
+int pop (stack  *s)
 {
 	/*All checks must be made in the implementation */
-	pair n;
+	int n;
 	n = s -> v[s -> top - 1];
 	(s -> top)--;
 	return n;
