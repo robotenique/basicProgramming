@@ -19,6 +19,6 @@ read    LDBU        ch,ad,c
         ADDU        n,n,ch
         ADDU        c,c,1
         JMP         read
-        
+
 finish  OR          rA,n,0
         RET         1

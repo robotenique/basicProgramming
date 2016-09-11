@@ -3,10 +3,21 @@ c           IS          $0
 spc         IS          $1
 n           IS          $2
 words       IS          $3
+col         IS          $4
 s           IS          $20
+
 main        XOR         c,c,c           *c = 0
             XOR         n,n,n
             XOR         s,s,s
+
+            SUBU        rX,rSP,16
+            LDOU        rX,rX,0
+            SAVE        rSP,c,s
+            PUSH        rX
+            CALL        readnum
+            REST        rSP,c,s
+            OR          col,rA,0
+
             OR          words,rSP,0
             SETW        rX,1
 start       INT         #80
