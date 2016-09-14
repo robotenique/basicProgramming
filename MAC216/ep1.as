@@ -16,13 +16,14 @@ main        XOR         c,c,c           *c = 0
             PUSH        rX
             CALL        readnum
             REST        rSP,c,s
+            OR          col,rA,0
 
 
             OR          words,rSP,0
             SETW        rX,1
 start       INT         #80
 
-limbo       JN          rA,word_count
+limbo       JN          rA,just_word
             CALL        isSpace
             JNZ         spc,start       *If the char is space, go back to start
             PUSH        c
@@ -43,24 +44,44 @@ finish_w    XOR         rY,rY,rY
             ADDU        c,c,1
             ADDU        n,n,1
             JMP         limbo
-            cont2       XOR         s,s,s
 
 *--------------CALLING WORD COUNT------------------------
 *Calcula o tamanho de todas as palavras do texto
-ctz         IS          $7
-word_count  XOR         ctz,ctz,ctz
-pi          LDOU        s,words,ctz
-            SAVE        rSP,c,col
-            PUSH        s
-            CALL        len_word
-            REST        rSP,c,col
-            OR          lenW,rA,0       *lenW recebe o length
-            ADDU        ctz,ctz,8
-            ADDU        s,words,ctz
-            CMPU        s,s,rSP
-            JZ          s,print_words
-            JMP         pi
-*------------FIM WORD COUNT---------------------------
+*ctz         IS          $7
+*word_count  XOR         ctz,ctz,ctz
+*pi          LDOU        s,words,ctz
+*            SAVE        rSP,c,col
+*            PUSH        s
+*            CALL        len_word
+*            REST        rSP,c,col
+*            OR          lenW,rA,0       *lenW recebe o length
+*            ADDU        ctz,ctz,8
+*            ADDU        s,words,ctz
+*            CMPU        s,s,rSP
+*            JZ          s,print_words
+*            JMP         pi
+*------------FIM WORD COUNT-----------------------------
+
+*------------------justify word-------------------------
+just_word   SAVE        rSP,c,s
+            PUSH        n            
+            PUSH        words
+            PUSH        col
+            CALL        justify
+            REST        rSP,c,s
+            JMP         print_words
+
+
+
+
+
+
+
+
+
+
+
+
 print_words XOR         s,s,s
             SETW        rX,2        *Print a "\n"
             SETW        rY,10
@@ -80,6 +101,7 @@ cont        SETW        rX,2        *Print a "\n"
             JMP         print_loop
 end         INT         0
 
+*------------------Sub-rotina isSpace--------------------
 isSpace     CMPU        rY,rA,10
             JZ          rY,space
             CMPU        rY,rA,32
@@ -92,19 +114,3 @@ isSpace     CMPU        rY,rA,10
             RET         0
 space       SETW        spc,1
             RET         0
-
-*Sub-rotina len_word : ARGS:  1 -(rSP-16) Endereço do primeiro char da palavra
-*                      RETURN:1 -(rA)     Tamanho da palavra
-iAddr       IS          $0
-cmpr        IS          $1
-i           IS          $2
-len_word    SUBU        iAddr,rSP,16
-            LDOU        iAddr,iAddr,0
-            XOR         i,i,i
-l_loop      LDBU        cmpr,iAddr,0
-            JZ          cmpr,end2
-            ADDU        i,i,1
-            ADDU        iAddr,iAddr,1
-            JMP         l_loop
-end2        OR          rA,i,0
-            RET         1
