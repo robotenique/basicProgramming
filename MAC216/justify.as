@@ -52,12 +52,14 @@ single_line SAVE        rSP,n,cN
 n_t         IS          $10          *Nº total de palavras
 tc_l        IS          $11          *Total de caracteres de -> palavras <-
 col_l       IS          $12          *Colunas 
-cAddr_l     IS          $13          *Endereço da palavra atual
+cAddr_l     IS          $13          *Endereço da primeira palavra da linha
 cN_l        IS          $14          *Nª da palavra atual
 words_l     IS          $15          *Posição -> do stack <- que contém end. da palavra atual
 cStk_l      IS          $16          *Posição -> do stack <-que contém end. da primeira palavra da linha
 n_l         IS          $17          *Nº de palavras na linha
 tc_lTemp    IS          $18          *Nª total de caracteres da linha
+aux         IS          $190         *Var. Auxiliar
+
 
 normal_line XOR         tc_lTemp,tc_lTemp,tc_lTemp
             OR          n_t,n,0
@@ -70,15 +72,15 @@ normal_line XOR         tc_lTemp,tc_lTemp,tc_lTemp
             OR          rX,cAddr_l,0  *private - import : rX é o ponteiro p/ o end. da palavra atual!!
             SETW        n_l,1
             
-       
+nl_loop     CMPU        rY,cN_l,n_t         *Se o nº da palavra atual > n total de palavras, vai para imprimir linha sem justificar            
+            JZ          rY,last_line
+            JP          rY,last_line            
 
-nl_loop     CMPU        rY,cN_l,n_t         *Se o nº da palavra atual > n total de palavras, vai para imprimir linha sem justificar
-            JP          rY,end_nl
             CMPU        rY,tc_lTemp,col_l
             JZ          rY,complete_nl      
-            JP          rY,spcAlg_nl           *do: Desempilha a última palavra e manda para distribuir espaços (->j_loop)
+            JP          rY,spcAlg_nl           
             ADDU        words_l,words_l,8
-            LDOU        rX,words_l,0                *rX recebe end. da proxima palavra
+            LDOU        rX,words_l,0            *rX recebe end. da proxima palavra
            
            
             
@@ -96,7 +98,6 @@ nl_loop     CMPU        rY,cN_l,n_t         *Se o nº da palavra atual > n total
 
 *------------------desvio complete_nl --------------------
 *Imprime a linha com um espaço entre palavras
-aux         IS          $190         *Var. Auxiliar
 complete_nl XOR         aux,aux,aux
 cl_loop     OR          rY,n_l,0            
             CMPU        rY,rY,aux
@@ -120,20 +121,24 @@ cl_write    ADDU        aux,aux,1
             CMPU        rY,n_l,aux
             JZ          rY,cl_loop 
             SETW        rX,2
-            SETW        rY,32
+            SETW        rY,95
             INT         #80
             JMP         cl_loop        
 
 *------------------desvio spcAlg_nl  ---------------------
-*'Desempilha' a última palavra, justifica a linha e imprime
-spcO        IS          $16         *Espaços originais da linha
-quoc        IS          $17         *Armazena o coeficiente da divisão
-spcR        IS          $190        *Espaços que precisam ser distribuidos
-spcAlg_nl   ADDU        cN,cN,n_l
+*'Desempilha' a última palavra, justifica e imprime a linha
+temp        IS          $185         *Variável auxiliar (para loops)
+spcAt       IS          $186         *Espaço atual da linha
+spcO        IS          $187         *Espaços originais da linha
+quoc        IS          $188         *Armazena o coeficiente da divisão
+spcR        IS          $189         *Espaços que precisam ser distribuidos
+spcAlg_nl   SUBU        rY,n_l,1
+            ADDU        cN,cN,rY
             OR          cAddr,rX,0
             ADDU        words,words_l,0
             OR          n,n_t,0
-            OR          col,col_l,0            
+            OR          col,col_l,0
+            SAVE        rSP,n,aux 
             SUBU        n_l,n_l,1
             SUBU        tc_l,tc_l,rA
             SUBU        spcO,n_l,1
@@ -141,10 +146,33 @@ spcAlg_nl   ADDU        cN,cN,n_l
             ADDU        spcR,spcR,tc_l
             SUBU        spcR,col_l,spcR
             XOR         aux,aux,aux
+            XOR         spcAt,spcAt,spcAt
+            XOR         temp,temp,temp
             
-            JZ          spcO,end_nl      *do do do : VERIFICAR CASO QUANDO spcO == 0 (significa que n_l == 1)
+            JZ          spcO,spc_single      *Se n_l == 1, imprime a palavra
             
-            DIVU        q,spcR,spcO
+            DIVU        quoc,spcR,spcO
+            
+spc_loop    OR          rY,n_l,0            
+            CMPU        rY,rY,aux
+            JP          rY,spc_write             
+            SETW        rX,2
+            SETW        rY,10
+            INT         #80
+            REST        rSP,n,aux
+            JMP         j_loop
+
+spc_single  SAVE        rSP,n_t,aux
+            PUSH        cAddr_l
+            CALL        puts
+            REST        rSP,n_t,aux
+            SETW        rX,2
+            SETW        rY,10
+            INT         #80
+            REST        rSP,n,aux
+            JMP         j_loop
+           
+
 spc_write   ADDU        aux,aux,1
             SAVE        rSP,n_t,aux
             PUSH        cAddr_l
@@ -152,16 +180,58 @@ spc_write   ADDU        aux,aux,1
             REST        rSP,n_t,aux
             ADDU        cStk_l,cStk_l,8
             LDOU        cAddr_l,cStk_l,0
-            CMPU        rY,n_l,aux
-            JZ          rY,cl_loop 
-            SETW        rX,2
-            SETW        rY,32
+            CMPU        rY,n_l,aux      *Se for a última palavra, volta para spc_loop
+            JZ          rY,spc_loop
+            ADDU        spcAt,spcAt,1
+            ADDU        rZ,quoc,1
+            XOR         temp,temp,temp
+q_spc       CMPU        rY,rZ,temp      *q_spc: imprime (quoc + 1) espaços.
+            JP          rY,qLoop_spc
+            JMP         r_spc      
+qLoop_spc   SETW        rX,2
+            SETW        rY,95
             INT         #80
-            JMP         cl_loop
+            ADDU        temp,temp,1
+            JMP         q_spc            
+r_spc       SUBU        rY,n_l,rR       *Se (n_l - rR) <= spcAt ,  imprime 1 espaço.            
+            CMPU        rY,rY,spcAt
+            JNP         rY,rWrite_spc
+            JMP         spc_loop
+rWrite_spc  SETW        rX,2
+            SETW        rY,95
+            INT         #80
+            JMP         spc_loop
 
 
 
-
+*------------------desvio last_line  ---------------------
+*Imprime a última linha sem justificar, com um espaço entre palavras
+last_line   SETW        aux,1
+ll_loop     OR          rY,n_l,0            
+            CMPU        rY,rY,aux
+            JP          rY,ll_write 
+            SETW        rX,2
+            SETW        rY,10
+            INT         #80           
+            ADDU        cN,cN,n_l
+            OR          cAddr,cAddr_l,0
+            ADDU        words,words_l,8 
+            OR          n,n_t,0
+            OR          col,col_l,0
+            JMP         j_loop
+ll_write    ADDU        aux,aux,1
+            SAVE        rSP,n_t,aux
+            PUSH        cAddr_l
+            CALL        puts
+            REST        rSP,n_t,aux
+            ADDU        cStk_l,cStk_l,8
+            LDOU        cAddr_l,cStk_l,0
+            CMPU        rY,n_l,aux
+            JZ          rY,ll_loop 
+            SETW        rX,2
+            SETW        rY,95
+            INT         #80
+            JMP         ll_loop        
 end_nl      RET 0
 
 
