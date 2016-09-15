@@ -1,13 +1,15 @@
             EXTERN      justify
-n           IS          $0      *Número de palavras total
-words       IS          $1      *Posição -> do stack <- que contém end. da palavra atual
-col         IS          $2      *Quantidade de colunas
-l           IS          $3      *Tamanho da palavra
+cN          IS          $7      *Número da palavra atual
+l           IS          $3      *Tamanho da palavra atual
 cAddr       IS          $4      *Endereço da palavra atual
-inL         IS          $5      *Endereço anterior
+words       IS          $1      *Posição -> do stack <- que contém end. da palavra atual
 inAdrr      IS          $6      *Posição -> do stack <- que contém end. da palavra inicial
-cN          IS          $7      *Tamanho da palavra atual
-justify     SUBU        rY,rSP,32
+n           IS          $0      *Número de palavras total
+col         IS          $2      *Quantidade de colunas
+aux         IS          $190         *Var. Auxiliar
+
+
+justify     SUBU        rY,rSP,32       *Inicializa as variáveis
             LDOU        n,rY,0
             LDOU        words,rY,8
             LDOU        col,rY,16
@@ -15,38 +17,35 @@ justify     SUBU        rY,rSP,32
             OR          inAdrr,words,0
             LDOU        cAddr,words,0
 
-j_loop      CMPU        rY,cN,n         *Se o nº da palavra atual > n total de palavras, vai para finish_text
+j_loop      CMPU        rY,cN,n         *Se (cN > n) -> finish_text
             JP          rY,finish_text
-            SAVE        rSP,n,cN        *Calcula len('palavra') e coloca em 'l'
+            SAVE        rSP,n,aux        *l <- tamanho(palavra)
             PUSH        cAddr
             CALL        len_word
-            REST        rSP,n,cN
+            REST        rSP,n,aux
             OR          l,rA,0
 
-            CMPU        rY,l,col        *Se len('palavra') > col , chama single_line
-            JP          rY,single_line
-            
-            CALL        normal_line
-finish_text INT         0
+            CMPU        rY,l,col        *Se l > col -> single_line
+            JP          rY,single_line            
+            JMP        normal_line      *Se l <= col -> normal_line
 
-
-            RET         0
+finish_text RET         0
 
 
 
 *------------------desvio single_line --------------------
 *Imprime uma única palavra + '\n'
-single_line SAVE        rSP,n,cN
+single_line SAVE        rSP,n,aux     *Imprime palavra
             PUSH        cAddr
             CALL        puts
-            REST        rSP,n,cN
-            SETW        rX,2
+            REST        rSP,n,aux
+            SETW        rX,2            *Imprime '\n'
             SETW        rY,10
             INT         #80
-            ADDU        cN,cN,1     *cN++
+            ADDU        cN,cN,1         
             LDOU        cAddr,words,8
             ADDU        words,words,8
-            JMP         j_loop
+            JMP         j_loop          *Volta p/ j_loop
 
 *------------------Sub-rotina normal_line -----------------
 n_t         IS          $10          *Nº total de palavras
@@ -58,7 +57,6 @@ words_l     IS          $15          *Posição -> do stack <- que contém end. 
 cStk_l      IS          $16          *Posição -> do stack <-que contém end. da primeira palavra da linha
 n_l         IS          $17          *Nº de palavras na linha
 tc_lTemp    IS          $18          *Nª total de caracteres da linha
-aux         IS          $190         *Var. Auxiliar
 
 
 normal_line XOR         tc_lTemp,tc_lTemp,tc_lTemp
@@ -85,10 +83,10 @@ nl_loop     CMPU        rY,cN_l,n_t         *Se o nº da palavra atual > n total
            
             
 
-            SAVE        rSP,n_t,tc_lTemp        *Calcula len('palavra') e coloca em 'rA'
+            SAVE        rSP,n,aux        *Calcula len('palavra') e coloca em 'rA'
             PUSH        rX
             CALL        len_word
-            REST        rSP,n_t,tc_lTemp
+            REST        rSP,n,aux
             ADDU        tc_l,tc_l,rA
             OR          rY,n_l,0
             ADDU        n_l,n_l,1
@@ -112,16 +110,16 @@ cl_loop     OR          rY,n_l,0
             OR          col,col_l,0
             JMP         j_loop
 cl_write    ADDU        aux,aux,1
-            SAVE        rSP,n_t,aux
+            SAVE        rSP,n,aux
             PUSH        cAddr_l
             CALL        puts
-            REST        rSP,n_t,aux
+            REST        rSP,n,aux
             ADDU        cStk_l,cStk_l,8
             LDOU        cAddr_l,cStk_l,0
             CMPU        rY,n_l,aux
             JZ          rY,cl_loop 
             SETW        rX,2
-            SETW        rY,95
+            SETW        rY,32
             INT         #80
             JMP         cl_loop        
 
@@ -162,10 +160,10 @@ spc_loop    OR          rY,n_l,0
             REST        rSP,n,aux
             JMP         j_loop
 
-spc_single  SAVE        rSP,n_t,aux
+spc_single  SAVE        rSP,n,aux
             PUSH        cAddr_l
             CALL        puts
-            REST        rSP,n_t,aux
+            REST        rSP,n,aux
             SETW        rX,2
             SETW        rY,10
             INT         #80
@@ -174,10 +172,10 @@ spc_single  SAVE        rSP,n_t,aux
            
 
 spc_write   ADDU        aux,aux,1
-            SAVE        rSP,n_t,aux
+            SAVE        rSP,n,aux
             PUSH        cAddr_l
             CALL        puts
-            REST        rSP,n_t,aux
+            REST        rSP,n,aux
             ADDU        cStk_l,cStk_l,8
             LDOU        cAddr_l,cStk_l,0
             CMPU        rY,n_l,aux      *Se for a última palavra, volta para spc_loop
@@ -189,7 +187,7 @@ q_spc       CMPU        rY,rZ,temp      *q_spc: imprime (quoc + 1) espaços.
             JP          rY,qLoop_spc
             JMP         r_spc      
 qLoop_spc   SETW        rX,2
-            SETW        rY,95
+            SETW        rY,32
             INT         #80
             ADDU        temp,temp,1
             JMP         q_spc            
@@ -198,7 +196,7 @@ r_spc       SUBU        rY,n_l,rR       *Se (n_l - rR) <= spcAt ,  imprime 1 esp
             JNP         rY,rWrite_spc
             JMP         spc_loop
 rWrite_spc  SETW        rX,2
-            SETW        rY,95
+            SETW        rY,32
             INT         #80
             JMP         spc_loop
 
@@ -220,16 +218,16 @@ ll_loop     OR          rY,n_l,0
             OR          col,col_l,0
             JMP         j_loop
 ll_write    ADDU        aux,aux,1
-            SAVE        rSP,n_t,aux
+            SAVE        rSP,n,aux
             PUSH        cAddr_l
             CALL        puts
-            REST        rSP,n_t,aux
+            REST        rSP,n,aux
             ADDU        cStk_l,cStk_l,8
             LDOU        cAddr_l,cStk_l,0
             CMPU        rY,n_l,aux
             JZ          rY,ll_loop 
             SETW        rX,2
-            SETW        rY,95
+            SETW        rY,32
             INT         #80
             JMP         ll_loop        
 end_nl      RET 0
