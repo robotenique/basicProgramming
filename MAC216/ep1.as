@@ -1,9 +1,9 @@
             EXTERN      main
-c           IS          $0
-spc         IS          $1
-n           IS          $2
-words       IS          $3
-col         IS          $4
+c           IS          $90
+spc         IS          $91
+n           IS          $92
+words       IS          $93
+col         IS          $94
 lenW        IS          $5
 s           IS          $20
 
@@ -45,61 +45,24 @@ finish_w    XOR         rY,rY,rY
             ADDU        n,n,1
             JMP         limbo
 
-*--------------CALLING WORD COUNT------------------------
-*Calcula o tamanho de todas as palavras do texto
-*ctz         IS          $7
-*word_count  XOR         ctz,ctz,ctz
-*pi          LDOU        s,words,ctz
-*            SAVE        rSP,c,col
-*            PUSH        s
-*            CALL        len_word
-*            REST        rSP,c,col
-*            OR          lenW,rA,0       *lenW recebe o length
-*            ADDU        ctz,ctz,8
-*            ADDU        s,words,ctz
-*            CMPU        s,s,rSP
-*            JZ          s,print_words
-*            JMP         pi
-*------------FIM WORD COUNT-----------------------------
 
 *------------------justify word-------------------------
-just_word   SAVE        rSP,c,s
+just_word   INT         #DB5C5C *n, words, col
+            INT         #DB5D5D
+            INT         #DB5E5E
+            SAVE        rSP,c,$190
             PUSH        n            
             PUSH        words
             PUSH        col
             CALL        justify
-            REST        rSP,c,s
-            JMP         print_words
-
-
-
-
-
-
-
-
-
-
-
-
-print_words XOR         s,s,s
-            SETW        rX,2        *Print a "\n"
-            SETW        rY,10
-            INT         #80
-print_loop  JZ          n,end
-            SUBU        n,n,1
-            SETW        rX,2
-write       LDB         rY,s,0
-            JZ          rY,cont
-            INT         #80
-            ADDU        s,s,1  *next char
-            JMP         write
-cont        SETW        rX,2        *Print a "\n"
-            SETW        rY,10
-            INT         #80
-            ADDU        s,s,1
-            JMP         print_loop
-end         INT         0
+            REST        rSP,c,$190            
+            OR          n,$0,0
+            OR          words,$6,0
+            OR          col,$2,0
+            INT         #DB5C5C *n, words, col
+            INT         #DB5D5D
+            INT         #DB5E5E
+            INT         0
 
 *------------------Sub-rotina isSpace--------------------
 isSpace     CMPU        rY,rA,10
