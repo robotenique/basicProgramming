@@ -6,7 +6,7 @@ words       IS          $1      *Posição -> do stack <- que contém end. da pa
 inAdrr      IS          $6      *Posição -> do stack <- que contém end. da palavra inicial
 n           IS          $0      *Número de palavras total
 col         IS          $2      *Quantidade de colunas
-aux         IS          $190         *Var. Auxiliar
+aux         IS          $190    *Var. Auxiliar
 
 
 justify     SUBU        rY,rSP,32       *Inicializa as variáveis
@@ -17,49 +17,51 @@ justify     SUBU        rY,rSP,32       *Inicializa as variáveis
             OR          inAdrr,words,0
             LDOU        cAddr,words,0
 
-j_loop      CMPU        rY,cN,n         *Se (cN > n) -> finish_text
+j_loop      CMPU        rY,cN,n             *Se (cN > n) -> finish_text
             JP          rY,finish_text
-            SAVE        rSP,n,aux        *l <- tamanho(palavra)
+            SAVE        rSP,n,aux           *l <- tamanho(palavra)
             PUSH        cAddr
             CALL        len_word
             REST        rSP,n,aux
             OR          l,rA,0
 
-            CMPU        rY,l,col        *Se l > col -> single_line
+            CMPU        rY,l,col            *Se l > col -> single_line
             JP          rY,single_line            
-            JMP        normal_line      *Se l <= col -> normal_line
+            JMP        normal_line          *Se l <= col -> normal_line
 
 finish_text RET         0
 
 
 
-*------------------desvio single_line --------------------
+*----------------------------------- desvio single_line ----------------------------------------
 *Imprime uma única palavra + '\n'
-single_line SAVE        rSP,n,aux     *Imprime palavra
+single_line SAVE        rSP,n,aux            *Imprime palavra
             PUSH        cAddr
             CALL        puts
             REST        rSP,n,aux
-            SETW        rX,2            *Imprime '\n'
+            SETW        rX,2                 *Imprime '\n'
             SETW        rY,10
             INT         #80
             ADDU        cN,cN,1         
             LDOU        cAddr,words,8
             ADDU        words,words,8
-            JMP         j_loop          *Volta p/ j_loop
+            JMP         j_loop               *Volta p/ j_loop
 
-*------------------Sub-rotina normal_line -----------------
-n_t         IS          $10          *Nº total de palavras
-tc_l        IS          $11          *Total de caracteres de -> palavras <-
-col_l       IS          $12          *Colunas 
+*----------------------------------- desvio normal_line ----------------------------------------
+*Junta as palavras em uma nova linha e faz o desvio apropriado para justificação e/ou impressão 
+
+n_t         IS          $10          *Número de palavras total
+tc_l        IS          $11          *Total de caracteres da linha (sem espaços, apenas palavras)
+col_l       IS          $12          *Quantidade de colunas 
 cAddr_l     IS          $13          *Endereço da primeira palavra da linha
-cN_l        IS          $14          *Nª da palavra atual
-words_l     IS          $15          *Posição -> do stack <- que contém end. da palavra atual
+cN_l        IS          $14          *Número da palavra atual
+words_l     IS          $15          *Posição -> do stack <- que contém end. da palavra atual da linha
 cStk_l      IS          $16          *Posição -> do stack <-que contém end. da primeira palavra da linha
-n_l         IS          $17          *Nº de palavras na linha
-tc_lTemp    IS          $18          *Nª total de caracteres da linha
+n_l         IS          $17          *Número de palavras na linha
+tc_lTemp    IS          $18          *Número total de caracteres da linha (incluindo espaços)
 
 
-normal_line XOR         tc_lTemp,tc_lTemp,tc_lTemp
+normal_line XOR         tc_lTemp,tc_lTemp,tc_lTemp  *Inicializa variáveis
             OR          n_t,n,0
             OR          tc_l,l,0
             OR          col_l,col,0 
@@ -67,48 +69,47 @@ normal_line XOR         tc_lTemp,tc_lTemp,tc_lTemp
             OR          cN_l,cN,0
             OR          words_l,words,0
             OR          cStk_l,words_l,0
-            OR          rX,cAddr_l,0  *private - import : rX é o ponteiro p/ o end. da palavra atual!!
+            OR          rX,cAddr_l,0  
             SETW        n_l,1
             
-nl_loop     CMPU        rY,cN_l,n_t         *Se o nº da palavra atual > n total de palavras, vai para imprimir linha sem justificar            
+nl_loop     CMPU        rY,cN_l,n_t         *Se cN >= n_t -> last_line (é a última linha)            
             JZ          rY,last_line
-            JP          rY,last_line            
-
-            CMPU        rY,tc_lTemp,col_l
-            JZ          rY,complete_nl      
-            JP          rY,spcAlg_nl           
-            ADDU        words_l,words_l,8
-            LDOU        rX,words_l,0            *rX recebe end. da proxima palavra
-           
-           
+            JP          rY,last_line
+            CMPU        rY,tc_lTemp,col_l   *Compara tc_lTemp com col_l
+            JZ          rY,complete_nl      *Chama complete_nl se necessário
+            JP          rY,spcAlg_nl        *Chama spcAlg_nl se necessário 
             
+            ADDU        words_l,words_l,8
+            LDOU        rX,words_l,0        *rX recebe endereço da próxima palavra
 
-            SAVE        rSP,n,aux        *Calcula len('palavra') e coloca em 'rA'
+            SAVE        rSP,n,aux           *rA <- tamanho(palavra)
             PUSH        rX
             CALL        len_word
             REST        rSP,n,aux
             ADDU        tc_l,tc_l,rA
-            OR          rY,n_l,0
+            OR          rY,n_l,0            *Incrementa variáveis e volta ao nl_loop
             ADDU        n_l,n_l,1
             ADDU        tc_lTemp,tc_l,rY
             ADDU        cN_l,cN_l,1
             JMP         nl_loop
 
-*------------------desvio complete_nl --------------------
-*Imprime a linha com um espaço entre palavras
+*----------------------------------- desvio complete_nl ----------------------------------------
+*Imprime uma linha com um espaço entre palavras
 complete_nl XOR         aux,aux,aux
+
 cl_loop     OR          rY,n_l,0            
             CMPU        rY,rY,aux
             JP          rY,cl_write 
             SETW        rX,2
             SETW        rY,10
             INT         #80           
-            ADDU        cN,cN,n_l
+            ADDU        cN,cN,n_l           *Atualiza variáveis e volta ao j_loop
             OR          cAddr,cAddr_l,0
             ADDU        words,words_l,8 
             OR          n,n_t,0
             OR          col,col_l,0
             JMP         j_loop
+
 cl_write    ADDU        aux,aux,1
             SAVE        rSP,n,aux
             PUSH        cAddr_l
@@ -117,20 +118,20 @@ cl_write    ADDU        aux,aux,1
             ADDU        cStk_l,cStk_l,8
             LDOU        cAddr_l,cStk_l,0
             CMPU        rY,n_l,aux
-            JZ          rY,cl_loop 
+            JZ          rY,cl_loop          *Se for a última linha não imprime espaço 
             SETW        rX,2
             SETW        rY,32
             INT         #80
-            JMP         cl_loop        
+            JMP         cl_loop      
 
-*------------------desvio spcAlg_nl  ---------------------
-*'Desempilha' a última palavra, justifica e imprime a linha
+*----------------------------------- desvio spcAlg_nl  -----------------------------------------
+*'Desempilha' a última palavra , executa o algoritmo de justificação e imprime a linha.
 temp        IS          $185         *Variável auxiliar (para loops)
 spcAt       IS          $186         *Espaço atual da linha
 spcO        IS          $187         *Espaços originais da linha
 quoc        IS          $188         *Armazena o coeficiente da divisão
 spcR        IS          $189         *Espaços que precisam ser distribuidos
-spcAlg_nl   SUBU        rY,n_l,1
+spcAlg_nl   SUBU        rY,n_l,1            *Inicializa todas as variáveis com valor correto
             ADDU        cN,cN,rY
             OR          cAddr,rX,0
             ADDU        words,words_l,0
@@ -147,20 +148,19 @@ spcAlg_nl   SUBU        rY,n_l,1
             XOR         spcAt,spcAt,spcAt
             XOR         temp,temp,temp
             
-            JZ          spcO,spc_single      *Se n_l == 1, imprime a palavra
+            JZ          spcO,spc_single      *Se n_l = 1 -> spc_single (imprime uma palavra apenas)
             
-            DIVU        quoc,spcR,spcO
-            
+            DIVU        quoc,spcR,spcO            
 spc_loop    OR          rY,n_l,0            
             CMPU        rY,rY,aux
-            JP          rY,spc_write             
-            SETW        rX,2
+            JP          rY,spc_write        *Enquanto não terminar a linha, ir para spc_write             
+            SETW        rX,2                
             SETW        rY,10
             INT         #80
             REST        rSP,n,aux
-            JMP         j_loop
+            JMP         j_loop              *Quando terminar a linha, volta para j_loop
 
-spc_single  SAVE        rSP,n,aux
+spc_single  SAVE        rSP,n,aux           *Imprime 1 palavra e volta para j_loop
             PUSH        cAddr_l
             CALL        puts
             REST        rSP,n,aux
@@ -171,19 +171,19 @@ spc_single  SAVE        rSP,n,aux
             JMP         j_loop
            
 
-spc_write   ADDU        aux,aux,1
-            SAVE        rSP,n,aux
+spc_write   ADDU        aux,aux,1   
+            SAVE        rSP,n,aux           *Imprime a palavra
             PUSH        cAddr_l
             CALL        puts
             REST        rSP,n,aux
             ADDU        cStk_l,cStk_l,8
             LDOU        cAddr_l,cStk_l,0
-            CMPU        rY,n_l,aux      *Se for a última palavra, volta para spc_loop
+            CMPU        rY,n_l,aux          *Se for a última palavra, volta para spc_loop
             JZ          rY,spc_loop
             ADDU        spcAt,spcAt,1
             ADDU        rZ,quoc,1
             XOR         temp,temp,temp
-q_spc       CMPU        rY,rZ,temp      *q_spc: imprime (quoc + 1) espaços.
+q_spc       CMPU        rY,rZ,temp          *q_spc: imprime (quoc + 1) espaços.
             JP          rY,qLoop_spc
             JMP         r_spc      
 qLoop_spc   SETW        rX,2
@@ -191,19 +191,17 @@ qLoop_spc   SETW        rX,2
             INT         #80
             ADDU        temp,temp,1
             JMP         q_spc            
-r_spc       SUBU        rY,n_l,rR       *Se (n_l - rR) <= spcAt ,  imprime 1 espaço.            
+r_spc       SUBU        rY,n_l,rR           *Se (n_l - rR) <= spcAt ,  imprime 1 espaço.            
             CMPU        rY,rY,spcAt
             JNP         rY,rWrite_spc
             JMP         spc_loop
 rWrite_spc  SETW        rX,2
             SETW        rY,32
             INT         #80
-            JMP         spc_loop
+            JMP         spc_loop            *Volta para spc_loop
 
-
-
-*------------------desvio last_line  ---------------------
-*Imprime a última linha sem justificar, com um espaço entre palavras
+*----------------------------------- desvio last_line  -----------------------------------------
+*Imprime a última linha sem justificar, com um espaço entre palavras (similar a complete_nl)
 last_line   SETW        aux,1
 ll_loop     OR          rY,n_l,0            
             CMPU        rY,rY,aux
@@ -232,10 +230,7 @@ ll_write    ADDU        aux,aux,1
             JMP         ll_loop        
 end_nl      RET 0
 
-
-
-
-*------------------Sub-rotina len_word--------------------
+*----------------------------------- Sub-rotina len_word----------------------------------------
 *ARGS:  1 -(rSP-16) Endereço do primeiro char da palavra
 *RETURN:1 -(rA)     Tamanho da palavra
 iAddr       IS          $0
@@ -253,7 +248,8 @@ l_loop      LDBU        cmpr,iAddr,0
 endj        OR          rA,i,0
             RET         1
 
-*----------------Sub-rotina puts--------------------------
+
+*----------------------------------- Sub-rotina puts--------------------------------------------
 *ARGS:  1 -(rSP-16) Endereço do primeiro char da palavra
 *RETURN:0
 str     IS     $0

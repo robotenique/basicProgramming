@@ -25,10 +25,10 @@ start       INT         #80
 
 limbo       JN          rA,just_word
             CALL        isSpace
-            JNZ         spc,start       *If the char is space, go back to start
+            JNZ         spc,start       
             PUSH        c
-            STBU        rA,c,0          *M[c] <- rA (char)
-            ADDU        c,c,1           *c++
+            STBU        rA,c,0          
+            ADDU        c,c,1           
 
 
 read_word   INT         #80
@@ -47,10 +47,7 @@ finish_w    XOR         rY,rY,rY
 
 
 *------------------justify word-------------------------
-just_word   INT         #DB5C5C *n, words, col
-            INT         #DB5D5D
-            INT         #DB5E5E
-            SAVE        rSP,c,$190
+just_word   SAVE        rSP,c,$190
             PUSH        n            
             PUSH        words
             PUSH        col
@@ -59,9 +56,6 @@ just_word   INT         #DB5C5C *n, words, col
             OR          n,$0,0
             OR          words,$6,0
             OR          col,$2,0
-            INT         #DB5C5C *n, words, col
-            INT         #DB5D5D
-            INT         #DB5E5E
             INT         0
 
 *------------------Sub-rotina isSpace--------------------
