@@ -25,10 +25,8 @@ j_loop      CMPU        rY,cN,n         *Se o nº da palavra atual > n total de 
 
             CMPU        rY,l,col        *Se len('palavra') > col , chama single_line
             JP          rY,single_line
-
-            SAVE        rSP,n,cN        *Começa nova linha
+            
             CALL        normal_line
-            REST        rSP,n,cN
 finish_text INT         0
 
 
@@ -51,39 +49,38 @@ single_line SAVE        rSP,n,cN
             JMP         j_loop
 
 *------------------Sub-rotina normal_line -----------------
-n_t         IS          $0          *Nº total de palavras
-tc_l        IS          $1          *Total de caracteres de -> palavras <-
-col_l       IS          $2          *Colunas 
-cAddr_l     IS          $4          *Endereço da primeira palavra da linha
-cN_l        IS          $7          *Nª da palavra atual
-words_l     IS          $8          *Posição -> do stack <- que contém end. da palavra atual
-n_l         IS          $10         *Nº de palavras na linha
-tc_lTemp    IS          $11         *Nª total de caracteres da linha
-aux         IS          $190        *Var. Auxiliar
+n_t         IS          $10          *Nº total de palavras
+tc_l        IS          $11          *Total de caracteres de -> palavras <-
+col_l       IS          $12          *Colunas 
+cAddr_l     IS          $13          *Endereço da palavra atual
+cN_l        IS          $14          *Nª da palavra atual
+words_l     IS          $15          *Posição -> do stack <- que contém end. da palavra atual
+cStk_l      IS          $16          *Posição -> do stack <-que contém end. da primeira palavra da linha
+n_l         IS          $17          *Nº de palavras na linha
+tc_lTemp    IS          $18          *Nª total de caracteres da linha
 
 normal_line XOR         tc_lTemp,tc_lTemp,tc_lTemp
-            OR          words_l,tc_l,0
+            OR          n_t,n,0
             OR          tc_l,l,0
+            OR          col_l,col,0 
+            OR          cAddr_l,cAddr,0
+            OR          cN_l,cN,0
+            OR          words_l,words,0
+            OR          cStk_l,words_l,0
             OR          rX,cAddr_l,0  *private - import : rX é o ponteiro p/ o end. da palavra atual!!
             SETW        n_l,1
             
-            SAVE        rSP,n_t,$255
-            PUSH        rX
-            CALL        puts
-            REST        rSP,n_t,$255
+       
 
 nl_loop     CMPU        rY,cN_l,n_t         *Se o nº da palavra atual > n total de palavras, vai para imprimir linha sem justificar
             JP          rY,end_nl
             CMPU        rY,tc_lTemp,col_l
-            JZ          rY,complete_nl *do: Imprime linha e DEVE VOLTAR PARA j_loop
-            JP          rY,end_nl      *do: Desempilha a última palavra e manda para distribuir espaços (->j_loop)
+            JZ          rY,complete_nl      
+            JP          rY,spcAlg_nl           *do: Desempilha a última palavra e manda para distribuir espaços (->j_loop)
             ADDU        words_l,words_l,8
-            LDOU        rX,words_l,0        *rX recebe end. da proxima palavra
+            LDOU        rX,words_l,0                *rX recebe end. da proxima palavra
            
-            SAVE        rSP,n_t,$255
-            PUSH        rX
-            CALL        puts
-            REST        rSP,n_t,$255
+           
             
 
             SAVE        rSP,n_t,tc_lTemp        *Calcula len('palavra') e coloca em 'rA'
@@ -97,12 +94,70 @@ nl_loop     CMPU        rY,cN_l,n_t         *Se o nº da palavra atual > n total
             ADDU        cN_l,cN_l,1
             JMP         nl_loop
 
-*do: do: do: do: CUIDADO COM ESSE WHILE
+*------------------desvio complete_nl --------------------
+*Imprime a linha com um espaço entre palavras
+aux         IS          $190         *Var. Auxiliar
 complete_nl XOR         aux,aux,aux
-            SUBU        rY,n_l,1
+cl_loop     OR          rY,n_l,0            
             CMPU        rY,rY,aux
-            JN                    
+            JP          rY,cl_write 
+            SETW        rX,2
+            SETW        rY,10
+            INT         #80           
+            ADDU        cN,cN,n_l
+            OR          cAddr,cAddr_l,0
+            ADDU        words,words_l,8 
+            OR          n,n_t,0
+            OR          col,col_l,0
+            JMP         j_loop
+cl_write    ADDU        aux,aux,1
+            SAVE        rSP,n_t,aux
+            PUSH        cAddr_l
+            CALL        puts
+            REST        rSP,n_t,aux
+            ADDU        cStk_l,cStk_l,8
+            LDOU        cAddr_l,cStk_l,0
+            CMPU        rY,n_l,aux
+            JZ          rY,cl_loop 
+            SETW        rX,2
+            SETW        rY,32
+            INT         #80
+            JMP         cl_loop        
 
+*------------------desvio spcAlg_nl  ---------------------
+*'Desempilha' a última palavra, justifica a linha e imprime
+spcO        IS          $16         *Espaços originais da linha
+quoc        IS          $17         *Armazena o coeficiente da divisão
+spcR        IS          $190        *Espaços que precisam ser distribuidos
+spcAlg_nl   ADDU        cN,cN,n_l
+            OR          cAddr,rX,0
+            ADDU        words,words_l,0
+            OR          n,n_t,0
+            OR          col,col_l,0            
+            SUBU        n_l,n_l,1
+            SUBU        tc_l,tc_l,rA
+            SUBU        spcO,n_l,1
+            SUBU        spcR,n_l,1
+            ADDU        spcR,spcR,tc_l
+            SUBU        spcR,col_l,spcR
+            XOR         aux,aux,aux
+            
+            JZ          spcO,end_nl      *do do do : VERIFICAR CASO QUANDO spcO == 0 (significa que n_l == 1)
+            
+            DIVU        q,spcR,spcO
+spc_write   ADDU        aux,aux,1
+            SAVE        rSP,n_t,aux
+            PUSH        cAddr_l
+            CALL        puts
+            REST        rSP,n_t,aux
+            ADDU        cStk_l,cStk_l,8
+            LDOU        cAddr_l,cStk_l,0
+            CMPU        rY,n_l,aux
+            JZ          rY,cl_loop 
+            SETW        rX,2
+            SETW        rY,32
+            INT         #80
+            JMP         cl_loop
 
 
 
