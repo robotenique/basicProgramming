@@ -56,10 +56,7 @@ just_word   SAVE        rSP,c,$190
             OR          n,$0,0
             OR          words,$6,0
             OR          col,$2,0
-<<<<<<< HEAD
-=======
-            
->>>>>>> new_branch_name
+
             INT         0
 
 *------------------Sub-rotina isSpace--------------------
