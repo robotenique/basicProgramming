@@ -62,6 +62,7 @@ tc_lTemp    IS          $18          *Nª total de caracteres da linha
 normal_line XOR         tc_lTemp,tc_lTemp,tc_lTemp
             OR          n_t,n,0
             OR          tc_l,l,0
+            OR          tc_lTemp,tc_l,0
             OR          col_l,col,0 
             OR          cAddr_l,cAddr,0
             OR          cN_l,cN,0
@@ -69,14 +70,19 @@ normal_line XOR         tc_lTemp,tc_lTemp,tc_lTemp
             OR          cStk_l,words_l,0
             OR          rX,cAddr_l,0  *private - import : rX é o ponteiro p/ o end. da palavra atual!!
             SETW        n_l,1
-            
+
+
 nl_loop     CMPU        rY,cN_l,n_t         *Se o nº da palavra atual > n total de palavras, vai para imprimir linha sem justificar            
             JZ          rY,last_line
             JP          rY,last_line            
+            
 
             CMPU        rY,tc_lTemp,col_l
-            JZ          rY,complete_nl      
-            JP          rY,spcAlg_nl           
+            JP          rY,spcAlg_nl 
+
+
+            
+
             ADDU        words_l,words_l,8
             LDOU        rX,words_l,0            *rX recebe end. da proxima palavra
            
@@ -87,41 +93,18 @@ nl_loop     CMPU        rY,cN_l,n_t         *Se o nº da palavra atual > n total
             PUSH        rX
             CALL        len_word
             REST        rSP,n,aux
+            ADDU        n_l,n_l,1
             ADDU        tc_l,tc_l,rA
             OR          rY,n_l,0
-            ADDU        n_l,n_l,1
-            ADDU        tc_lTemp,tc_l,rY
+            SUBU        rZ,n_l,1            *Incrementa variáveis e volta ao nl_loop
+            
+            
+            ADDU        tc_lTemp,tc_l,rZ
+
+            ADDU        rZ,tc_l,rZ            
             ADDU        cN_l,cN_l,1
             JMP         nl_loop
 
-*------------------desvio complete_nl --------------------
-*Imprime a linha com um espaço entre palavras
-complete_nl XOR         aux,aux,aux
-cl_loop     OR          rY,n_l,0            
-            CMPU        rY,rY,aux
-            JP          rY,cl_write 
-            SETW        rX,2
-            SETW        rY,10
-            INT         #80           
-            ADDU        cN,cN,n_l
-            OR          cAddr,cAddr_l,0
-            ADDU        words,words_l,8 
-            OR          n,n_t,0
-            OR          col,col_l,0
-            JMP         j_loop
-cl_write    ADDU        aux,aux,1
-            SAVE        rSP,n,aux
-            PUSH        cAddr_l
-            CALL        puts
-            REST        rSP,n,aux
-            ADDU        cStk_l,cStk_l,8
-            LDOU        cAddr_l,cStk_l,0
-            CMPU        rY,n_l,aux
-            JZ          rY,cl_loop 
-            SETW        rX,2
-            SETW        rY,32
-            INT         #80
-            JMP         cl_loop        
 
 *------------------desvio spcAlg_nl  ---------------------
 *'Desempilha' a última palavra, justifica e imprime a linha
@@ -141,8 +124,11 @@ spcAlg_nl   SUBU        rY,n_l,1
             SUBU        tc_l,tc_l,rA
             SUBU        spcO,n_l,1
             SUBU        spcR,n_l,1
-            ADDU        spcR,spcR,tc_l
+            ADDU        spcR,spcO,tc_l
             SUBU        spcR,col_l,spcR
+           * INT #DB0C0C
+            *INT #DB1111
+           * INT #DB0B0B
             XOR         aux,aux,aux
             XOR         spcAt,spcAt,spcAt
             XOR         temp,temp,temp
