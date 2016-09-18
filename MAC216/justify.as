@@ -26,10 +26,11 @@ j_loop      CMPU        rY,cN,n             *Se (cN > n) -> finish_text
             OR          l,rA,0
 
             CMPU        rY,l,col            *Se l > col -> single_line
-            JP          rY,single_line            
-            JMP        normal_line          *Se l <= col -> normal_line
+            JP          rY,single_line  
+            JMP         normal_line          *Se l <= col -> normal_line
 
-finish_text RET         0
+finish_text OR          rA,col,0
+            RET         0
 
 
 
@@ -180,23 +181,22 @@ rWrite_spc  SETW        rX,2
 *----------------------------------- desvio last_line  -----------------------------------------
 *Imprime a última linha sem justificar, com um espaço entre palavras (similar a complete_nl)
 last_line   SETW        aux,1
-ll_loop     OR          rY,n_l,0            
+ll_loop     OR          rY,n_l,0 
             CMPU        rY,rY,aux
             JP          rY,ll_write 
             SETW        rX,2
             SETW        rY,10
-            INT         #80           
-            ADDU        cN,cN,n_l
+            INT         #80 
             OR          cAddr,cAddr_l,0
             ADDU        words,words_l,8 
             OR          n,n_t,0
             OR          col,col_l,0
-            JMP         j_loop
+            JMP         finish_text
 ll_write    ADDU        aux,aux,1
             SAVE        rSP,n,aux
             PUSH        cAddr_l
             CALL        puts
-            REST        rSP,n,aux
+            REST        rSP,n,aux            
             ADDU        cStk_l,cStk_l,8
             LDOU        cAddr_l,cStk_l,0
             CMPU        rY,n_l,aux
@@ -205,7 +205,6 @@ ll_write    ADDU        aux,aux,1
             SETW        rY,32
             INT         #80
             JMP         ll_loop        
-end_nl      RET 0
 
 *----------------------------------- Sub-rotina len_word----------------------------------------
 *ARGS:  1 -(rSP-16) Endereço do primeiro char da palavra
@@ -240,3 +239,4 @@ write   LDB    rY,str,0
         ADDU   str,str,1  *Next char
         JMP    write
 endp     RET    1
+
