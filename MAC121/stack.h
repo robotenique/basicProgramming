@@ -3,16 +3,10 @@
 
 typedef struct
 {
-	int r,c;
-} pair;
-
-
-typedef struct
-{
-	/*Int type stack */
-	int *v;
-	int top;
-	int max;
+    /*Int type stack */
+    int *v;
+    int top;
+    int max;
 } stack;
 
 stack * newStack (int max);
