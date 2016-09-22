@@ -3,8 +3,8 @@
 typedef char minINT;
 typedef enum { false, true } bool;
 typedef struct {
-      unsigned int x;
-     unsigned  int y;
+       int x;
+       int y;
 }pos;
 typedef struct {
     pos *p;
