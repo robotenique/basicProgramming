@@ -61,20 +61,21 @@ posArray * criaPosArray (int n) {
         printf("Erro na alocação de memória, terminando programa...\n");
         exit(-1);
     }
-    p_Array.p = malloc(n*sizeof(pos));
-    if (p_Array.p == NULL) {
+    p_Array->p = malloc(n*sizeof(pos));
+    if (p_Array->p == NULL) {
         printf("Erro na alocação de memória, terminando programa...\n");
         exit(-1);
     }
-    p_Array.i = 0;
-    p_Array.max = n;
+    p_Array->i = 0;
+    p_Array->max = n;
     return p_Array;
 }
 
-void * adicionaPos(posArray *p_Array,pos a) {
+void adicionaPos(posArray *p_Array,pos a) {
     int newMax;
     pos *q;
     int i;
+    /* Realoca vetor caso esteja cheio */
     if (p_Array->i == p_Array->max) {
         newMax = p_Array->max * 2;
         q = malloc(newMax * sizeof(pos));
@@ -82,10 +83,11 @@ void * adicionaPos(posArray *p_Array,pos a) {
             printf("Erro na alocação de memória, terminando programa...\n");
             exit(-1);
         }
-        for (i = 0; i < count; i++)
+        for (i = 0; i < p_Array->max; i++)
             q[i] = p_Array->p[i];
         free(p_Array->p);
         p_Array->p = q;
+        p_Array->max = newMax;
     }
     p_Array->p[p_Array->i] = a;
     p_Array->i+=1;

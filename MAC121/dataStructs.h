@@ -25,7 +25,7 @@ void reallocStack(stack *s);
 void push (stack *s, int n);
 int pop (stack  *s);
 posArray * criaPosArray (int n);
-void * adicionaPos(posArray *p_Array,pos a);
+void adicionaPos(posArray *p_Array,pos a);
 
 
 #endif
