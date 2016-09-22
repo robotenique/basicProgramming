@@ -1,17 +1,12 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "stack.h"
-typedef enum { false, true } bool;
-typedef struct {
-      unsigned int x;
-     unsigned  int y;
-}par;
-typedef char minINT;
+#include "dataStructs.h"
+
 
 minINT ** criaTabuleiro(int m, int n);
 int * getDadosTabuleiro (minINT **tab, int m, int n);
 void resolveRestaUm (minINT ** tab, int m, int n);
-
+bool haPecas_buracos(posArray *posB,minINT **tab);
 int main (int argc, char const *argv[]) {
     int m,n,i,j;
     int aux = 0;
@@ -29,6 +24,9 @@ int main (int argc, char const *argv[]) {
 
     return 0;
 }
+
+
+
 minINT ** criaTabuleiro (int m, int n) {
     int i;
     minINT ** tab;
@@ -43,17 +41,23 @@ minINT ** criaTabuleiro (int m, int n) {
     return tab;
 }
 
+
+
+
+
+
 void resolveRestaUm (minINT ** tab, int m, int n) {
 /* Declaração de variáveis */
     stack mov;
     int pecas,buracos;
     int *dados;
-    par * posB;
+    posArray * posB;
+    posB = criaPosArray(n);
     dados = getDadosTabuleiro(tab,m,n);
     pecas = dados[0];
     buracos = dados[1];
     free(dados);
-    while (!haPecas_buracos()) {
+    while (!estaResolvido((posArray *posB, minINT **tab,pecas,buracos)) {
         /* code */
     }
 
@@ -77,7 +81,7 @@ return ;
  *   return: Vetor de três posições: [0] = nº de peças e [1] = número de buracos
  */
 
-int * getDadosTabuleiro (minINT **tab, int m, int n, par * posB) {
+int * getDadosTabuleiro (minINT **tab, int m, int n, pos * posB) {
     int i,j;
     int pecas = 0,buracos = 0;
     int * dados;
@@ -95,4 +99,18 @@ int * getDadosTabuleiro (minINT **tab, int m, int n, par * posB) {
     dados[0] = pecas;
     dados[1] = buracos;
     return dados;
+}
+
+bool estaResolvido (posArray *posB, minINT **tab, int pecas, int buracos) {
+    if (pecas == buracos)
+        return haPecas_buracos(posB,tab);
+    return false;
+}
+
+bool haPecas_buracos(posArray *posB, minINT **tab ) {
+    int i;
+    for(i = 0; i < posB->max ; i++)
+        if(tab[posB->p[i].x][posB->p[i].y]!=1)
+            return false;
+    return true;
 }
