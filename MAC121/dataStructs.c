@@ -13,7 +13,7 @@ stack * newStack (int max)
 {
     stack *s;
     s = malloc(sizeof(stack));
-    s -> v    = malloc(max*sizeof(int));
+    s -> p_mov = malloc(max*sizeof(pMovData));
     s -> top = 0;
     s -> max = max;
     return s;
@@ -24,48 +24,49 @@ int isEmpty (stack s)
     return s.top == 0;
 }
 
-void reallocStack(stack *s) {
-/*Increase the max in 20% */
-    int newMax = s -> max * 1.2;
+void reallocStack(stack *s)
+{
+/*Doubles the maximum of elements in the stack */
+    int newMax = s -> max * 2;
     int i;
-    int * w;
-    printf("Reallocation in progress...\n");
-    w = malloc(newMax * sizeof(int));
+    pMovData * w;
+    printf("REALOCANDO... size = %d\n",newMax);
+    w = malloc(newMax * sizeof(pMovData));
     for (i = 0; i < s -> max; i++)
-        w[i] = s -> v[i];
-    free(s -> v);
-    s -> v = w;
+        w[i] = s -> p_mov[i];
+    free(s -> p_mov);
+    s -> p_mov = w;
+    s -> max = newMax;
 }
 
-void push (stack *s, int n)
+void push (stack *s, unsigned int jCoord, minINT mov)
 {
+    pMovData x;
+    x.jCoord = jCoord;
+    x.mov = mov;
     if (s -> top == s -> max)
         reallocStack(s);
-    s -> v[s->top] = n;
+    s -> p_mov[s->top] = x;
     (s -> top)++;
 }
 
-int pop (stack  *s)
+pMovData pop (stack  *s)
 {
 /*All checks must be made in the implementation */
-    int n;
-    n = s -> v[s -> top - 1];
+    pMovData x;
+    x = s -> p_mov[s -> top - 1];
     (s -> top)--;
-    return n;
+    return x;
 }
 
 posArray * criaPosArray (int n) {
     posArray *p_Array;
     p_Array = malloc(sizeof(p_Array));
-    if (p_Array == NULL) {
-        printf("Erro na alocação de memória, terminando programa...\n");
+    if (p_Array == NULL)
         exit(-1);
-    }
     p_Array->p = malloc(n*sizeof(pos));
-    if (p_Array->p == NULL) {
-        printf("Erro na alocação de memória, terminando programa...\n");
+    if (p_Array->p == NULL)
         exit(-1);
-    }
     p_Array->i = 0;
     p_Array->max = n;
     return p_Array;
@@ -79,10 +80,9 @@ void adicionaPos(posArray *p_Array,pos a) {
     if (p_Array->i == p_Array->max) {
         newMax = p_Array->max * 2;
         q = malloc(newMax * sizeof(pos));
-        if (q == NULL) {
-            printf("Erro na alocação de memória, terminando programa...\n");
+        if (q == NULL)
             exit(-1);
-        }
+
         for (i = 0; i < p_Array->max; i++)
             q[i] = p_Array->p[i];
         free(p_Array->p);

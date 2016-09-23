@@ -11,14 +11,15 @@
 #define KRED  "\x1B[31m"
 #define KBLU  "\x1B[34m"
 
-
+typedef unsigned long int ulint;
 
 minINT ** criaTabuleiro(int m, int n);
-int * getDadosTabuleiro (minINT **tab, int m, int n, posArray *posB);
-bool resolveRestaUm (minINT ** tab, int m, int n,int buracos,posArray *posB);
+ulint * getDadosTabuleiro (minINT **tab, int m, int n, posArray *posB);
+bool resolveRestaUm (minINT ** tab, int m, int n,ulint buracos,posArray *posB);
+bool restaUmBacktrack (minINT **tab, int m, int n, ulint nHoles, posArray *posB);
 bool fazMovimento (minINT **tab , int m, int n, int j, minINT mov);
 void desfazMovimento (minINT **tab, int m, int n,int j, minINT mov);
-bool estaResolvido (posArray *posB, minINT **tab,int buracos);
+bool estaResolvido (posArray *posB, minINT **tab,ulint buracos);
 minINT podeMover(minINT **tab, int m, int n, int j, minINT mov);
 bool haPecas_buracos(posArray *posB,minINT **tab);
 /*-------------DEBUG-------------*/
@@ -26,13 +27,15 @@ void debugPosicoes (posArray *pArr);
 void imprimeTab (minINT **tab,int m, int n);
 void lixou (minINT **tab, int l, int c, minINT mov, int m, int n);
 
-
-int pecas = 0;
+ulint jCoord,pecas;
+minINT c_mov;
 unsigned  long cmp   = 0;
+
 int main (int argc, char const *argv[]) {
     /*Declaração de variáveis */
-    int m,n,i,j,buracos,aux = 0;
-    int *dados;
+    int m,n,i,k,aux = 0;
+    ulint buracos = 0;
+    ulint *dados;
     minINT ** tab;
     posArray *posB;
 
@@ -40,65 +43,89 @@ int main (int argc, char const *argv[]) {
     scanf("%d%d",&m,&n);
     tab = criaTabuleiro (m,n);
     for (i = 0; i < m; i++)
-        for (j = 0; j < n; j++)
+        for (k = 0; k < n; k++)
         {
             scanf("%d", &aux);
-            tab[i][j] = (minINT)aux;
+            tab[i][k] = (minINT)aux;
         }
     /*Inicialização de dados */
+    jCoord = 0;
+    c_mov = 1;
     posB = criaPosArray(1);
     dados = getDadosTabuleiro(tab,m,n,posB);
     pecas = dados[0];
     buracos = dados[1];
     free(dados);
+    if(restaUmBacktrack(tab,m,n,buracos,posB))
+        printf("NOICE\n");
+    else
+        printf("IMPOSSIBLE\n");
+    imprimeTab(tab,m,n);
 
-    if(resolveRestaUm (tab,m,n,buracos,posB))
-        printf("TRUE\n");
-    else{
-        printf("NAOOOOOOOO\n");
-        imprimeTab(tab,m,n);
-    }
+
 
     return 0;
 }
 
 minINT ** criaTabuleiro (int m, int n) {
-    int i,j;
+    int i;
     minINT ** tab;
     tab = malloc(m * sizeof(minINT*));
     if (tab != NULL)
-        for (i = 0; i < n; i++)
+        for (i = 0; i < m; i++)
                 tab[i] = malloc(n * sizeof(minINT));
     else {
         printf("Erro na alocação de memória, terminando programa...\n");
         exit(-1);
     }
-    for (i = 0; i < m; i++)
-        for ( j = 0; j < n; j++){
-            tab[i][j]=0;
-            printf("set tab[%d][%d]\n",i,j );
-        }
-
-
     return tab;
 }
 
-bool resolveRestaUm (minINT ** tab, int m, int n,int buracos,posArray *posB) {
-    /* CUIDADO COM O FATO DOS posArray serem passados por referencia!! */
+bool restaUmBacktrack (minINT **tab, int m, int n, ulint nHoles, posArray *posB) {
     int j;
+    bool ok;
     minINT mov;
-    /*imprimeTab(tab,m,n); sleep(1);*/
-    if(estaResolvido(posB,tab,buracos)) return true;
-    else if (pecas <= buracos) return false;
-    for (j = 0; j < m*n; j++)
-        if(tab[j/n][j%n]==1)
-            for (mov = 1; mov < 5 ; mov++)
-                if (fazMovimento(tab,m,n,j,mov))
-                    if(resolveRestaUm(tab,m,n,buracos,posB)) return true;
-                    desfazMovimento(tab,m,n,j,mov);
+    stack *mem;
+    pMovData l_action;
+    mem = newStack (pecas);
+    while (true) {
+         j = jCoord;
+         /* Percorre todas as peças do tabuleiro.
+          * Só sai do loop quando não houver mais movimentos possíveis!
+          */
+         while (j < m*n)
+         {
+             ok = false;
+             if(tab[j/n][j%n]==1)
+             {
+                mov = c_mov;
+                while (mov < 5 && !ok)
+                {
+                    if (fazMovimento(tab,m,n,j,mov))
+                        ok = true;
+                    mov++;
+                }
+                if (ok)
+                {
+                    push(mem,j,mov-1);
+                    j = -1;
+                }
+                c_mov = 1;
+             }
+             j++;
+         }
+         if (estaResolvido(posB,tab,nHoles))
+             return true;
+         if (isEmpty(*mem))
+             return false;
+         l_action = pop(mem);
+         desfazMovimento(tab,m,n,l_action.jCoord,l_action.mov);
+         c_mov = l_action.mov + 1;
+         jCoord = l_action.jCoord;
+    }
 
-    return false ;
 }
+
 /*
  * Funcao: getDadosTabuleiro
  * ----------------------------
@@ -111,12 +138,13 @@ bool resolveRestaUm (minINT ** tab, int m, int n,int buracos,posArray *posB) {
  *   return: Vetor de três posições: [0] = nº de peças e [1] = número de buracos
  */
 
-int * getDadosTabuleiro (minINT **tab, int m, int n, posArray *posB) {
+ulint * getDadosTabuleiro (minINT **tab, int m, int n, posArray *posB) {
     int i,j;
     pos nPos;
-    int pecas = 0,buracos = 0;
-    int * dados;
-    dados = malloc(2 * sizeof(int));
+    ulint * dados;
+    ulint buracos = 0;;
+    pecas = 0;
+    dados = malloc(2 * sizeof(ulint));
     if (dados == NULL) {
         printf("Erro na alocação de memória, terminando programa...\n");
         exit(-1);
@@ -136,7 +164,8 @@ int * getDadosTabuleiro (minINT **tab, int m, int n, posArray *posB) {
     return dados;
 }
 
-bool estaResolvido (posArray *posB, minINT **tab, int buracos) {
+bool estaResolvido (posArray *posB, minINT **tab, ulint buracos) {
+    printf("PECAS = %lu \n",pecas );
     if (pecas == buracos)
         return haPecas_buracos(posB,tab);
     return false;
@@ -144,7 +173,7 @@ bool estaResolvido (posArray *posB, minINT **tab, int buracos) {
 
 bool haPecas_buracos (posArray *posB, minINT **tab ) {
     int i;
-    for(i = 0; i < posB->max ; i++)
+    for(i = 0; i < posB->i ; i++)
         if(tab[posB->p[i].x][posB->p[i].y]!=1)
             return false;
     return true;
@@ -195,30 +224,45 @@ bool fazMovimento (minINT **tab , int m, int n, int j,minINT mov) {
     if((movN = podeMover(tab,m,n,j,mov))) {
         l = j/n;
         c = j%n;
+        printf("%s                           ANTES do Movimento\n",KYEL );
+        printf("                    |%s tab[%d][%d], mov = %d|\n",KYEL,l,c,mov);
+        imprimeTab(tab,m,n);
         switch (movN) {
             case 1:
                 tab[l][c-2] = 1;
                 tab[l][c-1] = -1;
                 tab[l][c] = -1;
                 pecas--;
+                printf("%s                           DEPOIS do Movimento\n",KYEL );
+            printf("                    |%s tab[%d][%d], mov = %d|\n",KYEL,l,c,mov);
+            imprimeTab(tab,m,n);
                 return true;
             case 2:
                 tab[l-2][c] = 1;
                 tab[l-1][c] = -1;
                 tab[l][c] = -1;
                 pecas--;
+                printf("%s                           DEPOIS do Movimento\n",KYEL );
+            printf("                    |%s tab[%d][%d], mov = %d|\n",KYEL,l,c,mov);
+            imprimeTab(tab,m,n);
                 return true;
             case 3:
                 tab[l][c+2] = 1;
                 tab[l][c+1] = -1;
                 tab[l][c] = -1;
                 pecas--;
+                printf("%s                           DEPOIS do Movimento\n",KYEL );
+            printf("                    |%s tab[%d][%d], mov = %d|\n",KYEL,l,c,mov);
+            imprimeTab(tab,m,n);
                 return true;
             case 4:
                 tab[l+2][c] = 1;
                 tab[l+1][c] = -1;
                 tab[l][c] = -1;
                 pecas--;
+                printf("%s                           DEPOIS do Movimento\n",KYEL );
+            printf("                    |%s tab[%d][%d], mov = %d|\n",KYEL,l,c,mov);
+            imprimeTab(tab,m,n);
                 return true;
         }
 
@@ -228,50 +272,46 @@ bool fazMovimento (minINT **tab , int m, int n, int j,minINT mov) {
 
 void desfazMovimento (minINT **tab, int m, int n,int j, minINT mov) {
     int l = j/n, c = j%n;
-    /*
-    printf("%s                           ANTES\n",KYEL );
-    printf("                    |%s tab[%d][%d], mov = %d|\n",KYEL,l,c,mov);
+    /*            lixou(tab,l,c,mov,m,n);*/
+    printf("%s                           ANTES\n",KBLU );
+    printf("                    |%s tab[%d][%d], mov = %d|\n",KBLU,l,c,mov);
     imprimeTab(tab,m,n);
-    */
+
     switch (mov) {
         case 1:
             tab[l][c] = 1;
             tab[l][c-1] = 1;
             tab[l][c-2] = -1;
             pecas++;
-            lixou(tab,l,c,mov,m,n);
             break;
         case 2:
             tab[l-2][c] = -1;
             tab[l-1][c] = 1;
             tab[l][c] = 1;
             pecas++;
-            lixou(tab,l,c,mov,m,n);
             break;
         case 3:
             tab[l][c] = 1;
             tab[l][c+1] =1;
             tab[l][c+2] =-1;
             pecas++;
-            lixou(tab,l,c,mov,m,n);
             break;
         case 4:
             tab[l+2][c] = -1;
             tab[l+1][c] = 1;
             tab[l][c] = 1;
             pecas++;
-            lixou(tab,l,c,mov,m,n);
             break;
     }
-    /*    printf("%s                           DEPOIS\n",KBLU );
+        printf("%s                           DEPOIS\n",KBLU );
     printf("                    |%s tab[%d][%d], mov = %d|\n",KBLU,l,c,mov);
     imprimeTab(tab,m,n);
-    */
+
 }
 
 void debugPosicoes (posArray *pArr) {
     int i;
-    for (i = 0; i < pArr->max ; printf("[%d , %d]\n",pArr->p[i].x,pArr->p[i].y ) , i++);
+    for (i = 0; i < pArr->i ; printf("[%d , %d]\n",pArr->p[i].x,pArr->p[i].y ) , i++);
 }
 
 void imprimeTab (minINT **tab,int m, int n) {

@@ -11,10 +11,15 @@ typedef struct {
     unsigned int i;
     unsigned int max;
 } posArray;
-typedef struct
-{
-    /*Int type stack */
-    int *v;
+
+typedef struct {
+    unsigned int jCoord;
+    minINT mov;
+} pMovData;
+
+typedef struct {
+    /*pMovDt type stack */
+    pMovData *p_mov;
     int top;
     int max;
 } stack;
@@ -22,8 +27,8 @@ typedef struct
 stack * newStack (int max);
 int isEmpty (stack s);
 void reallocStack(stack *s);
-void push (stack *s, int n);
-int pop (stack  *s);
+void push (stack *s, unsigned int jCoord, minINT mov);
+pMovData pop (stack  *s);
 posArray * criaPosArray (int n);
 void adicionaPos(posArray *p_Array,pos a);
 
