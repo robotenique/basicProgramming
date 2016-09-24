@@ -83,8 +83,7 @@ minINT ** criaTabuleiro (int m, int n) {
     return tab;
 }
 
-bool resolveRestaUm (minINT ** tab, int m, int n,int buracos,posArray *posB) {
-    /* CUIDADO COM O FATO DOS posArray serem passados por referencia!! */
+bool resolveRestaUm (minINT ** tab, int m, int n, int buracos, posArray *posB) {
     int j;
     minINT mov;
     /*imprimeTab(tab,m,n); sleep(1);*/

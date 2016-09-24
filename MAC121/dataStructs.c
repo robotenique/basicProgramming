@@ -30,7 +30,6 @@ void reallocStack(stack *s)
     int newMax = s -> max * 2;
     int i;
     pMovData * w;
-    printf("REALOCANDO... size = %d\n",newMax);
     w = malloc(newMax * sizeof(pMovData));
     for (i = 0; i < s -> max; i++)
         w[i] = s -> p_mov[i];

@@ -1,169 +1,172 @@
+/*
+ * @author: Juliano Garcia de Oliveira
+ * nº usp = 9277086
+ * MAC0121
+ * 26/09/2016
+ */
 #include <stdio.h>
 #include <stdlib.h>
 #include "dataStructs.h"
 
+/* Definição de tipos */
 typedef unsigned long int ulint;
 
-minINT ** criaTabuleiro(int m, int n);
-ulint * getDadosTabuleiro (minINT **tab, int m, int n, posArray *posB);
-bool resolveRestaUm (minINT ** tab, int m, int n,ulint buracos,posArray *posB);
-bool restUmBacktrack (minINT **tab, int m, int n, ulint nHoles, posArray *posB);
-bool fazMovimento (minINT **tab , int m, int n, int j, minINT mov);
-void desfazMovimento (minINT **tab, int m, int n,int j, minINT mov);
-bool estaResolvido (posArray *posB, minINT **tab,ulint buracos);
-minINT podeMover(minINT **tab, int m, int n, int j, minINT mov);
-bool haPecas_buracos(posArray *posB,minINT **tab);
-void printSolution (stack *mem, int n);
-/*-------------DEBUG-------------*/
-void debugPosicoes (posArray *pArr);
-void imprimeTab (minINT **tab,int m, int n);
-void lixou (minINT **tab, int l, int c, minINT mov, int m, int n);
+/* Protótipo de funções */
+minINT ** newBoard (int m, int n);
+ulint * getBoardData (minINT **tab, int m, int n, posArray *posH);
+bool solvePeg (minINT **tab, int m, int n, ulint nHoles, posArray *posH);
+bool doMove (minINT **tab , int m, int n, int j, minINT mov);
+void undoMove (minINT **tab, int m, int n, int j, minINT mov);
+bool isSolved (posArray *posH, minINT **tab, ulint nHoles);
+minINT canMove (minINT **tab, int m, int n, int j, minINT mov);
+bool allPegsAreHoles (posArray *posH, minINT **tab);
+void printAndDestroy (stack *mem, int n, bool print);
 
-ulint jCoord,pecas;
-minINT c_mov;
-unsigned  long cmp   = 0;
+ulint pegs;
+
 
 int main () {
     /*Declaração de variáveis */
-    int m,n,i,k,aux = 0;
-    ulint buracos = 0;
-    ulint *dados;
+    int m, n, i, k, aux = 0;
+    ulint nHoles = 0;
+    ulint *data;
     minINT ** tab;
-    posArray *posB;
+    posArray *posH;
 
     /*Leitura de dados */
-    scanf("%d%d",&m,&n);
-    tab = criaTabuleiro (m,n);
+    scanf ("%d%d", &m, &n);
+    tab = newBoard (m, n);
     for (i = 0; i < m; i++)
-        for (k = 0; k < n; k++)
-        {
-            scanf("%d", &aux);
-            tab[i][k] = (minINT)aux;
+        for (k = 0; k < n; k++) {
+            scanf ("%d", &aux);
+            tab[i][k] = (minINT) aux;
         }
     /*Inicialização de dados */
-    jCoord = 0;
-    c_mov = 1;
-    posB = criaPosArray(1);
-    dados = getDadosTabuleiro(tab,m,n,posB);
-    pecas = dados[0];
-    buracos = dados[1];
-    free(dados);
-    
-    if(!restUmBacktrack(tab,m,n,buracos,posB))
-        printf("Impossivel\n");
+    posH = criaPosArray (1);
+    data = getBoardData (tab,m,n,posH);
+    pegs = data[0];
+    nHoles = data[1];
+    free (data);
+
+    if (!solvePeg(tab,m,n,nHoles,posH))
+        printf ("Impossivel\n");
+
     return 0;
 }
 
-minINT ** criaTabuleiro (int m, int n) {
+minINT ** newBoard (int m, int n) {
     int i;
     minINT ** tab;
-    tab = malloc(m * sizeof(minINT*));
+
+    tab = malloc (m*sizeof(minINT*));
     if (tab != NULL)
         for (i = 0; i < m; i++)
-                tab[i] = malloc(n * sizeof(minINT));
-    else {
-        printf("Erro na alocação de memória, terminando programa...\n");
+                tab[i] = malloc(n*sizeof(minINT));
+    else
         exit(-1);
-    }
+
     return tab;
 }
 
-bool restUmBacktrack (minINT **tab, int m, int n, ulint nHoles, posArray *posB)
-{
+bool solvePeg (minINT **tab, int m, int n, ulint nHoles, posArray *posH) {
     int j;
     bool ok;
-    minINT mov;
+    ulint jCoord = 0;
+    minINT mov, c_mov = 1;
     stack *mem;
     pMovData l_action;
-    mem = newStack (pecas);
+    mem = newStack (pegs);
+
     while (true) {
          j = jCoord;
-         /* Percorre todas as peças do tabuleiro.
-          * Só sai do loop quando não houver mais movimentos possíveis!
-          */
          while (j < m*n) {
              ok = false;
-             if(tab[j/n][j%n]==1) {
+             if (tab[j/n][j%n] == 1) {
                 mov = c_mov;
                 while (mov < 5 && !ok) {
-                    if (fazMovimento(tab,m,n,j,mov))
+                    if (doMove(tab, m, n, j, mov))
                         ok = true;
                     mov++;
                 }
                 if (ok) {
-                    push(mem,j,mov-1);
+                    push(mem, j, mov - 1);
                     j = -1;
                 }
                 c_mov = 1;
              }
              j++;
          }
-         if (estaResolvido(posB,tab,nHoles)) {
-            printSolution(mem,n);
+
+         if (isSolved(posH, tab, nHoles)) {
+            printAndDestroy (mem, n, true);
             return true;
         }
-         if (isEmpty(*mem))
+         if (isEmpty(*mem)) {
+            printAndDestroy (mem, n, false);
              return false;
-         l_action = pop(mem);
-         desfazMovimento(tab,m,n,l_action.jCoord,l_action.mov);
+         }
+         l_action = pop (mem);
+         undoMove (tab, m, n, l_action.jCoord, l_action.mov);
          c_mov = l_action.mov + 1;
          jCoord = l_action.jCoord;
     }
 }
 
 /*
- * Funcao: getDadosTabuleiro
+ * Funcao: getBoardData
  * ----------------------------
- *   Retorna um vetor com a quantidade de peças e buracos , e armazena a posição
+ *   Retorna um vetor com a quantidade de peças e nHoles , e armazena a posição
  *   de cada buraco.
  *   tab: matriz do tabuleiro
  *   m: número de linhas
  *   n: número de colunas
  *
- *   return: Vetor de três posições: [0] = nº de peças e [1] = número de buracos
+ *   return: Vetor de três posições: [0] = nº de peças e [1] = número de nHoles
  */
 
-ulint * getDadosTabuleiro (minINT **tab, int m, int n, posArray *posB) {
-    int i,j;
+ulint * getBoardData (minINT **tab, int m, int n, posArray *posH) {
+    int i, j;
     pos nPos;
-    ulint * dados;
-    ulint buracos = 0;;
-    pecas = 0;
-    dados = malloc(2 * sizeof(ulint));
-    if (dados == NULL)
+    ulint * data;
+    ulint nHoles = 0;;
+    pegs = 0;
+    data = malloc(2*sizeof(ulint));
+
+    if (data == NULL)
         exit(-1);
     for (i = 0; i < m; i++)
         for (j = 0; j < n; j++)
-            if (tab[i][j]==1)
-                pecas++;
-            else if (tab[i][j]==-1) {
-                buracos++;
+            if (tab[i][j] == 1)
+                pegs++;
+            else if (tab[i][j] == -1) {
+                nHoles++;
                 nPos.x = i;
                 nPos.y = j;
-                adicionaPos(posB,nPos);
+                adicionaPos (posH, nPos);
             }
-    dados[0] = pecas;
-    dados[1] = buracos;
-    return dados;
+
+    data[0] = pegs;
+    data[1] = nHoles;
+    return data;
 }
 
-bool estaResolvido (posArray *posB, minINT **tab, ulint buracos) {
-    if (pecas == buracos)
-        return haPecas_buracos(posB,tab);
+bool isSolved (posArray *posH, minINT **tab, ulint nHoles) {
+    if (pegs == nHoles)
+        return allPegsAreHoles (posH, tab);
     return false;
 }
 
-bool haPecas_buracos (posArray *posB, minINT **tab ) {
+bool allPegsAreHoles (posArray *posH, minINT **tab ) {
     int i;
-    for(i = 0; i < posB->i ; i++)
-        if(tab[posB->p[i].x][posB->p[i].y]!=1)
+
+    for(i = 0; i < posH->i ; i++)
+        if(tab[posH->p[i].x][posH->p[i].y] != 1)
             return false;
     return true;
 }
 
-minINT podeMover(minINT **tab, int m, int n, int j, minINT mov) {
+minINT canMove(minINT **tab, int m, int n, int j, minINT mov) {
     int l = j/n, c = j%n;
-    if(l > 6)printf("(pM) L = %d ",l );
     /*
      *    Movimentos possíves
      *           (2)
@@ -183,26 +186,26 @@ minINT podeMover(minINT **tab, int m, int n, int j, minINT mov) {
      */
     switch (mov) {
         case 1:
-            if(c - 2 < 0 || tab[l][c-1]!=1 || tab[l][c-2] != -1) return 0;
+            if(c - 2 < 0 || tab[l][c-1] != 1 || tab[l][c-2] != -1) return 0;
             break;
         case 2:
-            if(l - 2 < 0 || tab[l-1][c]!=1 || tab[l-2][c] != -1) return 0;
+            if(l - 2 < 0 || tab[l-1][c] != 1 || tab[l-2][c] != -1) return 0;
             break;
         case 3:
-            if(c + 2 > n-1 || tab[l][c+1]!=1 || tab[l][c+2] != -1) return 0;
+            if(c + 2 > n-1 || tab[l][c+1] != 1 || tab[l][c+2] != -1) return 0;
             break;
         case 4:
-            if(l + 2 > m-1 || tab[l+1][c]!=1 || tab[l+2][c] != -1) return 0;
+            if(l + 2 > m-1 || tab[l+1][c] != 1 || tab[l+2][c] != -1) return 0;
             break;
     }
     return mov;
 }
 
-bool fazMovimento (minINT **tab , int m, int n, int j,minINT mov)
-{
+bool doMove (minINT **tab , int m, int n, int j,minINT mov) {
     minINT movN;
-    int l=0,c=0;
-    if((movN = podeMover(tab,m,n,j,mov))) {
+    int l, c;
+
+    if((movN = canMove(tab, m, n, j, mov))) {
         l = j/n;
         c = j%n;
         switch (movN) {
@@ -210,69 +213,68 @@ bool fazMovimento (minINT **tab , int m, int n, int j,minINT mov)
                 tab[l][c-2] = 1;
                 tab[l][c-1] = -1;
                 tab[l][c] = -1;
-                pecas--;
+                pegs--;
                 return true;
             case 2:
                 tab[l-2][c] = 1;
                 tab[l-1][c] = -1;
                 tab[l][c] = -1;
-                pecas--;
+                pegs--;
                 return true;
             case 3:
                 tab[l][c+2] = 1;
                 tab[l][c+1] = -1;
                 tab[l][c] = -1;
-                pecas--;
+                pegs--;
                 return true;
             case 4:
                 tab[l+2][c] = 1;
                 tab[l+1][c] = -1;
                 tab[l][c] = -1;
-                pecas--;
+                pegs--;
                 return true;
         }
-
     }
+
     return false;
 }
 
-
-void desfazMovimento (minINT **tab, int m, int n,int j, minINT mov) {
+void undoMove (minINT **tab, int m, int n, int j, minINT mov) {
     int l = j/n, c = j%n;
+
     switch (mov) {
         case 1:
             tab[l][c] = 1;
             tab[l][c-1] = 1;
             tab[l][c-2] = -1;
-            pecas++;
+            pegs++;
             break;
         case 2:
             tab[l-2][c] = -1;
             tab[l-1][c] = 1;
             tab[l][c] = 1;
-            pecas++;
+            pegs++;
             break;
         case 3:
             tab[l][c] = 1;
-            tab[l][c+1] =1;
-            tab[l][c+2] =-1;
-            pecas++;
+            tab[l][c+1] = 1;
+            tab[l][c+2] = -1;
+            pegs++;
             break;
         case 4:
             tab[l+2][c] = -1;
             tab[l+1][c] = 1;
             tab[l][c] = 1;
-            pecas++;
+            pegs++;
             break;
     }
 }
 
-void printSolution (stack *mem, int n)
-{
+void printSolution (stack *mem, int n) {
     int i,j;
     pos oldP,newP;
 
-    for (i = 0; i < mem->top; i++) {
+    for (i = 0; i < mem->top && print; i++) {
         j = mem->p_mov[i].jCoord;
         oldP.x = newP.x = j/n;
         oldP.y = newP.y = j%n;
@@ -290,7 +292,6 @@ void printSolution (stack *mem, int n)
                 newP.x = oldP.x + 2;
                 break;
         }
-        printf("%d:%d-%d:%d\n",oldP.x,oldP.y,newP.x,newP.y);
+        printf("%d:%d-%d:%d\n", oldP.x, oldP.y, newP.x, newP.y);
     }
-
 }
