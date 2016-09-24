@@ -4,6 +4,7 @@
  * MAC0121
  * 26/09/2016
  */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include "dataStructs.h"
@@ -18,6 +19,7 @@ bool isSolved (posArray *posH, minINT **tab, ulint nHoles);
 minINT canMove (minINT **tab, int m, int n, int j, minINT mov);
 bool allPegsAreHoles (posArray *posH, minINT **tab);
 void printSolution (stack *mem, int n);
+void destroy(minINT **tab, int m, posArray *posH, stack *mem);
 
 ulint pegs;
 
@@ -47,7 +49,7 @@ int main () {
             tab[i][k] = (minINT) aux;
         }
     /*Inicialização de dados */
-    posH = criaPosArray (1);
+    posH = newPosArray (1);
     data = getBoardData (tab,m,n,posH);
     pegs = data[0];
     nHoles = data[1];
@@ -137,10 +139,13 @@ bool solvePeg (minINT **tab, int m, int n, ulint nHoles, posArray *posH) {
 
          if (isSolved(posH, tab, nHoles)) {
             printSolution (mem, n);
+            destroy(tab, m, posH, mem);
             return true;
         }
-         if (isEmpty(*mem))
+         if (isEmpty(*mem)) {
+             destroy(tab, m, posH, mem);
              return false;
+         }
 
          /* Backtrack */
          l_action = pop (mem);
@@ -179,7 +184,7 @@ ulint * getBoardData (minINT **tab, int m, int n, posArray *posH) {
                 nHoles++;
                 nPos.x = i;
                 nPos.y = j;
-                adicionaPos (posH, nPos);
+                addPos (posH, nPos);
             }
 
     data[0] = pegs;
@@ -414,4 +419,26 @@ void printSolution (stack *mem, int n) {
         }
         printf("%d:%d-%d:%d\n", oldP.x, oldP.y, newP.x, newP.y);
     }
+}
+
+/*
+ * Função: destroy
+ * --------------------------------------------------------
+ *   Desaloca estruturas de dados da memória do programa.
+ *
+ * @args  tab: tabuleiro do jogo
+ *        m : Número de linhas
+ *        posH : Vetor de posições dos buracos iniciais
+ *        mem : Pilha com os movimentos executados
+ *
+ * @return
+ */
+void destroy(minINT **tab, int m, posArray *posH, stack *mem) {
+    int i;
+
+    for (i = 0; i < m; i++)
+        free(tab[i]);
+    free (tab);
+    free (posH->p);
+    destroyStack (mem);
 }

@@ -30,8 +30,10 @@ int isEmpty (stack s);
 void reallocStack(stack *s);
 void push (stack *s, unsigned int jCoord, minINT mov);
 pMovData pop (stack  *s);
-posArray * criaPosArray (int n);
-void adicionaPos(posArray *p_Array,pos a);
+posArray * newPosArray (int n);
+void addPos(posArray *p_Array,pos a);
+void destroyPosArray(posArray *p_Array);
+void destroyStack(stack *s);
 
 
 #endif

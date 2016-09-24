@@ -8,9 +8,7 @@
 #include "dataStructs.h"
 
 
-
-stack * newStack (int max)
-{
+stack * newStack (int max) {
     stack *s;
     s = malloc(sizeof(stack));
     s -> p_mov = malloc(max*sizeof(pMovData));
@@ -19,14 +17,12 @@ stack * newStack (int max)
     return s;
 }
 
-int isEmpty (stack s)
-{
+int isEmpty (stack s) {
     return s.top == 0;
 }
 
-void reallocStack(stack *s)
-{
-/*Doubles the maximum of elements in the stack */
+void reallocStack(stack *s) {
+    /*Doubles the maximum of elements in the stack */
     int newMax = s -> max * 2;
     int i;
     pMovData * w;
@@ -38,8 +34,7 @@ void reallocStack(stack *s)
     s -> max = newMax;
 }
 
-void push (stack *s, unsigned int jCoord, minINT mov)
-{
+void push (stack *s, unsigned int jCoord, minINT mov) {
     pMovData x;
     x.jCoord = jCoord;
     x.mov = mov;
@@ -49,16 +44,15 @@ void push (stack *s, unsigned int jCoord, minINT mov)
     (s -> top)++;
 }
 
-pMovData pop (stack  *s)
-{
-/*All checks must be made in the implementation */
+pMovData pop (stack  *s) {
+    /*All checks must be made in the implementation */
     pMovData x;
     x = s -> p_mov[s -> top - 1];
     (s -> top)--;
     return x;
 }
 
-posArray * criaPosArray (int n) {
+posArray * newPosArray (int n) {
     posArray *p_Array;
     p_Array = malloc(sizeof(p_Array));
     if (p_Array == NULL)
@@ -71,7 +65,7 @@ posArray * criaPosArray (int n) {
     return p_Array;
 }
 
-void adicionaPos(posArray *p_Array,pos a) {
+void addPos(posArray *p_Array, pos a) {
     int newMax;
     pos *q;
     int i;
@@ -90,4 +84,8 @@ void adicionaPos(posArray *p_Array,pos a) {
     }
     p_Array->p[p_Array->i] = a;
     p_Array->i+=1;
+}
+
+void destroyStack(stack *s) {
+    free (s->p_mov);
 }
