@@ -1,6 +1,7 @@
 #ifndef _DATA_STRUCTS_H_
 #define _DATA_STRUCTS_H_
 typedef char minINT;
+typedef unsigned long int ulint;
 typedef enum { false, true } bool;
 typedef struct {
        int x;
