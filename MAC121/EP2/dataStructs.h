@@ -1,7 +1,7 @@
 #ifndef _DATA_STRUCTS_H_
 #define _DATA_STRUCTS_H_
 
-/* Data structures - Define estuturas de dados usadas no EP.
+/* Data structures - Define estruturas de dados usadas no EP.
  * As structs e operações são autoexplicativas.
  */
 
