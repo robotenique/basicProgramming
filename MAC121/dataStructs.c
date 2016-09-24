@@ -1,5 +1,4 @@
-/* Stack data structure definition
- * basic usage: gcc -o stk file.c stack.c  -Wall -ansi -pedantic -O2
+/*  Data structures - Estruturas de dados usadas no programa
  *
  */
 
