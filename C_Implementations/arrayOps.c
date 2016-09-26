@@ -1,31 +1,44 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "arrayOps.h"
+void printArray (int *array, int n);
 
 int main(int argc, char const *argv[]) {
     int *v;
     int val;
-    int n = 100000;
+    int n = 100000000;
     v = malloc(n*sizeof(int));
     for (int i = n; i > 0; i--)
-        v[n - i] = i;
-    val = binarySearch(v, n, 34);
-    printf("val = %d\n",val );
+        v[i] = i+7;
+    val = binarySearchRec(v,0,n-1,123341);
+    printf("val = %d\n",val);
     return 0;
 }
-/* TODO : FIX THIS */
+
+void printArray (int *array, int n) {
+    for (int i = 0; i < n; i++)
+        printf("[%d]\n",array[i] );
+}
+
 int binarySearch(int *array, int n, int x) {
     int b = 0, e = n - 1, m;
-    while (b < e) {
+    while (b <= e) {
         m = (b+e)/2;
         if (x > array[m])
             b = m+1;
         else if (x < array[m])
-            e = m+1;
+            e = m-1;
         else
             return m;
-        printf("[%d        |%d|        %d]\n",b,m,e );
-    }
-
+        }
     return -1;
+}
+
+int binarySearchRec (int *array, int b, int e , int x) {
+    int m;
+    if (b > e) return -1;
+    m = (b + e)/2;
+    if (array[m] == x) return m;
+    if (x < array[m]) return (binarySearchRec(array, b , m - 1, x));
+    return binarySearchRec(array, m + 1, e, x);
 }
