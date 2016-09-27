@@ -6,12 +6,25 @@ import scrapy
  II - Execute in the terminal " $ scrapy crawl <spider_name> "
 '''
 # Define our spider class, which uses heritage from scrapy.Spider
+
+
 class QuotesSpyder(scrapy.Spider):
     # Identify the spider. Must be unique within the program
     name = "quotes"
+    # The start urls is an attribute that have the default behavior
+    start_urls = [
+        "http://quotes.toscrape.com/tag/life/",
+        "http://quotes.toscrape.com/tag/love/"
+    ]
 
-    # Yield an iterator request , somewhat like a generator function
+    '''
+    -->Yield an iterator request , somewhat like a generator function<--
 
+    For each url in the list, the lib will make the request, return the
+    response in the "response" object, and execute the callback function
+    related (which in this case is the parse method)
+
+    #Here is the custom interpretation of the method
     def start_requests(self):
         urls = [
                 "http://quotes.toscrape.com/tag/life/",
@@ -19,6 +32,7 @@ class QuotesSpyder(scrapy.Spider):
                 ]
         for url in urls:
             yield scrapy.Request(url=url, callback=self.parse)
+    '''
 
     '''
         Called for every request. It receives a response parameter ,
