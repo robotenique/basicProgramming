@@ -13,8 +13,7 @@ class QuotesSpyder(scrapy.Spider):
     name = "quotes"
     # The start urls is an attribute that have the default behavior
     start_urls = [
-        "http://quotes.toscrape.com/tag/life/",
-        "http://quotes.toscrape.com/tag/love/"
+        "https://uspdigital.usp.br/rucard/Jsp/cardapioSAS.jsp?codrtn=8"
     ]
 
     '''
