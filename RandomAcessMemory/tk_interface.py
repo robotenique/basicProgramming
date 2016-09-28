@@ -1,50 +1,30 @@
-from tkinter import *
+import tkinter as tk
 from tkinter import ttk
+from tkinter import messagebox
 
 
-def plotGraph(nText,fText):
-    try:
-        value = int(nText.get())
-        fText.set((value+5))
-    except ValueError:
-        print("ERRROUUU")
+def show_info():
+    messagebox.showinfo("More info", "First column represents the subject" \
+                        " and the second represents its corresponding " \
+                        "current number of tagged questions on Stack Overflow.")
 
-def instantiateIterface():
-    top = Tk()
-    nText = StringVar()
-    fText = StringVar()
+root = tk.Tk()
 
-    top.title("Gráfico de frequência")
+tree = ttk.Treeview(root, columns=("Tags"), height=6)
 
-    topFrame = ttk.Frame(top, padding="3 3 12 12")
-    topFrame.grid(column=0, row=0, sticky=(N, W, E, S))
-    topFrame.columnconfigure(0, weight=1)
-    topFrame.rowconfigure(0, weight=1)
+subjects = {"Tkinter": "8,013",
+            "Python": "425,865",
+            "C++": "369,851",
+            "Java": "858,459"}
 
-    n_entry = ttk.Entry(topFrame, width=7, textvariable=nText)
-    n_entry.grid(column=2, row=1, sticky=(W, E))
+for subject in subjects.keys():
+    tree.insert("", "end", text=subject, values=(subjects[subject]))
 
-    f_label = ttk.Label(topFrame, textvariable=fText)
-    f_label.grid(column=2, row=2, sticky=(W, E))
-    c_button = ttk.Button(topFrame, text="Calcular", command=lambda: plotGraph(nText, fText))
-    c_button.grid(column=3, row=3, sticky=W)
-    ttk.Label(top, text="nText").grid(column=3, row=1, sticky=W)
-    ttk.Label(top, text="text2").grid(column=1, row=2, sticky=E)
-    ttk.Label(top, text="text3").grid(column=3, row=2, sticky=W)
+tree.column("Tags", anchor="e")
+tree.pack(fill="both", expand=True)
 
-    for child in topFrame.winfo_children():
-        child.grid_configure(padx=5, pady=5)
-
-    n_entry.focus()
-    top.bind('<Return>', plotGraph)
-
-    top.mainloop()
+informer = tk.Button(root, text="More info", command=show_info)
+informer.pack(side="bottom")
 
 
-def main():
-
-    instantiateIterface()
-
-
-if __name__ == '__main__':
-    main()
+root.mainloop()
