@@ -2,11 +2,12 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2TkAgg
 
+# System backward compatibility
 import sys
 if sys.version_info[0] < 3:
     from Tkinter import *
     from Tkinter import ttk
-    from Tkinter import messagebox
+    from Tkinter import tkMessageBox as messagebox
 
 else:
     from tkinter import *
@@ -18,16 +19,16 @@ else:
 def plot(lim):
     # Clear current plot
     plt.clf()
+    # Create the Data to plot
     lim = int(lim.get())
     fRelMatrix = [[] for y in range(6)]
     x_axis = [x for x in range(1, lim+1)]
     uniform_list = np.random.randint(1, size=lim, high=7)
-    cor = [[1, 0, 0.85], [0.4, 0, 0.8520772], [0, 0, 1], [0.2, 1, 1],
+    color = [[1, 0, 0.85], [0.4, 0, 0.8520772], [0, 0, 1], [0.2, 1, 1],
     [0.2, 1, 0], [0.9, 0.973553065884, 0.09], [1, 0.407421725309, 0], [1, 0, 0]]
     z = np.arange(6)+2
     data_freq = np.array([0, 0, 0, 0, 0, 0])
     i = 0
-
     for num in uniform_list:
         i += 1
         data_freq[num-1] += 1
@@ -35,8 +36,8 @@ def plot(lim):
             fRelMatrix[j].append(data_freq[j]/i)
     for j in range(6):
         if(i < 10000):
-            plt.plot(x_axis, fRelMatrix[j], linewidth=3, color=cor[j])
-        plt.scatter(x_axis, fRelMatrix[j], marker='+', c=cor[j], zorder=z[j])
+            plt.plot(x_axis, fRelMatrix[j], linewidth=3, color=color[j])
+        plt.scatter(x_axis, fRelMatrix[j], marker='+', c=color[j], zorder=z[j])
 
     # Axis configuration
     plt.ylim(0, 1)
@@ -45,7 +46,6 @@ def plot(lim):
     plt.ylabel('Freq. Relativa', fontsize=18)
     ax = plt.gca()
     plt.tight_layout()
-
     ax.spines['bottom'].set_color('k')
     ax.spines['left'].set_color('k')
     ax.spines['right'].set_visible(False)
@@ -58,6 +58,7 @@ def plot(lim):
     ax.tick_params(axis='x', colors='k')
     ax.tick_params(axis='x', colors='k')
 
+    # Draw graphic
     plt.gcf().canvas.draw()
 
 
