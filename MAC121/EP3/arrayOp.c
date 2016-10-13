@@ -1,5 +1,6 @@
 #include "arrayOp.h"
 #include <stdio.h>
+#include <stdlib.h>
 void swap (int v[], int x, int y);
 void toDown (int v[], int n, int i);
 void heapify (int v[], int n);
@@ -39,6 +40,13 @@ void swap (int v[], int x, int y) {
     int aux = v[x];
     v[x] = v[y];
     v[y] = aux;
+}
+
+void checkArray (int v[]) {
+    if(v == NULL) {
+        printf("ERRO FATAL NA ALOCAÇÃO DE MEMÓRIA! Saindo do programa...\n");
+        exit(-1);
+    }
 }
 
 void printArray (int v[], int n) {

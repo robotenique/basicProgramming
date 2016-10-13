@@ -8,17 +8,42 @@
 #include <stdio.h>
 #include "arrayOp.h"
 
+
 int* createArray(int n);
+bool isPossible(int v[], int n);
 
 int main(int argc, char const *argv[]) {
-    int *v = createArray(90);
-    printArray(v,90);
-    heapSort(v, 90);
-    printArray(v,90);
+    int n, k;
+    int *v;
+    /* Leitura */
+    scanf("%d",&n);
+    v = malloc(sizeof(int));
+    checkArray(v);
+    for (k = 0; k < n; k++)
+        scanf ("%d", &v[k]);
 
+     /* Verificar se é possível*/
+     if(!isPossible(v, n)) {
+         printf("Nao e possivel\n");
+         exit(0);
+     }
 
 
     return 0;
+}
+
+bool isPossible(int v[], int n) {
+    int i;
+    int *pVector;
+    if (!(n % 2))
+        return true;
+    pVector = malloc(n * sizeof(int));
+    printArray(v, n);
+    checkArray(pVector);
+    for (i = 0; i < n; pVector[i] = v[i] % 2, i++);
+    printArray(pVector, n);
+    return true;
+
 }
 
 
