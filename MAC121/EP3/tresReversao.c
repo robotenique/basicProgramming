@@ -11,7 +11,8 @@
 
 int* createArray(int n);
 bool sortArrayCustom (int **v, int n);
-
+void bubbleThreeSort (int *v, int *s, int n);
+int mod(int a, int b);
 int main(int argc, char const *argv[]) {
     int n, k;
     int **v;
@@ -31,7 +32,6 @@ int main(int argc, char const *argv[]) {
     printArray(v[1],n);
     if(!sortArrayCustom (v, n))
         printf("Nao e possivel\n");
-
 
 
     return 0;
@@ -58,13 +58,24 @@ bool sortArrayCustom (int **v, int n) {
         for (k = 0; k < n && (sortV[1][k] == v[1][k]); k++);
         if (k != n)
             return false;
+        bubbleThreeSort(v[0], sortV[0], n);
 
     }
     return true;
 }
 
+void bubbleThreeSort (int *v, int *s, int n) {
 
-/* Create an Array of integers x , x belongs to []*/
+}
+
+/* Implement a ~Pythonic mod operation */
+int mod (int a, int b) {
+    if(a >= 0)
+        return a%b;
+    return (b+a)%b;
+}
+
+/* Create an Array of integers x , x belongs to random numbers :0*/
 int* createArray (int n) {
     int i;
     int *v = malloc(n*sizeof(int));
