@@ -1,6 +1,8 @@
 #include "arrayOp.h"
-
+#include <stdio.h>
 void swap (int v[], int x, int y);
+void toDown (int v[], int n, int i);
+void heapify (int v[], int n);
 
 void toDown (int v[], int n, int i) {
     int x = v[i];
@@ -18,14 +20,15 @@ void toDown (int v[], int n, int i) {
     v[parent] = x;
 }
 
-void heapfy (int v[], int n) {
+void heapify (int v[], int n) {
     int i;
-    for (i = (n-2)/2; i >=0; toDown(v, n, i), i--);
+    for (i = (n-2)/2; i >=0;toDown(v, n, i), i--);
 }
+
 
 void heapSort (int v[], int n) {
     int i;
-    heapfy(v, n);
+    heapify(v, n);
     for (i = n-1; i > 0; i--){
         swap(v, 0, i);
         toDown(v, i, 0);
@@ -38,7 +41,10 @@ void swap (int v[], int x, int y) {
     v[y] = aux;
 }
 
-int main(int argc, char const *argv[]) {
-    /* code */
-    return 0;
+void printArray (int v[], int n) {
+    int k = 0;
+    printf("[%2d,",v[k]);
+    for (k = 1; k < n - 1; printf(" %2d,",v[k]), ++k);
+    printf(" %2d]",v[k]);
+    printf("\n");
 }
