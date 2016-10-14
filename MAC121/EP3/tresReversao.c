@@ -8,20 +8,25 @@
 #include <stdio.h>
 #include "arrayOp.h"
 
-
+/* TODO: Consertar loop infinito p/ pares
+ *       Consertar calculo p/ ímpares
+ *       Teste de mesa com ímpares (??)
+ */
 int* createArray(int n);
 bool sortArrayCustom (int **v, int n);
 void bThreeSortEven (int **v, int **s, int n);
 void bThreeSortOdd (int **v, int **s, int n);
 int mod(int a, int b);
 void swapPos (int **v, int x, int y);
+void swapPosAndIndex (int **v, int **s, int x, int y);
+
 
 int main(int argc, char const *argv[]) {
     int n, i;
     int **v;
     /* Leitura */
     scanf("%d",&n);
-    v = malloc(2*sizeof(int*));
+    v = malloc(3*sizeof(int*));
     if(v == NULL) exit(-1);
     v[0] = malloc(n*sizeof(int));
     v[1] = malloc(n*sizeof(int));
@@ -41,7 +46,7 @@ int main(int argc, char const *argv[]) {
 
     /*************************************/
     if(n < 3 || !sortArrayCustom (v, n))
-        printf("Nao e possivel\n");        
+        printf("Nao e possivel\n");
     printArray(v[0],n);
     return 0;
 }
@@ -79,50 +84,66 @@ bool sortArrayCustom (int **v, int n) {
          * qualquer posição do vetor pulando de 3 em 3, logo é possível
          * ordernar o vetor (Todo elemento pode ir para a posição correta)!
          */
+        /* V[1] agora possui os indíces onde cada número deve ficar após
+         * a ordenação do vetor.
+         */
+        for(k = 0; k < n; v[1][sortV[1][k]] = k, k++);
         bThreeSortOdd(v, sortV, n);
     }
     return true;
 }
 
 void bThreeSortEven (int **v, int **s, int n) {
-    int i, k = 0;
+    int i, pos = 0;
     /* Sorting dos números nas posições pares */
     for (i = n - 2; i >= 0; i -= 2) {
-        k = s[1][i];
+        pos = s[1][i];
         while(v[0][i] != s[0][i]) {
-            if(v[0][mod(k + 2, n)] != s[0][mod(k + 2, n)]) {
-                printf("%d\n",k);
-                swapPos(v, k, mod(k + 2, n));
-                k = mod(k + 2, n);
+            if(v[0][mod(pos + 2, n)] != s[0][mod(pos + 2, n)]) {
+                printf("%d\n",pos);
+                swapPos(v, pos, mod(pos + 2, n));
+                pos = mod(pos + 2, n);
             }
             else {
-                printf("%d\n",mod(k - 2, n));
-                swapPos(v, k, mod(k - 2, n));
-                k = mod(k - 2, n);
+                printf("%d\n",mod(pos - 2, n));
+                swapPos(v, pos, mod(pos - 2, n));
+                pos = mod(pos - 2, n);
             }
         }
     }
     /* Sorting dos números nas posições ímpares */
     for (i = n - 1; i >=1; i -= 2) {
-        k = s[1][i];
+        pos = s[1][i];
         while (v[0][i] != s[0][i]) {
-            if(v[0][mod(k + 2, n)] != s[0][mod(k + 2, n)]) {
-                printf("%d\n",k);
-                swapPos(v, k, mod(k + 2, n));
-                k = mod(k + 2, n);
+            if(v[0][mod(pos + 2, n)] != s[0][mod(pos + 2, n)]) {
+                printf("%d\n",pos);
+                swapPos(v, pos, mod(pos + 2, n));
+                pos = mod(pos + 2, n);
             }
             else {
-                printf("%d\n",mod(k - 2, n));
-                swapPos(v, k, mod(k - 2, n));
-                k = mod(k - 2, n);
+                printf("%d\n",mod(pos - 2, n));
+                swapPos(v, pos, mod(pos - 2, n));
+                pos = mod(pos - 2, n);
             }
         }
     }
 }
 
 void bThreeSortOdd (int **v, int **s, int n) {
-    printf("ÍMPAR\n");
-    exit(-1);
+    int total = n, i, pos;
+    /* Primeira posição a ser preenchida */
+    i = mod(n - 2 , n);
+    while(total > 1) {
+    /* Posição do elemento que deve ir para i */
+        pos = s[1][i];
+        while (v[0][i] != s[0][i]) {
+            swapPosAndIndex(v, s, pos, mod(pos + 2, n));
+            printf("%d\n", pos);
+            pos = mod(pos + 2, n);
+        }
+        i = mod(i - 2, n);
+        total--;
+    }
 }
 /* Implement a ~Pythonic mod operation */
 int mod (int a, int b) {
@@ -136,6 +157,16 @@ void swapPos (int **v, int x, int y) {
    v[0][x] = v[0][y];
    v[0][y] = aux;
 }
+
+void swapPosAndIndex (int **v, int **s, int x, int y) {
+    int aux1 = v[1][x], aux2 = s[1][v[1][x]];
+    swapPos(v,x,y);
+    s[1][v[1][x]] = s[1][v[1][y]];
+    s[1][v[1][y]] = aux2;
+    v[1][x] = v[1][y];
+    v[1][y] = aux1;
+}
+
 /* Create an Array of integers x , x belongs to random numbers :0*/
 int* createArray (int n) {
     int i;
