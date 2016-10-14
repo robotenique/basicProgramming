@@ -31,14 +31,18 @@ int main(int argc, char const *argv[]) {
         v[1][i] = i;
     }
     /*************************************/
+    printf("*************************************\n");
+
     printf("----Original----\n");
+    printf("V[0] = ");
     printArray(v[0],n);
+    printf("V[1] = ");
     printArray(v[1],n);
+
     /*************************************/
     if(n < 3 || !sortArrayCustom (v, n))
-        printf("Nao e possivel\n");
-
-
+        printf("Nao e possivel\n");        
+    printArray(v[0],n);
     return 0;
 }
 
@@ -52,22 +56,29 @@ bool sortArrayCustom (int **v, int n) {
     for(k = 0; k < n; sortV[0][k] = v[0][k], sortV[1][k] = k, k++);
     for (k = 0; k < 2; checkArray(v[k]), k++);
     heapSort(sortV, n);
+    /*************************************/
+    printf("----Calculado----\n");
+    printf("s[0] = ");
+    printArray(sortV[0],n);
+    printf("s[1] = ");
+    printArray(sortV[1],n);
+    printf("*************************************\n");
+    /*************************************/
     if(!(n % 2)) {
-        /* Se o vetor é par, quem estava em posição ímpar só pode ir
-         * para posição ímpar se for movendo de 3 em 3, e vice-versa
-         * para os pares.
+        /* Se o vetor é par (i.e. n%2 = 0), quem estava em posição ímpar só
+         * pode ir para posição ímpar pulando de 3 em 3, e vice-versa  para
+         * os pares.
          */
-        /*************************************/
-        printf("----Calculado----\n");
-        printArray(sortV[0],n);
-        printArray(sortV[1],n);
-        /*************************************/
         for (k = 0; k < n && (sortV[1][k]%2 == v[1][k]%2); k++);
         if (k != n)
             return false;
         bThreeSortEven(v, sortV, n);
     }
     else {
+        /* Se o vetor tem tamanho ímpar, qualquer elemento pode acessar
+         * qualquer posição do vetor pulando de 3 em 3, logo é possível
+         * ordernar o vetor (Todo elemento pode ir para a posição correta)!
+         */
         bThreeSortOdd(v, sortV, n);
     }
     return true;
@@ -79,27 +90,38 @@ void bThreeSortEven (int **v, int **s, int n) {
     for (i = n - 2; i >= 0; i -= 2) {
         k = s[1][i];
         while(v[0][i] != s[0][i]) {
-            printf("%d\n",k);
-            swapPos(v, k, mod(k + 2, n));
-            k = mod(k + 2, n);
+            if(v[0][mod(k + 2, n)] != s[0][mod(k + 2, n)]) {
+                printf("%d\n",k);
+                swapPos(v, k, mod(k + 2, n));
+                k = mod(k + 2, n);
+            }
+            else {
+                printf("%d\n",mod(k - 2, n));
+                swapPos(v, k, mod(k - 2, n));
+                k = mod(k - 2, n);
+            }
         }
     }
-    printArray(v[0],n);
     /* Sorting dos números nas posições ímpares */
     for (i = n - 1; i >=1; i -= 2) {
         k = s[1][i];
         while (v[0][i] != s[0][i]) {
-            printf("%d\n",k);
-            swapPos(v, k, mod(k + 2, n));
-            k = mod(k + 2, n);
+            if(v[0][mod(k + 2, n)] != s[0][mod(k + 2, n)]) {
+                printf("%d\n",k);
+                swapPos(v, k, mod(k + 2, n));
+                k = mod(k + 2, n);
+            }
+            else {
+                printf("%d\n",mod(k - 2, n));
+                swapPos(v, k, mod(k - 2, n));
+                k = mod(k - 2, n);
+            }
         }
-        
     }
-    printArray(v[0],n);
-
 }
 
 void bThreeSortOdd (int **v, int **s, int n) {
+    printf("ÍMPAR\n");
     exit(-1);
 }
 /* Implement a ~Pythonic mod operation */
