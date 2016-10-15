@@ -8,17 +8,15 @@
 #include <stdio.h>
 #include "arrayOp.h"
 
-/* TODO: Consertar loop infinito p/ pares
- *       Consertar calculo p/ ímpares
- *       Teste de mesa com ímpares (??)
- */
 int* createArray(int n);
-bool sortArrayCustom (int **v, int n);
+bool sortArray (int **v, int n);
 void bThreeSortOdd (int **v, int **s, int n);
 int mod(int a, int b);
 void swapPos (int **v, int x, int y);
 void swapPosAndIndex (int **v, int **s, int x, int y);
 void bubble3(int *array, int n, int ini);
+void fixPos (int *v, int *s, int i);
+
 
 int main(int argc, char const *argv[]) {
     int n, i;
@@ -34,19 +32,10 @@ int main(int argc, char const *argv[]) {
         scanf ("%d", &v[0][i]);
         v[1][i] = i;
     }
-    /*************************************/
-    /*printf("*************************************\n");
 
-    printf("----Original----\n");
-    printf("V[0] = ");
-    printArray(v[0],n);
-    printf("V[1] = ");
-    printArray(v[1],n);
-    */
-    /*************************************/
-    if(n < 3 || !sortArrayCustom (v, n))
+    if(n < 3 || !sortArray(v, n))
         printf("Nao e possivel\n");
-    printArray(v[0],n);
+    
     return 0;
 }
 
@@ -68,7 +57,9 @@ void bubble3(int *v, int n, int ini) {
       }
    }
 }
-bool sortArrayCustom (int **v, int n) {
+
+
+bool sortArray (int **v, int n) {
     int k;
     /* Cópia do vetor original */
     int **sortV = malloc(2*sizeof(int*));
@@ -78,20 +69,11 @@ bool sortArrayCustom (int **v, int n) {
     for(k = 0; k < n; sortV[0][k] = v[0][k], sortV[1][k] = k, k++);
     for (k = 0; k < 2; checkArray(v[k]), k++);
     heapSort(sortV, n);
-    printf("HEAPFYED\n");
-    /*************************************/
-    printf("----Calculado----\n");
-    printf("s[0] = ");
-    printArray(sortV[0],n);
-    printf("s[1] = ");
-    printArray(sortV[1],n);
-    printf("*************************************\n");
-    /*************************************/
+    /* Se o vetor é par (i.e. n%2 = 0), quem estava em posição ímpar só
+     * pode ir para posição ímpar pulando de 3 em 3, e vice-versa  para
+     * os pares.
+     */
     if(!(n % 2)) {
-        /* Se o vetor é par (i.e. n%2 = 0), quem estava em posição ímpar só
-         * pode ir para posição ímpar pulando de 3 em 3, e vice-versa  para
-         * os pares.
-         */
         for (k = 0; k < n && (sortV[1][k]%2 == v[1][k]%2); k++);
         if (k != n)
             return false;
@@ -99,13 +81,6 @@ bool sortArrayCustom (int **v, int n) {
         bubble3(v[0],n,1);
     }
     else {
-        /* Se o vetor tem tamanho ímpar, qualquer elemento pode acessar
-         * qualquer posição do vetor pulando de 3 em 3, logo é possível
-         * ordernar o vetor (Todo elemento pode ir para a posição correta)!
-         */
-        /* V[1] agora possui os indíces onde cada número deve ficar após
-         * a ordenação do vetor.
-         */
         for(k = 0; k < n; v[1][sortV[1][k]] = k, k++);
         bThreeSortOdd(v, sortV, n);
     }
@@ -113,7 +88,7 @@ bool sortArrayCustom (int **v, int n) {
 }
 
 void bThreeSortOdd (int **v, int **s, int n) {
-    int total = n, i, pos, aux1, aux2;
+    int total = n, i, pos;
     bool flag;
     /* Primeira posição a ser preenchida */
     i = mod(n - 2 , n);
@@ -130,17 +105,21 @@ void bThreeSortOdd (int **v, int **s, int n) {
         /* Trocando as posições dos índices (corrige erros se o número já
          *  está na posição correta desde o início!).
          */
-         if(flag) {
-            aux1 = s[1][i];
-            aux2 = v[1][i];
-            s[1][i] = i;
-            s[1][aux2] = aux1;
-             v[1][i] = i;         
-            v[1][aux1] = aux2;
-         }
+         if(!flag)
+            fixPos(v[1], s[1], i);
         i = mod(i - 2, n);
         total--;
     }
+}
+
+void fixPos (int *v, int *s, int i) {
+    int aux1, aux2;
+    aux1 = s[i];
+    aux2 = v[i];
+    s[i] = i;
+    s[aux2] = aux1;
+     v[i] = i;
+    v[aux1] = aux2;
 }
 /* Implement a ~Pythonic mod operation */
 int mod (int a, int b) {
