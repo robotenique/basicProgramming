@@ -14,12 +14,11 @@
  */
 int* createArray(int n);
 bool sortArrayCustom (int **v, int n);
-void bThreeSortEven (int **v, int **s, int n);
 void bThreeSortOdd (int **v, int **s, int n);
 int mod(int a, int b);
 void swapPos (int **v, int x, int y);
 void swapPosAndIndex (int **v, int **s, int x, int y);
-
+void bubble3(int *array, int n, int ini);
 
 int main(int argc, char const *argv[]) {
     int n, i;
@@ -36,14 +35,14 @@ int main(int argc, char const *argv[]) {
         v[1][i] = i;
     }
     /*************************************/
-    printf("*************************************\n");
+    /*printf("*************************************\n");
 
     printf("----Original----\n");
     printf("V[0] = ");
     printArray(v[0],n);
     printf("V[1] = ");
     printArray(v[1],n);
-
+    */
     /*************************************/
     if(n < 3 || !sortArrayCustom (v, n))
         printf("Nao e possivel\n");
@@ -51,6 +50,24 @@ int main(int argc, char const *argv[]) {
     return 0;
 }
 
+void bubble3(int *v, int n, int ini) {
+    int i, j, temp;
+    for(i = ini; i < n; i++) {
+      bool flag = false;
+       for(j = 0; j < n - i - 1; j++) {
+          if(v[j] > v[mod(j+2,n)]) {
+            flag = true;
+             temp = v[mod(j+2,n)];
+             v[mod(j+2,n)] = v[j];
+             v[j] = temp;
+             printf("%d\n",j);
+          }
+       }
+      if(!flag){
+         return;
+      }
+   }
+}
 bool sortArrayCustom (int **v, int n) {
     int k;
     /* Cópia do vetor original */
@@ -61,6 +78,7 @@ bool sortArrayCustom (int **v, int n) {
     for(k = 0; k < n; sortV[0][k] = v[0][k], sortV[1][k] = k, k++);
     for (k = 0; k < 2; checkArray(v[k]), k++);
     heapSort(sortV, n);
+    printf("HEAPFYED\n");
     /*************************************/
     printf("----Calculado----\n");
     printf("s[0] = ");
@@ -77,7 +95,8 @@ bool sortArrayCustom (int **v, int n) {
         for (k = 0; k < n && (sortV[1][k]%2 == v[1][k]%2); k++);
         if (k != n)
             return false;
-        bThreeSortEven(v, sortV, n);
+        bubble3(v[0],n,0);
+        bubble3(v[0],n,1);
     }
     else {
         /* Se o vetor tem tamanho ímpar, qualquer elemento pode acessar
@@ -93,54 +112,32 @@ bool sortArrayCustom (int **v, int n) {
     return true;
 }
 
-void bThreeSortEven (int **v, int **s, int n) {
-    int i, pos = 0;
-    /* Sorting dos números nas posições pares */
-    for (i = n - 2; i >= 0; i -= 2) {
-        pos = s[1][i];
-        while(v[0][i] != s[0][i]) {
-            if(v[0][mod(pos + 2, n)] != s[0][mod(pos + 2, n)]) {
-                printf("%d\n",pos);
-                swapPos(v, pos, mod(pos + 2, n));
-                pos = mod(pos + 2, n);
-            }
-            else {
-                printf("%d\n",mod(pos - 2, n));
-                swapPos(v, pos, mod(pos - 2, n));
-                pos = mod(pos - 2, n);
-            }
-        }
-    }
-    /* Sorting dos números nas posições ímpares */
-    for (i = n - 1; i >=1; i -= 2) {
-        pos = s[1][i];
-        while (v[0][i] != s[0][i]) {
-            if(v[0][mod(pos + 2, n)] != s[0][mod(pos + 2, n)]) {
-                printf("%d\n",pos);
-                swapPos(v, pos, mod(pos + 2, n));
-                pos = mod(pos + 2, n);
-            }
-            else {
-                printf("%d\n",mod(pos - 2, n));
-                swapPos(v, pos, mod(pos - 2, n));
-                pos = mod(pos - 2, n);
-            }
-        }
-    }
-}
-
 void bThreeSortOdd (int **v, int **s, int n) {
-    int total = n, i, pos;
+    int total = n, i, pos, aux1, aux2;
+    bool flag;
     /* Primeira posição a ser preenchida */
     i = mod(n - 2 , n);
     while(total > 1) {
     /* Posição do elemento que deve ir para i */
         pos = s[1][i];
+        flag = false;
         while (v[0][i] != s[0][i]) {
+            flag = true;
             swapPosAndIndex(v, s, pos, mod(pos + 2, n));
             printf("%d\n", pos);
             pos = mod(pos + 2, n);
         }
+        /* Trocando as posições dos índices (corrige erros se o número já
+         *  está na posição correta desde o início!).
+         */
+         if(flag) {
+            aux1 = s[1][i];
+            aux2 = v[1][i];
+            s[1][i] = i;
+            s[1][aux2] = aux1;
+             v[1][i] = i;         
+            v[1][aux1] = aux2;
+         }
         i = mod(i - 2, n);
         total--;
     }
