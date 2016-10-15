@@ -7,9 +7,6 @@ int main(int argc, char const *argv[]) {
     //Initialize an array
     int n = 100000, val = 30, x;
     float *v =createArray(n);
-    //for (int k = 0; k < n; printf("%.2f |",v[k]), k++);
-    //x = linearSearch(v,n,val);
-    //printf("Linear Search (%d) = %d\n",val,x);
 
     /*Sorting Times:
      * Bubble: 48.01s
@@ -17,7 +14,7 @@ int main(int argc, char const *argv[]) {
      * insertion: 9.36s
      * insertion Binary : 6.71s
      */
-    bubbleSort(v,n);
+    //bubbleSort(v,n);
     //selectionSort(v,n);
     //insertionSort(v,n);
     //insertionSortLog(v,n);
