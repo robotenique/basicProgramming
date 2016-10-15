@@ -15,9 +15,12 @@ int main(int argc, char const *argv[]) {
     return 0;
 }
 
-void printArray (int *array, int n) {
-    for (int i = 0; i < n; i++)
-        printf("[%d]\n",array[i] );
+void printArray (int v[], int n) {
+    int k = 0;
+    printf("[%2d,",v[k]);
+    for (k = 1; k < n - 1; printf(" %2d,",v[k]), ++k);
+    printf(" %2d]",v[k]);
+    printf("\n");
 }
 
 int binarySearch(int *array, int n, int x) {

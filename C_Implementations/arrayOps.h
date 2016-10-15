@@ -3,5 +3,7 @@
 
 int binarySearch (int *array, int n, int x);
 int binarySearchRec (int *array, int b, int e , int x);
+void printArray (int *array, int n);
+
 
 #endif
