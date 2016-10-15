@@ -12,12 +12,19 @@
 /* Protótipo de funções */
 bool sortArray (int **v, int n);
 void bSortOdd (int **v, int **s, int n);
-int mod(int a, int b);
 void swapElements (int **v, int **s, int x, int y);
 void swapPos (int *v, int x, int y);
 void bubble3(int *array, int n, int ini);
 void fixPos (int *v, int *s, int i);
+int mod(int a, int b);
 
+void printArray (int v[], int n) {
+    int k = 0;
+    printf("[%2d,",v[k]);
+    for (k = 1; k < n - 1; printf(" %2d,",v[k]), ++k);
+    printf(" %2d]",v[k]);
+    printf("\n");
+}
 
 /*
  * Função: main
@@ -34,7 +41,7 @@ int main(int argc, char const *argv[]) {
 
     /* Leitura */
     scanf("%d",&n);
-    v = malloc(3*sizeof(int*));
+    v = malloc(2*sizeof(int*));
     if(v == NULL) exit(-1);
     v[0] = malloc(n*sizeof(int));
     v[1] = malloc(n*sizeof(int));
@@ -99,6 +106,10 @@ bool sortArray (int **v, int n) {
         for (k = 0; k < n; v[1][s[1][k]] = k, k++);
         bSortOdd (v, s, n);
     }
+    /* Liberando memória */
+    for (k = 0; k < 2; free(s[k]), free(v[k]), k++);
+
+
     return true;
 }
 
@@ -121,7 +132,6 @@ void bSortOdd (int **v, int **s, int n) {
     bool flag; /* Variável de controle */
     /* Posição a ser preenchida na iteração */
     i = mod(n - 2 , n);
-
     /* Preciso rodar no máximo n-1 vezes */
     while(total > 1) {
     /* Posição do elemento que deve ir para posição i */
@@ -135,10 +145,9 @@ void bSortOdd (int **v, int **s, int n) {
             printf("%d\n", pos);
             pos = mod(pos + 2, n);
         }
-        /* Caso seja necessário, corrije os índices */
+        /* Caso seja necessário, faz a correção os índices */
          if(!flag)
             fixPos(v[1], s[1], i);
-
         i = mod(i - 2, n);
         total--;
     }
