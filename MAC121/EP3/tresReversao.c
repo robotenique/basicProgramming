@@ -3,6 +3,7 @@
  * nº usp = 9277086
  * MAC0121
  * 17/10/2016
+ * Arquivo principal
  */
 #include <stdlib.h>
 #include <stdio.h>
