@@ -14,9 +14,11 @@ bool sortArray (int **v, int n);
 void bSortOdd (int **v, int **s, int n);
 void swapElements (int **v, int **s, int x, int y);
 void swapPos (int *v, int x, int y);
-void bubble3(int *array, int n, int ini);
+void bubble3(int *array, int n, int ini, bool canPrint);
 void fixPos (int *v, int *s, int i);
 int mod(int a, int b);
+void printArray (int v[], int n);
+
 
 
 /*
@@ -73,29 +75,25 @@ bool sortArray (int **v, int n) {
     for (k = 0; k < 2; checkArray(v[k]), k++);
     /* Copiando dados */
     for (k = 0; k < n; s[0][k] = v[0][k], s[1][k] = k, k++);
-    /* Faz um sort O(nlogn) no vetor */
-    heapSort(s, n);
-
     /* Se o vetor é par, verifica se é possível. */
     if (!(n % 2)) {
-        if(!isEqual(v[0], s[0], n)) {
-            for (k = 0; k < n && (s[1][k] % 2 == v[1][k] % 2); k++);
-            if (k != n)
-                return false;
             /* Se o vetor é possível de ordenar, ordena primeiro as posições
              * pares, e depois ordena as posições ímpares, ambas com o bubble3.
              */
-            bubble3(v[0],n,0);
-            if(!isEqual(v[0], s[0], n))
-                bubble3(v[0],n,1);
-        }
-        else
-            return true;
+            bubble3(s[0], n, 0, false);
+            bubble3(s[0], n, 1, false);
+            if(isSorted(s[0], n)) {
+                bubble3(v[0], n, 0, true);
+                bubble3(v[0], n, 1, true);
+                return true;
+            }
+            return false;
     }
     /* Se o vetor é ímpar, preenche v[1] com os endereços corretos e
      * chama a função para ordenar vetores ímpares.
      */
     else {
+        heapSort(s, n);
         for (k = 0; k < n; v[1][s[1][k]] = k, k++);
         bSortOdd (v, s, n);
     }
@@ -160,10 +158,11 @@ void bSortOdd (int **v, int **s, int n) {
  * @args   v: Vetor com os elementos para ordenar;
  *         n: Tamanho do vetor;
  *         ini: Posição do elemento onde começa o bubbleSort.
+ *         canPrint: flag que indica se deve imprimir os movimentos
  *
  * @return
  */
-void bubble3(int *v, int n, int ini) {
+void bubble3(int *v, int n, int ini, bool canPrint) {
     int i, j, temp;
     bool flag;
     for(i = ini; i < n; i++) {
@@ -174,13 +173,14 @@ void bubble3(int *v, int n, int ini) {
             temp = v[mod(j + 2, n)];
             v[mod(j + 2, n)] = v[j];
             v[j] = temp;
-            printf ("%d\n", j);
+            if(canPrint) printf ("%d\n", j);
           }
        }
       if(!flag)
          return;
    }
 }
+
 
 /*
  * Função: fixPos

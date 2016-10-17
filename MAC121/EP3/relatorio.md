@@ -12,11 +12,12 @@ date: "17 de Outubro, 2016"
 ###2. Algoritmo
 O algoritmo implementado separa em vários casos de ordenação possíveis. A sequência das instruções (bem simplificada) é a seguinte:
 
- - Ordena o vetor usando um ***heapSort***;
  -  Se o tamanho do vetor original for **par**:
-    - Se a paridade entre o vetor original e o vetor ordenado são iguais, ordena o vetor original;
-    - Senão, imprime "Nao e possivel" e finaliza a execução do programa;
+    - Faz um *bubbleSort* nas posições pares e ímpares do vetor original e verifica se foi possível ordenar.
+        - Se é possível, ordena novamente e vai imprimindo as posições;
+        - Senão, imprime "Nao e possivel" e finaliza a execução do programa;
  - Senão o vetor é **ímpar**, então:
+    - Ordena o uma cópia do vetor usando um ***heapSort***
 	- Ordena o vetor original e imprime os movimentos, já que é possível a ordenação.
 
 ###3. Ordenação
@@ -25,7 +26,7 @@ A matriz ***v*** é a matriz do vetor **original**, i.e. o vetor lido na entrada
 A matriz ***s*** é a matriz do vetor **ordenado**.
 
  - O vetor ***v[0]*** é o vetor lido na entrada padrão.
- - O vetor ***v[1]*** representa coisas diferentes, dependendo do tamanho do vetor, e será explicado melhor abaixo.
+ - O vetor ***v[1]*** representa a posição onde o elemento **i** do vetor ***v[0]*** está no vetor ordenado.
  - O vetor ***s[0]*** é o vetor já ordenado.
  - O vetor ***s[1]*** é o vetor que armazena a posição onde o elemento **i** do vetor ordenado está no vetor original. Darei exemplos para melhor clarificação abaixo.
 
@@ -40,32 +41,21 @@ A matriz ***s*** é a matriz do vetor **ordenado**.
 
     Para ordená-lo seria necessário trocar o número *5* com o *6*, mas como a posição de paridade deles são diferentes, é impossível ordenar este vetor usando 3-Reversão. É fácil perceber, por exemplo, que o *5* só pode trocar com o *2* e *4*, ou seja, só com posições ímpares (considerando que o vetor começa a ser contado do *0*);
 
-    Para vetores pares, o vetor ***v[1]*** armazena a posição do elemento. Para o nosso exemplo, teríamos a seguinte disposição:
+    Ou seja, na prática um vetor par só será possível de ordenar usando uma 3-reversão se e somente se, ao ordenar somente as posições ímpares do vetor, e depois as posições pares, o vetor final estiver ordenado. Inicialmente, meu teste para verificar se um vetor é ordenado era somente ordená-lo usando um *heapSort*, e verificar se as paridades das posições após a ordenação são as mesmas do vetor original. Porém, esse algoritmo tinha um problema quando havia números iguais, como por exemplo o vetor abaixo:
+    $n=4$
 
-    ***v[0]***  =  1 2 3 4 6 5
+    4 5 4 4
 
-    ***v[1]***  =  0 1 2 3 4 5
+    Em que após o *heapSort* a paridade dos índices podia dar diferente, embora esse vetor é ordenável usando 3-Rotações.
+    Então, para contornar esse erro, poderia fazer de dois modos: Ordenar as posições pares e ímpares do vetor usando um *bubbleSort*, colocando os movimentos feitos em uma pilha. Ao final, verificar se o vetor final está ordenado. Se estivesse ordenado, imprimir todos os passos da pilha / fila. A segunda alternativa foi a que eu escolhi, que é ordenar o vetor usando o *bubbleSort*, verificar se ele está ordenado, se estiver, simplesmente rodar novamente um *bubbleSort* porém agora imprimindo os movimentos, assim não tenho que alocar mais um vetor com um tamanho grande para armazenar os movimentos feitos.
 
-    Em seguida, copia-se ***v[0]*** para ***s[0]*** e ***v[1]*** para ***s[1]***. Ordena-se a matriz ***s*** usando o *heapSort*, que ao trocar cada elemento de ***s[0]***, também troca os respectivos elementos de ***s[1]***. No final do *heapSort*, a matriz ***s*** está assim:
-
-    ***s[0]***  = 1 2 3 4 5 6
-
-    ***s[1]***  = 0 1 2 3 5 4
-
-    Para verificar se é possível ordenar ***v[0]***, eu simplesmente vejo se a paridade entre ***v[1]*** e ***s[1]*** é igual. Ou seja, verifico se o valor entre eles módulo 2 são iguais. O excerto de código abaixo faz essa verificação. Se ao final da iteração, *k* $\ne$ *n* , então alguma paridade é diferente, logo é impossível ordenar o vetor.
-    ```c
-    for (k = 0; k < n && (s[1][k] % 2 == v[1][k] % 2); k++);
-    if (k != n)
-        return false;
-    ```
-    Caso seja possível (a paridade entre ***v[1]*** e ***s[1]*** é igual), então faço um *bubbleSort* das posições pares do vetor e em seguida um outro *bubbleSort* das posições ímpares.
-    Portanto, a complexidade neste caso é $\mathcal{O}(n\log{}n + n^2)$, que na prática é $\mathcal{O}(n^2)$ , pois é um *bubbleSort* no vetor inteiro de tamanho *n*. Como otimização, é feita uma verificação linear em cada etapa para saber se o vetor já está ordenado. Ou seja, se o vetor já está ordenado, não é executado o *bubbleSort*. E, se no final do primeiro *bubbleSort*, o vetor já está ordenado , ele já termina o programa, o que pode ser representado como $\mathcal{O}(n\log{}n +  \frac{n^2}{2} ) = \mathcal{O}(\frac{n^2}{2} )$.
+    Portanto, a complexidade neste caso é $\mathcal{O}(n^2)$, pois seriam dois *bubbleSort* no vetor inteiro de tamanho *n*.
 
     O número de comparações no pior caso de um *bubbleSort* é $\binom{n}{2}$. No caso do tamanho do vetor ser par, é necessário simplesmente ordenar as posições pares e as posições ímpares, ou seja, no pior caso, o número de movimentos será:
-     $$2*\binom{\frac{n}{2}}{2} = 2* \frac{\frac{n}{2}!}{2!*(\frac{n}{2} - 2)!} = \frac{\frac{n}{2} *(\frac{n}{2} - 1) * (\frac{n}{2} - 2)!}{(\frac{n}{2} - 2)!} =$$
-     $$= \frac{n}{2} * (\frac{n}{2} - 1) = \frac{n^2 - 2n}{4} $$
+     $$4*\binom{\frac{n}{2}}{2} = 4* \frac{\frac{n}{2}!}{2!*(\frac{n}{2} - 2)!} = 2*\frac{\frac{n}{2} *(\frac{n}{2} - 1) * (\frac{n}{2} - 2)!}{(\frac{n}{2} - 2)!} =$$
+     $$=2 *  \frac{n}{2} * (\frac{n}{2} - 1) = 2 * \frac{n^2 - 2n}{4} $$
 
-    Portanto o número máximo de movimentos será $\frac{n^2 - 2n}{4}$ no caso par.
+    Portanto o número máximo de movimentos será $\frac{n^2 - 2n}{2}$ no caso par.
 
 
 -  Vetor de tamanho **ímpar**:
@@ -162,13 +152,11 @@ As funções do arquivo *arrayOp.c* são funções para ordenar o vetor usando o
 
 A otimização foi descrita com mais detalhes na seção anterior. Resumidamente, é feito otimização no algoritmo de ordenação para vetores de tamanho ímpar, e detecta se o algoritmo já está ordenado nos casos de vetores de tamanho par, reduzindo a complexidade pela metade quando for possível.
 
-*É possível ordenar um vetor de qualquer tamanho com 3-rotações?* R: Não. Um vetor ímpar sempre pode ser ordenado, mas um vetor par só pode ser ordenado se a paridade de seus elementos após a ordenação for a mesma de quando está na disposição original.
+*É possível ordenar um vetor de qualquer tamanho com 3-rotações?* R: Não. Um vetor ímpar sempre pode ser ordenado, mas um vetor par só pode ser ordenado se a paridade de seus elementos após a ordenação for a mesma de quando está na disposição original (Como a verificação que é feita com o *bubbleSort*).
 
 *Dados um vetor de tamanho n é possível ordenar qualquer instância com 3 rotações?* R: Se $n$ for ímpar, sim. Se $n$ for par, não.
 
-*Qual o número máximo de 3-Rotações que seu algoritmo executa para ordenar um vetor?* R: Se $n$ for par, foi demonstrado acima que são $\frac{n^2 - 2n}{4}$ trocas. Se $n$ é ímpar, o número de comparações é (nos testes realizados e pela análise do algoritmo) menor que $\frac{n^2}{2}$, e a quantidade de trocas é na maioria dos casos próxima de $\frac{\binom{n}{2}}{2}$, mas no pior caso é um *bubbleSort* comum ($\binom{n}{2}$), mesmo que a frequência do pior caso seja bastante reduzida devido a otimização deste algoritmo.
-
-A complexidade mínima do meu algoritmo é $\mathcal{O}(n\log{}n)$ , que corresponde ao *heapSort* que é executado.
+*Qual o número máximo de 3-Rotações que seu algoritmo executa para ordenar um vetor?* R: Se $n$ for par, foi demonstrado acima que são $\frac{n^2 - n}{2}$ trocas. Se $n$ é ímpar, o número de comparações é (nos testes realizados e pela análise do algoritmo) menor que $\frac{n^2}{2}$, e a quantidade de trocas é na maioria dos casos próxima de $\frac{\binom{n}{2}}{2}$, mas no pior caso é um *bubbleSort* comum ($\binom{n}{2}$), mesmo que a frequência do pior caso seja bastante reduzida devido a otimização deste algoritmo.
 
 Os testes realizados funcionaram bem, sendo que o maior teste que fiz foi com um vetor de $60001$ elementos. Omitindo as funções $printf( )$ do código, ele levou aproximadamente $11$ segundos para ordenar o vetor, o que é um resultado muito bom, já que nesses 11 segundos foi feito o *heapSort* ***E*** a ordenação de 3-Reversão! Para ter uma melhor ideia, para ordenar esse mesmo vetor usando apenas um *bubbleSort*, levou $14$ segundos e mais movimentos para executar. Ou seja, foi mais rápido executar 2 algoritmos de ordenação do que o *bubbleSort* comum.
 

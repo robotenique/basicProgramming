@@ -134,3 +134,19 @@ bool isEqual(int *a, int *b, int n) {
     for(i = 0; a[i] == b[i] && i < n; i++);
     return (i == n);
 }
+
+/*
+ * Função: isSorted
+ * --------------------------------------------------------
+ * Verifica se um vetor está ordenado
+ *
+ * @args v: Um vetor qualquer de tamanho n;
+ *       n: O tamanho do vetor;
+ *
+ * @return true se está ordenado, false caso contrário
+ */
+bool isSorted(int *v, int n) {
+    int k;
+    for (k = 0; k < n - 1 && v[k] <= v[k + 1]; k++);
+    return(k == n - 1);
+}

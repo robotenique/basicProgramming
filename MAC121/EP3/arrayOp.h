@@ -15,5 +15,6 @@ typedef char minINT;
 void heapSort (int **v, int n);
 void checkArray(int *v);
 bool isEqual(int *a, int *b, int n);
+bool isSorted(int *v, int n);
 
 #endif
