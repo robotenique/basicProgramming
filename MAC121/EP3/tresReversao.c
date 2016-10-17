@@ -18,13 +18,6 @@ void bubble3(int *array, int n, int ini);
 void fixPos (int *v, int *s, int i);
 int mod(int a, int b);
 
-void printArray (int v[], int n) {
-    int k = 0;
-    printf("[%2d,",v[k]);
-    for (k = 1; k < n - 1; printf(" %2d,",v[k]), ++k);
-    printf(" %2d]",v[k]);
-    printf("\n");
-}
 
 /*
  * Função: main
@@ -58,7 +51,6 @@ int main(int argc, char const *argv[]) {
     return 0;
 }
 
-
 /*
  * Função: sortArray
  * --------------------------------------------------------
@@ -86,18 +78,19 @@ bool sortArray (int **v, int n) {
 
     /* Se o vetor é par, verifica se é possível. */
     if (!(n % 2)) {
-        for (k = 0; k < n && (s[1][k] % 2 == v[1][k] % 2); k++);
-        if (k != n)
-            return false;
-        /* Se o vetor é possível, ordena primeiro as posições pares,
-         * e depois ordena as posições ímpares, ambas com o bubble3.
-         */
         if(!isEqual(v[0], s[0], n)) {
+            for (k = 0; k < n && (s[1][k] % 2 == v[1][k] % 2); k++);
+            if (k != n)
+                return false;
+            /* Se o vetor é possível, ordena primeiro as posições pares,
+             * e depois ordena as posições ímpares, ambas com o bubble3.
+             */
             bubble3(v[0],n,0);
             if(!isEqual(v[0], s[0], n))
                 bubble3(v[0],n,1);
         }
-
+        else
+            return true;
     }
     /* Se o vetor é ímpar, preenche v[1] com os endereços corretos e
      * chama a função para ordenar vetores ímpares.
