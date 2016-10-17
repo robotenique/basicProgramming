@@ -82,8 +82,8 @@ bool sortArray (int **v, int n) {
             for (k = 0; k < n && (s[1][k] % 2 == v[1][k] % 2); k++);
             if (k != n)
                 return false;
-            /* Se o vetor é possível, ordena primeiro as posições pares,
-             * e depois ordena as posições ímpares, ambas com o bubble3.
+            /* Se o vetor é possível de ordenar, ordena primeiro as posições
+             * pares, e depois ordena as posições ímpares, ambas com o bubble3.
              */
             bubble3(v[0],n,0);
             if(!isEqual(v[0], s[0], n))

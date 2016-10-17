@@ -59,7 +59,13 @@ A matriz ***s*** é a matriz do vetor **ordenado**.
         return false;
     ```
     Caso seja possível (a paridade entre ***v[1]*** e ***s[1]*** é igual), então faço um *bubbleSort* das posições pares do vetor e em seguida um outro *bubbleSort* das posições ímpares.
-    Portanto, a complexidade neste caso é $\mathcal{O}(n\log{}n + n^2)$, que na prática é $\mathcal{O}(n^2)$ , pois é um *bubbleSort* no vetor inteiro de tamanho *n*. Como otimização, é feita uma verificação linear em cada etapa para saber se o vetor já está ordenado. Ou seja, se o vetor já está ordenado, não é executado o *bubbleSort*. E, se no final do primeiro *bubbleSort*, o vetor já está ordenado , ele já termina o programa, o que pode ser representado como $\mathcal{O}(n\log{}n +  \frac{n^2}{2} ) \approx  \mathcal{O}(\frac{n^2}{2} )$.
+    Portanto, a complexidade neste caso é $\mathcal{O}(n\log{}n + n^2)$, que na prática é $\mathcal{O}(n^2)$ , pois é um *bubbleSort* no vetor inteiro de tamanho *n*. Como otimização, é feita uma verificação linear em cada etapa para saber se o vetor já está ordenado. Ou seja, se o vetor já está ordenado, não é executado o *bubbleSort*. E, se no final do primeiro *bubbleSort*, o vetor já está ordenado , ele já termina o programa, o que pode ser representado como $\mathcal{O}(n\log{}n +  \frac{n^2}{2} ) = \mathcal{O}(\frac{n^2}{2} )$.
+
+    O número de comparações no pior caso de um *bubbleSort* é $\binom{n}{2}$. No caso do tamanho do vetor ser par, é necessário simplesmente ordenar as posições pares e as posições ímpares, ou seja, no pior caso, o número de movimentos será:
+     $$2*\binom{\frac{n}{2}}{2} = 2* \frac{\frac{n}{2}!}{2!*(\frac{n}{2} - 2)!} = \frac{\frac{n}{2} *(\frac{n}{2} - 1) * (\frac{n}{2} - 2)!}{(\frac{n}{2} - 2)!} =$$
+     $$= \frac{n}{2} * (\frac{n}{2} - 1) = \frac{n^2 - 2n}{4} $$
+
+    Portanto o número máximo de movimentos será $\frac{n^2 - 2n}{4}$ no caso par.
 
 
 -  Vetor de tamanho **ímpar**:
@@ -160,7 +166,7 @@ A otimização foi descrita com mais detalhes na seção anterior. Resumidamente
 
 *Dados um vetor de tamanho n é possível ordenar qualquer instância com 3 rotações?* R: Se $n$ for ímpar, sim. Se $n$ for par, não.
 
-*Qual o número máximo de 3-Rotações que seu algoritmo executa para ordenar um vetor?* R: Se $n$ for par, é igual o pior caso de um *bubbleSort*, que são $\binom{n}{2}$ trocas. Se $n$ é ímpar, o número de comparações é (nos testes realizados e pela análise do algoritmo) menor que $\frac{n^2}{2}$, e a quantidade de trocas é na maioria dos casos próxima de $\frac{\binom{n}{2}}{2}$, mas no pior caso é um *bubbleSort* comum ($\binom{n}{2}$), mesmo que a frequência do pior caso seja bastante reduzida devido a otimização deste algoritmo.
+*Qual o número máximo de 3-Rotações que seu algoritmo executa para ordenar um vetor?* R: Se $n$ for par, foi demonstrado acima que são $\frac{n^2 - 2n}{4}$ trocas. Se $n$ é ímpar, o número de comparações é (nos testes realizados e pela análise do algoritmo) menor que $\frac{n^2}{2}$, e a quantidade de trocas é na maioria dos casos próxima de $\frac{\binom{n}{2}}{2}$, mas no pior caso é um *bubbleSort* comum ($\binom{n}{2}$), mesmo que a frequência do pior caso seja bastante reduzida devido a otimização deste algoritmo.
 
 A complexidade mínima do meu algoritmo é $\mathcal{O}(n\log{}n)$ , que corresponde ao *heapSort* que é executado.
 
