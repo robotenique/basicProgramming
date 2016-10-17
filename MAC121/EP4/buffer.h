@@ -8,7 +8,8 @@
 #define __BUFFER_H__
 
 #include <stdio.h>
-
+void *emalloc(int size);
+void die(const char *s);
 typedef struct buffer_s {
   char *data;
 
@@ -45,7 +46,7 @@ void buffer_push_back(Buffer *B, char c);
   if end-of-file is reached before any characters are read.
 */
 int read_line(FILE *input, Buffer *B);
-void *emalloc(size_t size);
+
 
 
 #endif
