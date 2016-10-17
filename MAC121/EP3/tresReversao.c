@@ -46,7 +46,8 @@ int main(int argc, char const *argv[]) {
         scanf("%d", &v[0][i]);
         v[1][i] = i;
     }
-
+    if(isSorted(v[0], n))
+        return 0;
     /* Chama a função sortArray(v,n) se n >= 3 */
     if(n < 3 || !sortArray(v, n))
         printf("Nao e possivel\n");
