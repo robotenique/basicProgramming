@@ -5,21 +5,23 @@ float* createArray(int n);
 
 int main(int argc, char const *argv[]) {
     //Initialize an array
-    int n = 100000, val = 30, x;
+    int n = 6;
     float *v =createArray(n);
-
     /*Sorting Times:
-     * Bubble: 48.01s
+     * int n = 100000, val = 30;
+     * Bubble: 37.98s | 2502690779 comps
      * Selection: 15.00s
      * insertion: 9.36s
      * insertion Binary : 6.71s
+     * merge: 0.157s
      */
-    //bubbleSort(v,n);
-    //selectionSort(v,n);
-    //insertionSort(v,n);
-    //insertionSortLog(v,n);
-    for (int k = 0; k < n; printf("%.2f |",v[k]), k++);
-
+    //bubbleSort(v, n);
+    //selectionSort(v, n);
+    //insertionSort(v, n);
+    //insertionSortLog(v, n);
+    heapSort(v, n);
+    printArray(v,n);
+    //printf("comparações (heapSort) = %llu\n",x);
     return 0;
 }
 
