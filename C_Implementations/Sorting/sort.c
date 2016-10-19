@@ -22,10 +22,7 @@ void bubbleSort(float v[], int n) {
             flag = 1;
         for (int j = 0; j < i; j++) {
             if (v[j] > v[j+1]) {
-                int aux = v[j];
-                v[j] = v[j+1];
-                v[j+1] = aux;
-                nSwap += 1;
+                swap(v, j, j + 1);
                 flag = 0;
             }
         }
@@ -34,17 +31,12 @@ void bubbleSort(float v[], int n) {
 
 void selectionSort(float v[], int n) {
     int min;
-    float aux;
     for (int i = 0; i < n-1; i++) {
         min = i;
         for (int j = i + 1; j < n; j++)
             if(v[min] > v[j])
                 min = j;
-        if(min!=i) {
-            aux = v[i];
-            v[i] = v[min];
-            v[min] = aux;
-        }
+        if(min!=i) swap(v,min,i);
     }
 }
 
@@ -122,10 +114,9 @@ void heapify(float v[], int n) {
 void heapSort(float v[], int n) {
     heapify(v,n);
     for (int k = n - 1; k > 0; k--) {
-        swap(v, k, 0);
+        swap(v, 0, k);
         sink(v, 0, k);
     }
-    return 0;
 }
 
 void printArray (float v[], int n) {
