@@ -16,8 +16,7 @@ int binarySearchIns(float v[], int b, int e, float x) {
     return binarySearchIns(v,m+1,e,x);
 }
 
-ull bubbleSort(float v[], int n) {
-    ull nSwap = 0;
+void bubbleSort(float v[], int n) {
     int flag = 0;
     for (int i = n - 1; i > 0 && !flag; i--) {
             flag = 1;
@@ -31,11 +30,9 @@ ull bubbleSort(float v[], int n) {
             }
         }
     }
-    return nSwap;
 }
 
-ull selectionSort(float v[], int n) {
-    ull nSwap = 0;
+void selectionSort(float v[], int n) {
     int min;
     float aux;
     for (int i = 0; i < n-1; i++) {
@@ -49,12 +46,9 @@ ull selectionSort(float v[], int n) {
             v[min] = aux;
         }
     }
-    return nSwap;
 }
 
-ull insertionSort(float v[], int n) {
-    ull nSwap = 0;
-
+void insertionSort(float v[], int n) {
     float x;
     int j;
     for (int i = 1; i < n; i++) {
@@ -63,13 +57,10 @@ ull insertionSort(float v[], int n) {
             v[j+1] = v[j];
         v[j+1] = x;
     }
-    return nSwap;
 }
 
 //Insertion Sort with binarySearch
-ull insertionSortLog(float v[], int n) {
-    ull nSwap = 0;
-
+void insertionSortLog(float v[], int n) {
     float x;
     int j;
     for (int i = 1; i < n; i++) {
@@ -78,7 +69,6 @@ ull insertionSortLog(float v[], int n) {
         for(int k = i-1; k > j; v[k+1] = v[k], k--);
         v[j+1] = x;
     }
-    return nSwap;
 }
 
 ull merge(float v[], float aux[], int ini, int mid, int end) {
@@ -112,9 +102,10 @@ void swap(float v[], int a, int b) {
     v[a] = v[b];
     v[b] = aux;
 }
+
 void sink(float v[], int k, int n) {
     int j;
-    while(2*k < n){
+    while(2*k+1 < n){
         j =2*k + 1;
         if(j < n - 1 && v[j] < v[j+1]) j++;
         if(v[k] > v[j]) break;
@@ -128,15 +119,11 @@ void heapify(float v[], int n) {
         sink(v,k,n);
 }
 
-ull heapSort(float v[], int n) {
+void heapSort(float v[], int n) {
     heapify(v,n);
-    printArray(v,n);
-
     for (int k = n - 1; k > 0; k--) {
         swap(v, k, 0);
-        printf("Faz (%2.2f) <-> (%2.2f) , ",v[k],v[0]);
         sink(v, 0, k);
-        printArray(v,n);
     }
     return 0;
 }
