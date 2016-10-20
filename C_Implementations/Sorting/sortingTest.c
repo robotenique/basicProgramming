@@ -5,7 +5,7 @@ float* createArray(int n);
 
 int main(int argc, char const *argv[]) {
     //Initialize an array
-    int n = 100000000;
+    int n = 100;
     float *v =createArray(n);
 
     /*Sorting Times:
@@ -23,7 +23,9 @@ int main(int argc, char const *argv[]) {
     //insertionSort(v, n);
     //insertionSortLog(v, n);
     //float *c = malloc(sizeof(float)*n); mergeSort(v,c,0,n-1,0);
-    heapSort(v, n);
+    //heapSort(v, n);
+    quickSort(v,0,n-1);
+    printArray(v,n);
     //printf("comparações (heapSort) = %llu\n",x);
     return 0;
 }

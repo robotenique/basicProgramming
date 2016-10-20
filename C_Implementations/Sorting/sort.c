@@ -119,6 +119,29 @@ void heapSort(float v[], int n) {
     }
 }
 
+int partition(float v[], int ini, int end) {
+    int k = v[ini];
+    int i = ini;
+    int j = end + 1;
+    while(1) {
+        while (k > v[++i])
+            if(i == end) break;
+        while (k < v[--j])
+            if(j == ini) break;
+        if (i >= j) break;
+         swap(v,i,j);
+    }
+    swap(v,ini,j);
+    return j;
+}
+
+void quickSort(float v[], int ini, int end) {
+    if(end <= ini) return;
+    int j = partition(v,ini,end);
+    quickSort(v,ini,j-1);
+    quickSort(v,j+1,end);
+}
+
 void printArray (float v[], int n) {
     int k = 0;
     printf("[%2.0f,",v[k]);
