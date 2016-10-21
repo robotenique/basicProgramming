@@ -11,7 +11,7 @@ CFLAGS = -ansi -Wall -pedantic -O2
 all: ep4
 
 
-ep4: freqT.o buffer.o
+ep4: freqT.o 
 	$(CC) -o $@ $^
 
 

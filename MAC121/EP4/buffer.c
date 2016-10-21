@@ -1,13 +1,11 @@
 /*
  * @author: Juliano Garcia de Oliveira
- * @author: Enzo Hideki Nakamura
  *
- * MAC0216
+ * MAC0121
  *
  * Buffer Implementation
  */
 #include "buffer.h"
-#include "error.h"
 #include <stdlib.h>
 
 void *emalloc(int size) {
