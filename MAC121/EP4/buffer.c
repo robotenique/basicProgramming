@@ -6,6 +6,7 @@
  * Buffer Implementation
  */
 #include "buffer.h"
+#include "arrayOps.h"
 #include <stdlib.h>
 
 
@@ -16,9 +17,9 @@
  Buffer *buffer_create() {
      Buffer *B;
      B = emalloc(sizeof(Buffer));
-     B -> n = 10;
+     B -> n = 1024;
      B -> i = 0;
-     B -> data = emalloc(B -> n * sizeof(unsigned char)) ;
+     B -> data = emalloc(B -> n) ;
      return B;
  }
 
@@ -31,14 +32,14 @@
     free(B -> data);
     B -> n = 1024;
     B -> i = 0;
-    B -> data = emalloc(B -> n * sizeof(unsigned char));
+    B -> data = emalloc(B -> n);
 
  }
 
- void buffer_push_back(Buffer *B, unsigned char c){
+ void buffer_push_back(Buffer *B, char c){
      int p;
      if((B -> i) >= B -> n) {
-        unsigned char *temp = emalloc((B -> n)*2*sizeof(unsigned char));
+        char *temp = emalloc((B -> n)*2);
         for (p = 0; p < B -> n;p++)
             temp[p] = B->data[p];
         free(B -> data);

@@ -6,9 +6,11 @@
 
 #ifndef __BUFFER_H__
 #define __BUFFER_H__
+#include <stdio.h>
+
 
 typedef struct buffer_s {
-  unsigned char *data;
+  char *data;
 
   int n, i;
 } Buffer;
@@ -31,7 +33,7 @@ void buffer_reset(Buffer *B);
 /*
   Add a character c to the end of the buffer.
 */
-void buffer_push_back(Buffer *B, unsigned char c);
+void buffer_push_back(Buffer *B, char c);
 
 /*
   Read a line (i.e., reads up to a newline '\n' character or the

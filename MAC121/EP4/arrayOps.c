@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include "arrayOps.h"
 void *emalloc(int size) {
   void *ret;

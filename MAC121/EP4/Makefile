@@ -11,7 +11,7 @@ CFLAGS = -ansi -Wall -pedantic -O2
 all: ep4
 
 
-ep4: tabelaSimbolo.o buffer.o tabelaSimbolo_VD.o
+ep4: tabelaSimbolo.o buffer.o tabelaSimbolo_VD.o arrayOps.o
 	$(CC) -o $@ $^
 
 

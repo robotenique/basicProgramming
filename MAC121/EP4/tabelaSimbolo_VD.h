@@ -7,20 +7,21 @@
 #ifndef __STABLE_H__
 #define __STABLE_H__
 
-// The symbol table.
+
+/* The symbol table. */
 typedef struct stable_s *SymbolTableVD;
 
-// Data stored.
+/* Data stored. */
 typedef union {
   int i;
   char *str;
   void *p;
 } EntryData;
 
-// Return struct for stable_insert.
+/* Return struct for stable_insert. */
 typedef struct {
-  int new;  // Was a new entry created?
-  EntryData *data;  // Data associated with entry.
+  int new;  /* Was a new entry created? */
+  EntryData *data;  /* Data associated with entry. */
 } InsertionResult;
 
 /*
@@ -44,7 +45,7 @@ void stable_destroy(SymbolTableVD table);
   If there is not enough space on the table, or if there is a memory
   allocation error, then crashes with an error message.
 */
-InsertionResult stable_insert(SymbolTableVD table, const unsigned char *key);
+InsertionResult stable_insert(SymbolTableVD table, const char *key);
 
 /*
   Find the data associated with a given key.
@@ -52,7 +53,7 @@ InsertionResult stable_insert(SymbolTableVD table, const unsigned char *key);
   Given a key, returns a pointer to the data associated with it, or a
   NULL pointer if the key is not found.
 */
-EntryData *stable_find(SymbolTableVD table, const unsigned char *key);
+EntryData *stable_find(SymbolTableVD table, const char *key);
 
 /*
   Visit each entry on the table.
@@ -65,7 +66,7 @@ EntryData *stable_find(SymbolTableVD table, const unsigned char *key);
   nonzero otherwise.
 */
 int stable_visit(SymbolTableVD table,
-                 int (*visit)(const unsigned char *key, EntryData *data));
+                 int (*visit)(const char *key, EntryData *data));
 
 
 #endif

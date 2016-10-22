@@ -3,13 +3,14 @@
 
   A symbol table associating generic data to strings.
 */
-#include "tabelaSimbolo_VD.h"
-#include "arrayOps.h"
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include "tabelaSimbolo_VD.h"
+#include "arrayOps.h"
+
 typedef struct stable_s {
-    unsigned char** keys;
+    char** keys;
 	EntryData* values;
     unsigned int i;
     unsigned int max;
@@ -19,11 +20,12 @@ typedef struct stable_s {
 */
 SymbolTableVD stable_create() {
     int iniMax = 1024;
-    SymbolTableVD t = emalloc(sizeof(stable_s));
+    SymbolTableVD t;
+    t = emalloc(sizeof(stable_s));
     t -> i = 0;
     t -> max = iniMax;
     t -> values = emalloc(iniMax * sizeof(EntryData));
-    t -> keys = emalloc(iniMax * sizeof(unsigned char*));
+    t -> keys = emalloc(iniMax * sizeof(char*));
     return t;
 }
 
@@ -31,19 +33,22 @@ SymbolTableVD stable_create() {
   Destroy a given symbol table.
 */
 void stable_destroy(SymbolTableVD table) {
+    int i;
     free(table -> values);
-    for (int i = 0; i < table->i; i++)
+    for (i = 0; i < table->i; i++)
         free(table->keys[i]);
     free(table -> keys);
     free(table);
 }
 
 void reallocStable(SymbolTableVD t) {
-
-    unsigned char** ktemp = emalloc((t->max)*2*sizeof(unsigned char*));
-    EntryData* vtemp = emalloc((t->max)*2*sizeof(EntryData));
-    // Copy the old values
-    for (int i = 0; i < t -> i; i++) {
+    char** ktemp;
+    EntryData* vtemp;
+    int i;
+    ktemp = emalloc((t->max)*2*sizeof(char*));
+    vtemp = emalloc((t->max)*2*sizeof(EntryData));
+    /* Copy the old values */
+    for (i = 0; i < t -> i; i++) {
         vtemp[i] = t->values[i];
         ktemp[i] = t->keys[i];
     }
@@ -54,13 +59,14 @@ void reallocStable(SymbolTableVD t) {
     t->max = (t->max)*2;
 }
 
-// Check if a key is in the 'keys' array
-int linearSearch (unsigned char **keys, unsigned char* str, int n) {
-    for (int i = 0; i < n; i++) {
+/* Check if a key is in the 'keys' array */
+int linearSearch (char **keys, char* str, int n) {
+    int i;
+    for (i = 0; i < n; i++) {
        if (strcmp(keys[i], str) == 0)
            return i;
    }
-   // We didn't find the str in the keys array
+   /* We didn't find the str in the keys array */
    return -1;
 }
 /*
@@ -74,14 +80,15 @@ int linearSearch (unsigned char **keys, unsigned char* str, int n) {
   If there is not enough space on the table, or if there is a memory
   allocation error, then crashes with an error message.
 */
-InsertionResult stable_insert(SymbolTableVD table, const unsigned char *key) {
+InsertionResult stable_insert(SymbolTableVD table, const char *key) {
     InsertionResult ir;
+    int pos;
+    char* cpy;
     ir.new = 0;
-    //Careful
-    unsigned char* cpy = emalloc(strlen(key));
+    cpy = emalloc(strlen(key));
     strcpy(cpy, key);
-    //Linear search
-    int pos = linearSearch(table -> keys, cpy, table -> i);
+    /*Linear search*/
+    pos = linearSearch(table -> keys, cpy, table -> i);
     if(pos >= 0) {
         ir.data = &(table -> values[pos]);
         return ir;
@@ -103,10 +110,12 @@ InsertionResult stable_insert(SymbolTableVD table, const unsigned char *key) {
   Given a key, returns a pointer to the data associated with it, or a
   NULL pointer if the key is not found.
 */
-EntryData *stable_find(SymbolTableVD table, const unsigned char *key) {
-    unsigned char* cpy = emalloc(strlen(key));
+EntryData *stable_find(SymbolTableVD table, const char *key) {
+    char* cpy;
+    int pos;
+    cpy = emalloc(strlen(key));
     strcpy(cpy, key);
-    int pos = linearSearch(table->keys, cpy, table-> i);
+    pos = linearSearch(table->keys, cpy, table-> i);
     if(pos >= 0)
         return &(table->values[pos]);
     else
@@ -124,9 +133,10 @@ EntryData *stable_find(SymbolTableVD table, const unsigned char *key) {
   nonzero otherwise.
 */
 int stable_visit(SymbolTableVD table,
-                 int (*visit)(const unsigned char *key, EntryData *data)) {
-         for (int i = 0; i < table->i; i++)
-                 if(!visit(table->keys[i], &(table->values[i])))
-                 return 0;
-            return 1;
+                 int (*visit)(const char *key, EntryData *data)) {
+        int i;
+        for (i = 0; i < table->i; i++)
+                if(!visit(table->keys[i], &(table->values[i])))
+                return 0;
+                return 1;
 }
