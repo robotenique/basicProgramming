@@ -18,7 +18,7 @@ typedef struct stable_s {
 /*
   Return a new symbol table.
 */
-SymbolTableVD stable_create() {
+SymbolTableVD stable_createVD() {
     int iniMax = 1024;
     SymbolTableVD t;
     t = emalloc(sizeof(stable_s));
@@ -32,7 +32,7 @@ SymbolTableVD stable_create() {
 /*
   Destroy a given symbol table.
 */
-void stable_destroy(SymbolTableVD table) {
+void stable_destroyVD(SymbolTableVD table) {
     int i;
     free(table -> values);
     for (i = 0; i < table->i; i++)
@@ -41,7 +41,7 @@ void stable_destroy(SymbolTableVD table) {
     free(table);
 }
 
-void reallocStable(SymbolTableVD t) {
+void reallocStableVD(SymbolTableVD t) {
     char** ktemp;
     EntryData* vtemp;
     int i;
@@ -80,7 +80,7 @@ int linearSearch (char **keys, char* str, int n) {
   If there is not enough space on the table, or if there is a memory
   allocation error, then crashes with an error message.
 */
-InsertionResult stable_insert(SymbolTableVD table, const char *key) {
+InsertionResult stable_insertVD(SymbolTableVD table, const char *key) {
     InsertionResult ir;
     int pos;
     char* cpy;
@@ -96,7 +96,7 @@ InsertionResult stable_insert(SymbolTableVD table, const char *key) {
     else {
         ir.new = 1;
         if (table -> i >= table -> max)
-            reallocStable(table);
+            reallocStableVD(table);
         table->keys[table->i] = cpy;
         ir.data = &(table -> values[table->i]);
         table->i = (table->i) + 1;
@@ -110,7 +110,7 @@ InsertionResult stable_insert(SymbolTableVD table, const char *key) {
   Given a key, returns a pointer to the data associated with it, or a
   NULL pointer if the key is not found.
 */
-EntryData *stable_find(SymbolTableVD table, const char *key) {
+EntryData *stable_findVD(SymbolTableVD table, const char *key) {
     char* cpy;
     int pos;
     cpy = emalloc(strlen(key));
@@ -132,11 +132,12 @@ EntryData *stable_find(SymbolTableVD table, const char *key) {
   Returns zero if the iteration was stopped by the visit function,
   nonzero otherwise.
 */
-int stable_visit(SymbolTableVD table,
-                 int (*visit)(const char *key, EntryData *data)) {
+int stable_visitVD(SymbolTableVD table,
+            int (*visit)(const char *key, EntryData *data, word *arr, int i),
+            word *arr) {
         int i;
         for (i = 0; i < table->i; i++)
-                if(!visit(table->keys[i], &(table->values[i])))
+                if(!visit(table->keys[i], &(table->values[i]), arr, i))
                 return 0;
-                return 1;
+        return 1;
 }
