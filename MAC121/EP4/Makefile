@@ -1,5 +1,5 @@
 #
-# Makefile para Parte 1 do projeto.
+# Makefile para EP4
 #
 
 CFLAGS = -ansi -Wall -pedantic -O2
@@ -11,7 +11,7 @@ CFLAGS = -ansi -Wall -pedantic -O2
 all: ep4
 
 
-ep4: freqT.o 
+ep4: tabelaSimbolo.o buffer.o tabelaSimbolo_VD.o
 	$(CC) -o $@ $^
 
 

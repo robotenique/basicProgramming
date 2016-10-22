@@ -7,11 +7,8 @@
 #ifndef __BUFFER_H__
 #define __BUFFER_H__
 
-#include <stdio.h>
-void *emalloc(int size);
-void die(const char *s);
 typedef struct buffer_s {
-  char *data;
+  unsigned char *data;
 
   int n, i;
 } Buffer;
@@ -34,7 +31,7 @@ void buffer_reset(Buffer *B);
 /*
   Add a character c to the end of the buffer.
 */
-void buffer_push_back(Buffer *B, char c);
+void buffer_push_back(Buffer *B, unsigned char c);
 
 /*
   Read a line (i.e., reads up to a newline '\n' character or the

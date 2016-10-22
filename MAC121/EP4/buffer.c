@@ -8,21 +8,6 @@
 #include "buffer.h"
 #include <stdlib.h>
 
-void *emalloc(int size) {
-  void *ret;
-   ret = malloc(size);
-  if (!ret) {
-    printf("call to malloc failed!");
-    exit(-1);
-  }
-  return ret;
-}
-
-void die(const char *s) {
-    printf("%s\n",s );
-    exit(-1);
-}
-
 
 /* REMAINDER: The 0 represents the end of a string. Remember to use the
  * buffer_push_back() function to push the 0 when finished reading the
@@ -31,9 +16,9 @@ void die(const char *s) {
  Buffer *buffer_create() {
      Buffer *B;
      B = emalloc(sizeof(Buffer));
-     B -> n = 1024;
+     B -> n = 10;
      B -> i = 0;
-     B -> data = emalloc(B -> n) ;
+     B -> data = emalloc(B -> n * sizeof(unsigned char)) ;
      return B;
  }
 
@@ -46,14 +31,14 @@ void die(const char *s) {
     free(B -> data);
     B -> n = 1024;
     B -> i = 0;
-    B -> data = emalloc(B -> n);
+    B -> data = emalloc(B -> n * sizeof(unsigned char));
 
  }
 
- void buffer_push_back(Buffer *B, char c){
+ void buffer_push_back(Buffer *B, unsigned char c){
      int p;
      if((B -> i) >= B -> n) {
-        char *temp = emalloc((B -> n)*2);
+        unsigned char *temp = emalloc((B -> n)*2*sizeof(unsigned char));
         for (p = 0; p < B -> n;p++)
             temp[p] = B->data[p];
         free(B -> data);
