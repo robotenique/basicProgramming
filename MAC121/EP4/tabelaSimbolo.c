@@ -18,7 +18,6 @@ void calculateFreqVD(FILE *input, Buffer *B, inputConfig conf);
 void printFreqVD(inputConfig conf, SymbolTableVD st, int wide, int n);
 int visitVD (const char *key, EntryData *data, word *arr, int i);
 
-char* getValidWord(char *word);
 bool isValid (char c);
 int max(int a, int b);
 int compareAlphabet (const void * a, const void * b);
@@ -75,7 +74,6 @@ int main(int argc, char const *argv[]) {
     return 0;
 }
 
-
 void calculateFreqVD(FILE *input, Buffer *B, inputConfig conf) {
     SymbolTableVD st;
     Buffer *W;
@@ -124,6 +122,8 @@ int visitVD (const char *key, EntryData *data, word *arr, int i) {
     arr[i].freq = data->i;
     return 1;
 }
+
+/* Funções auxiliares */
 bool isValid(char c)  { return isalpha(c) || isdigit(c); }
 int max(int a, int b) { return a > b ? a : b; }
 int compareAlphabet (const void * a, const void * b) {
