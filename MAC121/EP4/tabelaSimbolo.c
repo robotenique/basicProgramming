@@ -87,7 +87,7 @@ void calculateFreqVD(FILE *input, Buffer *B, inputConfig conf) {
         buffer_push_back(B,0);
         i = 0;
         while (i < B->i && B->data[i] != 0) {
-            for (i; i < B->i && isNotAlpha(B->data[i]); i++);
+            for (; i < B->i && isNotAlpha(B->data[i]); i++);
             while (i < (B -> i) &&  B->data[i] != 0 && isValid(B->data[i]))
                 buffer_push_back(W,B->data[i++]);
             i++;
