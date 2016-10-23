@@ -21,8 +21,6 @@ int visitVD (const char *key, EntryData *data, word *arr, int i);
 bool isValid (char c);
 bool isNotAlpha(char c);
 int max(int a, int b);
-int compareAlphabet (const void * a, const void * b);
-int compareFreq (const void * a, const void * b);
 
 int main(int argc, char const *argv[]) {
     FILE *input;
@@ -134,17 +132,4 @@ int visitVD (const char *key, EntryData *data, word *arr, int i) {
 bool isValid(char c)  { return isalpha(c) || isdigit(c); }
 bool isNotAlpha(char c) {
     return isdigit(c) || !isalpha(c);
-}
-int max(int a, int b) { return a > b ? a : b; }
-int compareAlphabet (const void * a, const void * b) {
-  return strcmp(((word *)a)->p, ((word *)b)->p);
-}
-int compareFreq (const void * a, const void * b) {
-    int freqA = ((word *)a)->freq;
-    int freqB = ((word *)b)->freq;
-    if(freqA < freqB)
-        return 1;
-    else if(freqA > freqB)
-        return -1;
-    return 0;
 }

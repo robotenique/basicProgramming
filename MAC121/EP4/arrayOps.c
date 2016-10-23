@@ -24,3 +24,18 @@ char *estrdup(const char *s) {
   strcpy(ret, s);
   return ret;
 }
+
+int compareAlphabet (const void * a, const void * b) {
+  return strcmp(((word *)a)->p, ((word *)b)->p);
+}
+int compareFreq (const void * a, const void * b) {
+    int freqA = ((word *)a)->freq;
+    int freqB = ((word *)b)->freq;
+    if(freqA < freqB)
+        return 1;
+    else if(freqA > freqB)
+        return -1;
+    return 0;
+}
+
+int max(int a, int b) { return a > b ? a : b; }

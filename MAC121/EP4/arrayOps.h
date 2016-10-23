@@ -9,4 +9,7 @@ typedef struct {
     char* p;
     unsigned int freq;
 } word;
+int compareAlphabet (const void * a, const void * b);
+int compareFreq (const void * a, const void * b);
+int max(int a, int b); 
 #endif
