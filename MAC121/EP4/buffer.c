@@ -17,9 +17,9 @@
  Buffer *buffer_create() {
      Buffer *B;
      B = emalloc(sizeof(Buffer));
-     B -> n = 1024;
+     B -> n = 1;
      B -> i = 0;
-     B -> data = emalloc(B -> n) ;
+     B -> data = emalloc(B->n) ;
      return B;
  }
 
@@ -30,7 +30,7 @@
 
  void buffer_reset(Buffer *B) {
     free(B -> data);
-    B -> n = 1024;
+    B -> n = 1;
     B -> i = 0;
     B -> data = emalloc(B -> n);
 

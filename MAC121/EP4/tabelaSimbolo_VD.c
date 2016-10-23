@@ -24,7 +24,8 @@ SymbolTableVD stable_createVD() {
     t = emalloc(sizeof(stable_s));
     t -> i = 0;
     t -> max = iniMax;
-    t -> values = emalloc(iniMax * sizeof(EntryData));
+    t -> values = calloc(iniMax ,sizeof(EntryData));
+    if(t -> values == NULL) die("Error in memory allocation!");
     t -> keys = emalloc(iniMax * sizeof(char*));
     return t;
 }
@@ -46,7 +47,8 @@ void reallocStableVD(SymbolTableVD t) {
     EntryData* vtemp;
     int i;
     ktemp = emalloc((t->max)*2*sizeof(char*));
-    vtemp = emalloc((t->max)*2*sizeof(EntryData));
+    vtemp = calloc((t->max)*2,sizeof(EntryData));
+    if(vtemp == NULL) die("Error in memory allocation!");
     /* Copy the old values */
     for (i = 0; i < t -> i; i++) {
         vtemp[i] = t->values[i];
@@ -85,12 +87,12 @@ InsertionResult stable_insertVD(SymbolTableVD table, const char *key) {
     int pos;
     char* cpy;
     ir.new = 0;
-    cpy = emalloc(strlen(key));
-    strcpy(cpy, key);
+    cpy = estrdup(key);
     /*Linear search*/
     pos = linearSearch(table -> keys, cpy, table -> i);
     if(pos >= 0) {
         ir.data = &(table -> values[pos]);
+        free(cpy);
         return ir;
     }
     else {

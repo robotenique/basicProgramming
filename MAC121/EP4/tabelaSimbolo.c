@@ -19,6 +19,7 @@ void printFreqVD(inputConfig conf, SymbolTableVD st, int wide, int n);
 int visitVD (const char *key, EntryData *data, word *arr, int i);
 
 bool isValid (char c);
+bool isNotAlpha(char c);
 int max(int a, int b);
 int compareAlphabet (const void * a, const void * b);
 int compareFreq (const void * a, const void * b);
@@ -27,8 +28,6 @@ int main(int argc, char const *argv[]) {
     FILE *input;
     Buffer *B;
     inputConfig conf;
-    B = buffer_create();
-    mcheck(0);
     /* Entrada e verificação de erros */
     if (argc != 4)
         die("Not Usage: ./ep4 <inputFile> <stableType> <sortingType>");
@@ -54,6 +53,7 @@ int main(int argc, char const *argv[]) {
     if (input == NULL)
        die("Error opening file, aborting...");
 
+    B = buffer_create();
     switch (conf.stableType) {
         case 1:
             calculateFreqVD(input, B, conf);
@@ -71,6 +71,8 @@ int main(int argc, char const *argv[]) {
 
             break;
     }
+    fclose(input);
+    buffer_destroy(B);
     return 0;
 }
 
@@ -84,9 +86,9 @@ void calculateFreqVD(FILE *input, Buffer *B, inputConfig conf) {
     while (read_line(input,B)) {
         buffer_push_back(B,0);
         i = 0;
-        while (B->data[i] != 0) {
-            for (;isdigit(B->data[i]) || !isalpha(B->data[i]); i++);
-            while (isValid(B->data[i]) && B->data[i] != 0 && i < (B -> i))
+        while (i < B->i && B->data[i] != 0) {
+            for (i; i < B->i && isNotAlpha(B->data[i]); i++);
+            while (i < (B -> i) &&  B->data[i] != 0 && isValid(B->data[i]))
                 buffer_push_back(W,B->data[i++]);
             i++;
             if(W->i != 0) {
@@ -99,12 +101,15 @@ void calculateFreqVD(FILE *input, Buffer *B, inputConfig conf) {
             buffer_reset(W);
         }
     }
+    buffer_destroy(W);
     printFreqVD(conf, st, wide, nElements);
+    stable_destroyVD(st);
 }
 
 void printFreqVD(inputConfig conf, SymbolTableVD st, int wide, int n) {
     int i, nSpaces;
-    word* wArr = emalloc(sizeof(word) * n);
+    word* wArr = calloc(n, sizeof(word));
+    if (wArr == NULL) die("Error in memory allocation!");
     stable_visitVD(st, &visitVD, wArr);
     if(conf.orderByAlpha)
         qsort(wArr, n, sizeof(word), compareAlphabet);
@@ -114,7 +119,9 @@ void printFreqVD(inputConfig conf, SymbolTableVD st, int wide, int n) {
     for (i = 0; i < n; i++) {
         nSpaces = (int) (wide - strlen(wArr[i].p));
         printf("%s %*d\n", wArr[i].p, nSpaces, wArr[i].freq);
+        free(wArr[i].p);
     }
+    free(wArr);
 }
 
 int visitVD (const char *key, EntryData *data, word *arr, int i) {
@@ -125,6 +132,9 @@ int visitVD (const char *key, EntryData *data, word *arr, int i) {
 
 /* Funções auxiliares */
 bool isValid(char c)  { return isalpha(c) || isdigit(c); }
+bool isNotAlpha(char c) {
+    return isdigit(c) || !isalpha(c);
+}
 int max(int a, int b) { return a > b ? a : b; }
 int compareAlphabet (const void * a, const void * b) {
   return strcmp(((word *)a)->p, ((word *)b)->p);
