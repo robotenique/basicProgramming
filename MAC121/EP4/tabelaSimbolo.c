@@ -6,6 +6,7 @@
 #include "arrayOps.h"
 #include "buffer.h"
 #include "tabelaSimbolo_VD.h"
+#include "tabelaSimbolo_VO.h"
 
 
 typedef struct inputConfig {
@@ -14,8 +15,9 @@ typedef struct inputConfig {
 } inputConfig;
 
 
-void calculateFreqVD(FILE *input, Buffer *B, inputConfig conf);
+void calculateFreqVD(FILE *input, inputConfig conf);
 void printFreqVD(inputConfig conf, SymbolTableVD st, int wide, int n);
+void calculateFreqVO(FILE *input, inputConfig conf);
 int visitVD (const char *key, EntryData *data, word *arr, int i);
 
 bool isValid (char c);
@@ -24,7 +26,6 @@ int max(int a, int b);
 
 int main(int argc, char const *argv[]) {
     FILE *input;
-    Buffer *B;
     inputConfig conf;
     /* Entrada e verificação de erros */
     if (argc != 4)
@@ -51,13 +52,12 @@ int main(int argc, char const *argv[]) {
     if (input == NULL)
        die("Error opening file, aborting...");
 
-    B = buffer_create();
     switch (conf.stableType) {
         case 1:
-            calculateFreqVD(input, B, conf);
+            calculateFreqVD(input, conf);
             break;
         case 2:
-
+            calculateFreqVO(input, conf);
             break;
         case 3:
 
@@ -70,16 +70,21 @@ int main(int argc, char const *argv[]) {
             break;
     }
     fclose(input);
-    buffer_destroy(B);
     return 0;
 }
 
-void calculateFreqVD(FILE *input, Buffer *B, inputConfig conf) {
+void calculateFreqVO(FILE *input, inputConfig conf) {
+    return;
+}
+
+void calculateFreqVD(FILE *input, inputConfig conf) {
     SymbolTableVD st;
+    Buffer *B;
     Buffer *W;
     InsertionResult ir;
     int i, wide = 0, nElements = 0;
     st = stable_createVD();
+    B = buffer_create();
     W = buffer_create();
     while (read_line(input,B)) {
         buffer_push_back(B,0);
@@ -99,6 +104,7 @@ void calculateFreqVD(FILE *input, Buffer *B, inputConfig conf) {
             buffer_reset(W);
         }
     }
+    buffer_destroy(B);
     buffer_destroy(W);
     printFreqVD(conf, st, wide, nElements);
     stable_destroyVD(st);

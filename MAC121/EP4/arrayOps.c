@@ -38,4 +38,14 @@ int compareFreq (const void * a, const void * b) {
     return 0;
 }
 
+/* Check if a key is in the 'keys' array */
+int linearSearch (char **keys, char* str, int n) {
+    int i;
+    for (i = 0; i < n; i++) {
+       if (strcmp(keys[i], str) == 0)
+           return i;
+   }
+   /* We didn't find the str in the keys array */
+   return -1;
+}
 int max(int a, int b) { return a > b ? a : b; }

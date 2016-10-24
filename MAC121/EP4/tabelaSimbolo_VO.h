@@ -9,17 +9,17 @@
 #include "arrayOps.h"
 
 /* The symbol table. */
-typedef struct stable_s *SymbolTableVD;
+typedef struct stable_s *SymbolTableVO;
 
 /*
   Return a new symbol table.
 */
-SymbolTableVD stable_createVD();
+SymbolTableVO stable_createVO(bool sortByFreq);
 
 /*
   Destroy a given symbol table.
 */
-void stable_destroyVD(SymbolTableVD table);
+void stable_destroyVO(SymbolTableVO table);
 
 /*
   Insert a new entry on the symbol table given its key.
@@ -32,7 +32,7 @@ void stable_destroyVD(SymbolTableVD table);
   If there is not enough space on the table, or if there is a memory
   allocation error, then crashes with an error message.
 */
-InsertionResult stable_insertVD(SymbolTableVD table, const char *key);
+InsertionResult stable_insertVO(SymbolTableVO table, const char *key);
 
 /*
   Find the data associated with a given key.
@@ -40,7 +40,7 @@ InsertionResult stable_insertVD(SymbolTableVD table, const char *key);
   Given a key, returns a pointer to the data associated with it, or a
   NULL pointer if the key is not found.
 */
-EntryData *stable_findVD(SymbolTableVD table, const char *key);
+EntryData *stable_findVO(SymbolTableVO table, const char *key);
 
 /*
   Visit each entry on the table.
@@ -52,7 +52,7 @@ EntryData *stable_findVD(SymbolTableVD table, const char *key);
   Returns zero if the iteration was stopped by the visit function,
   nonzero otherwise.
 */
-int stable_visitVD(SymbolTableVD table,
+int stable_visitVO(SymbolTableVO table,
             int (*visit)(const char *key, EntryData *data, word *arr, int i),
             word *arr);
 

@@ -6,7 +6,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
-#include "tabelaSimbolo_VD.h"
+#include "tabelaSimbolo_VO.h"
 #include "arrayOps.h"
 
 typedef struct stable_s {
@@ -14,26 +14,28 @@ typedef struct stable_s {
 	EntryData* values;
     unsigned int i;
     unsigned int max;
+    bool ordFreq;
 } stable_s;
 /*
   Return a new symbol table.
 */
-SymbolTableVD stable_createVD() {
+SymbolTableVO stable_createVO(bool sortByFreq) {
     int iniMax = 1024;
-    SymbolTableVD t;
+    SymbolTableVO t;
     t = emalloc(sizeof(stable_s));
     t -> i = 0;
     t -> max = iniMax;
     t -> values = calloc(iniMax ,sizeof(EntryData));
     if(t -> values == NULL) die("Error in memory allocation!");
     t -> keys = emalloc(iniMax * sizeof(char*));
+    t -> ordFreq = sortByFreq;
     return t;
 }
 
 /*
   Destroy a given symbol table.
 */
-void stable_destroyVD(SymbolTableVD table) {
+void stable_destroyVO(SymbolTableVO table) {
     int i;
     free(table -> values);
     for (i = 0; i < table->i; i++)
@@ -42,7 +44,7 @@ void stable_destroyVD(SymbolTableVD table) {
     free(table);
 }
 
-void reallocStableVD(SymbolTableVD t) {
+void reallocStableVO(SymbolTableVO t) {
     char** ktemp;
     EntryData* vtemp;
     int i;
@@ -61,6 +63,7 @@ void reallocStableVD(SymbolTableVD t) {
     t->max = (t->max)*2;
 }
 
+
 /*
   Insert a new entry on the symbol table given its key.
 
@@ -72,7 +75,7 @@ void reallocStableVD(SymbolTableVD t) {
   If there is not enough space on the table, or if there is a memory
   allocation error, then crashes with an error message.
 */
-InsertionResult stable_insertVD(SymbolTableVD table, const char *key) {
+InsertionResult stable_insertVO(SymbolTableVO table, const char *key) {
     InsertionResult ir;
     int pos;
     char* cpy;
@@ -88,7 +91,7 @@ InsertionResult stable_insertVD(SymbolTableVD table, const char *key) {
     else {
         ir.new = 1;
         if (table -> i >= table -> max)
-            reallocStableVD(table);
+            reallocStableVO(table);
         table->keys[table->i] = cpy;
         ir.data = &(table -> values[table->i]);
         table->i = (table->i) + 1;
@@ -102,12 +105,12 @@ InsertionResult stable_insertVD(SymbolTableVD table, const char *key) {
   Given a key, returns a pointer to the data associated with it, or a
   NULL pointer if the key is not found.
 */
-EntryData *stable_findVD(SymbolTableVD table, const char *key) {
+EntryData *stable_findVO(SymbolTableVO table, const char *key) {
     char* cpy;
     int pos;
     cpy = emalloc(strlen(key));
     strcpy(cpy, key);
-    pos = linearSearch(table->keys, cpy, table-> i);
+    pos = linearSearch(table->keys, cpy, table-> i); /*Bsort*/
     if(pos >= 0)
         return &(table->values[pos]);
     else
@@ -124,7 +127,7 @@ EntryData *stable_findVD(SymbolTableVD table, const char *key) {
   Returns zero if the iteration was stopped by the visit function,
   nonzero otherwise.
 */
-int stable_visitVD(SymbolTableVD table,
+int stable_visitVO(SymbolTableVO table,
             int (*visit)(const char *key, EntryData *data, word *arr, int i),
             word *arr) {
         int i;
