@@ -4,8 +4,8 @@
   A symbol table associating generic data to strings.
 */
 
-#ifndef __STABLE_H__
-#define __STABLE_H__
+#ifndef __STABLE_VD_H__
+#define __STABLE_VD_H__
 #include "arrayOps.h"
 
 /* The symbol table. */

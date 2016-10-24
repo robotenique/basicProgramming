@@ -27,7 +27,8 @@ int max(int a, int b);
 int main(int argc, char const *argv[]) {
     FILE *input;
     inputConfig conf;
-    /* Entrada e verificação de erros */
+    /* TODO: UNCOMMENT WHEN NEEDED!
+    /* Entrada e verificação de erros
     if (argc != 4)
         die("Not Usage: ./ep4 <inputFile> <stableType> <sortingType>");
     if(!strcmp(argv[2],"VD"))
@@ -51,6 +52,10 @@ int main(int argc, char const *argv[]) {
     input = fopen(argv[1], "r");
     if (input == NULL)
        die("Error opening file, aborting...");
+    */
+    input = fopen("in", "r");
+    conf.stableType = 2;
+    conf.orderByAlpha = false;
 
     switch (conf.stableType) {
         case 1:
@@ -74,7 +79,36 @@ int main(int argc, char const *argv[]) {
 }
 
 void calculateFreqVO(FILE *input, inputConfig conf) {
-    return;
+    SymbolTableVD st;
+    Buffer *B;
+    Buffer *W;
+    InsertionResult ir;
+    int i, wide = 0, nElements = 0;
+    st = stable_createVO(!conf.orderByAlpha);
+    B = buffer_create();
+    W = buffer_create();
+    while (read_line(input,B)) {
+        buffer_push_back(B,0);
+        i = 0;
+        while (i < B->i && B->data[i] != 0) {
+            for (; i < B->i && isNotAlpha(B->data[i]); i++);
+            while (i < (B -> i) &&  B->data[i] != 0 && isValid(B->data[i]))
+                buffer_push_back(W,B->data[i++]);
+            i++;
+            if(W->i != 0) {
+                buffer_push_back(W,0);
+                wide = max(wide, W->i);
+                ir = stable_insertVO(st, W->data); /* Consider Polymorphism... */
+                if(ir.new) nElements++;
+                ir.data->i = 1 + (!ir.new * ir.data->i);
+            }
+            buffer_reset(W);
+        }
+    }
+    buffer_destroy(B);
+    buffer_destroy(W);
+    /*printFreqVD(conf, st, wide, nElements);*/
+    stable_destroyVD(st);
 }
 
 void calculateFreqVD(FILE *input, inputConfig conf) {

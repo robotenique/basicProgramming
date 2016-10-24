@@ -9,6 +9,7 @@
 #include "tabelaSimbolo_VO.h"
 #include "arrayOps.h"
 
+
 typedef struct stable_s {
     char** keys;
 	EntryData* values;
@@ -16,6 +17,9 @@ typedef struct stable_s {
     unsigned int max;
     bool ordFreq;
 } stable_s;
+
+int cmpString (const void * a, const void * b);
+
 /*
   Return a new symbol table.
 */
@@ -77,20 +81,25 @@ void reallocStableVO(SymbolTableVO t) {
 */
 InsertionResult stable_insertVO(SymbolTableVO table, const char *key) {
     InsertionResult ir;
-    int pos;
+    int * pos = 0;
     char* cpy;
     ir.new = 0;
     cpy = estrdup(key);
-    /*Linear search*/
-    pos = linearSearch(table -> keys, cpy, table -> i);
-    if(pos >= 0) {
-        ir.data = &(table -> values[pos]);
+    /*Binary search*/
+
+    if (table->ordFreq)
+        pos = bsearch(key, table->keys, table->i, sizeof(char *), cmpString);
+
+    if(pos)printf("pos = %d\n",*pos );
+    // TODO: FIX HERE, check if bsort is working properly
+    if(*pos >= 0) {
+        ir.data = &(table->values[*pos]);
         free(cpy);
         return ir;
     }
     else {
         ir.new = 1;
-        if (table -> i >= table -> max)
+        if (table->i >= table->max)
             reallocStableVO(table);
         table->keys[table->i] = cpy;
         ir.data = &(table -> values[table->i]);
@@ -135,4 +144,8 @@ int stable_visitVO(SymbolTableVO table,
                 if(!visit(table->keys[i], &(table->values[i]), arr, i))
                 return 0;
         return 1;
+}
+
+int cmpString (const void * a, const void * b) {
+    return strcmp(((word *)a)->p, ((word *)b)->p);
 }
