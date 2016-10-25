@@ -8,11 +8,15 @@
 #include "tabelaSimbolo_VD.h"
 #include "tabelaSimbolo_VO.h"
 
-
+/* Para debug em gdb:
+ gcc -Wall -ansi -pedantic -O2 -g -o a.out tabelaSimbolo.c buffer.c tabelaSimbolo_VO.c tabelaSimbolo_VD.c arrayOps.c
+*/
 typedef struct inputConfig {
     minINT stableType;
     bool orderByAlpha;
 } inputConfig;
+
+void pTest(inputConfig conf, SymbolTableVO st, int wide, int n);
 
 
 void calculateFreqVD(FILE *input, inputConfig conf);
@@ -107,6 +111,7 @@ void calculateFreqVO(FILE *input, inputConfig conf) {
     }
     buffer_destroy(B);
     buffer_destroy(W);
+    pTest(conf, st, wide, nElements);
     /*printFreqVD(conf, st, wide, nElements);*/
     stable_destroyVD(st);
 }
@@ -143,6 +148,21 @@ void calculateFreqVD(FILE *input, inputConfig conf) {
     printFreqVD(conf, st, wide, nElements);
     stable_destroyVD(st);
 }
+
+void pTest(inputConfig conf, SymbolTableVO st, int wide, int n) {
+    int i, nSpaces;
+    word* wArr = calloc(n, sizeof(word));
+    if (wArr == NULL) die("Error in memory allocation!");
+    stable_visitVO(st, &visitVD, wArr);
+    for (i = 0; i < n; i++) {
+        nSpaces = (int) (wide - strlen(wArr[i].p));
+        printf("%s %*d\n", wArr[i].p, nSpaces, wArr[i].freq);
+        free(wArr[i].p);
+    }
+    free(wArr);
+}
+
+
 
 void printFreqVD(inputConfig conf, SymbolTableVD st, int wide, int n) {
     int i, nSpaces;

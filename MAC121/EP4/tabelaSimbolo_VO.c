@@ -18,7 +18,6 @@ typedef struct stable_s {
     unsigned int max;
 } stable_s;
 
-int cmpString (const void * a, const void * b);
 int bSearchRec (char *keys[], char *target, int b, int t);
 
 /*
@@ -69,7 +68,8 @@ void reallocStableVO(SymbolTableVO t) {
 
 int bSearchRec (char *keys[], char *target, int b, int t) {
     int m, cmp;
-    if (b > t) return t;
+    if (b > t)
+        return t;
     m = (b + t)/2;
     cmp = strcmp(keys[m], target);
     if (!cmp)
@@ -92,28 +92,41 @@ int bSearchRec (char *keys[], char *target, int b, int t) {
 */
 InsertionResult stable_insertVO(SymbolTableVO table, const char *key) {
     InsertionResult ir;
-    int * pos = 0;
+    int pos = 0, k = 0;
     char* cpy;
-    ir.new = 0;
+    ir.new = 1;
     cpy = estrdup(key);
     /*Executing binary search*/
-    pos = bsearch(key, table->keys, table->i, sizeof(char *), cmpString);
-    if(pos) printf("pos = %d\n",*pos );
-    /* TODO: FIX HERE, check if bsort is working properly */
-    if(*pos >= 0) {
-        ir.data = &(table->values[*pos]);
-        free(cpy);
-        return ir;
+    pos = bSearchRec(table->keys, cpy, 0, table->i - 1);
+    if(pos >= 0) {
+        if(!strcmp(table->keys[pos], key)) {
+            ir.new = 0;
+            ir.data = &(table->values[pos]);
+            free(cpy);
+            return ir;
+        }
+        else {
+            if(table->i + 1 >= table->max)
+                reallocStableVO(table);
+            for (k = table->i - 1; k > pos; k--) {
+                table->keys[k + 1] = table->keys[k];
+                table->values[k + 1] = table->values[k];
+            }
+            table->keys[pos + 1] = cpy;
+            ir.data = &(table->values[pos + 1]);
+            table->i += 1;
+            return ir;
+        }
     }
-    else {
-        ir.new = 1;
-        if (table->i >= table->max)
-            reallocStableVO(table);
-        table->keys[table->i] = cpy;
-        ir.data = &(table -> values[table->i]);
-        table->i = (table->i) + 1;
+
+    for (k = table->i - 1; k > pos; k--) {
+        table->keys[k + 1] = table->keys[k];
+        table->values[k + 1] = table->values[k];
     }
-        return ir;
+    table->keys[pos + 1] = cpy;
+    ir.data = &(table->values[pos + 1]);
+    table->i += 1;
+    return ir;
 }
 
 /*
@@ -152,8 +165,4 @@ int stable_visitVO(SymbolTableVO table,
                 if(!visit(table->keys[i], &(table->values[i]), arr, i))
                 return 0;
         return 1;
-}
-
-int cmpString (const char* a, const char* b) {
-    return strcmp(((word *)a)->p, ((word *)b)->p);
 }
