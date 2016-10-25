@@ -9,11 +9,6 @@
 #include "arrayOps.h"
 #include <stdlib.h>
 
-
-/* REMAINDER: The 0 represents the end of a string. Remember to use the
- * buffer_push_back() function to push the 0 when finished reading the
- * desired string.
- */
  Buffer *buffer_create() {
      Buffer *B;
      B = emalloc(sizeof(Buffer));
@@ -33,7 +28,6 @@
     B -> n = 1024;
     B -> i = 0;
     B -> data = emalloc(B -> n);
-
  }
 
  void buffer_push_back(Buffer *B, char c){

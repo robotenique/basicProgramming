@@ -27,4 +27,6 @@ int compareAlphabet (const void * a, const void * b);
 int compareFreq (const void * a, const void * b);
 int linearSearch (char **keys, char* str, int n);
 int max(int a, int b);
+bool isValid(char c);
+bool isNotAlpha(char c);
 #endif

@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 #include "arrayOps.h"
 void *emalloc(int size) {
   void *ret;
@@ -47,5 +48,10 @@ int linearSearch (char **keys, char* str, int n) {
    }
    /* We didn't find the str in the keys array */
    return -1;
+}
+/* Funções auxiliares */
+bool isValid(char c)  { return isalpha(c) || isdigit(c); }
+bool isNotAlpha(char c) {
+    return isdigit(c) || !isalpha(c);
 }
 int max(int a, int b) { return a > b ? a : b; }

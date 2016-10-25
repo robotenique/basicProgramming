@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <string.h>
 #include <mcheck.h>
-#include <ctype.h>
 #include <stdlib.h>
 #include "arrayOps.h"
 #include "buffer.h"
@@ -16,17 +15,13 @@ typedef struct inputConfig {
     bool orderByAlpha;
 } inputConfig;
 
-void pTest(inputConfig conf, SymbolTableVO st, int wide, int n);
 
 
 void calculateFreqVD(FILE *input, inputConfig conf);
-void printFreqVD(inputConfig conf, SymbolTableVD st, int wide, int n);
 void calculateFreqVO(FILE *input, inputConfig conf);
-int visitVD (const char *key, EntryData *data, word *arr, int i);
-
-bool isValid (char c);
-bool isNotAlpha(char c);
-int max(int a, int b);
+void printFreqVD(inputConfig conf, SymbolTableVD st, int wide, int n);
+void printFreqVO(inputConfig conf, SymbolTableVO st, int wide, int n);
+int copyValue (const char *key, EntryData *data, word *arr, int i);
 
 int main(int argc, char const *argv[]) {
     FILE *input;
@@ -88,7 +83,7 @@ void calculateFreqVO(FILE *input, inputConfig conf) {
     Buffer *W;
     InsertionResult ir;
     int i, wide = 0, nElements = 0;
-    st = stable_createVO(!conf.orderByAlpha);
+    st = createST_VO(!conf.orderByAlpha);
     B = buffer_create();
     W = buffer_create();
     while (read_line(input,B)) {
@@ -102,7 +97,7 @@ void calculateFreqVO(FILE *input, inputConfig conf) {
             if(W->i != 0) {
                 buffer_push_back(W,0);
                 wide = max(wide, W->i);
-                ir = stable_insertVO(st, W->data); /* Consider Polymorphism... */
+                ir = insertST_VO(st, W->data); /* Consider Polymorphism... */
                 if(ir.new) nElements++;
                 ir.data->i = 1 + (!ir.new * ir.data->i);
             }
@@ -111,9 +106,8 @@ void calculateFreqVO(FILE *input, inputConfig conf) {
     }
     buffer_destroy(B);
     buffer_destroy(W);
-    pTest(conf, st, wide, nElements);
-    /*printFreqVD(conf, st, wide, nElements);*/
-    stable_destroyVD(st);
+    printFreqVO(conf, st, wide, nElements);
+    destroyST_VO(st);
 }
 
 void calculateFreqVD(FILE *input, inputConfig conf) {
@@ -122,7 +116,7 @@ void calculateFreqVD(FILE *input, inputConfig conf) {
     Buffer *W;
     InsertionResult ir;
     int i, wide = 0, nElements = 0;
-    st = stable_createVD();
+    st = createST_VD();
     B = buffer_create();
     W = buffer_create();
     while (read_line(input,B)) {
@@ -136,7 +130,7 @@ void calculateFreqVD(FILE *input, inputConfig conf) {
             if(W->i != 0) {
                 buffer_push_back(W,0);
                 wide = max(wide, W->i);
-                ir = stable_insertVD(st, W->data);
+                ir = insertST_VD(st, W->data);
                 if(ir.new) nElements++;
                 ir.data->i = 1 + (!ir.new * ir.data->i);
             }
@@ -146,14 +140,16 @@ void calculateFreqVD(FILE *input, inputConfig conf) {
     buffer_destroy(B);
     buffer_destroy(W);
     printFreqVD(conf, st, wide, nElements);
-    stable_destroyVD(st);
+    destroyST_VD(st);
 }
 
-void pTest(inputConfig conf, SymbolTableVO st, int wide, int n) {
+void printFreqVO(inputConfig conf, SymbolTableVO st, int wide, int n) {
     int i, nSpaces;
     word* wArr = calloc(n, sizeof(word));
     if (wArr == NULL) die("Error in memory allocation!");
-    stable_visitVO(st, &visitVD, wArr);
+    applyST_VO(st, &copyValue, wArr);
+    if(!conf.orderByAlpha)
+        qsort(wArr, n, sizeof(word), compareFreq);
     for (i = 0; i < n; i++) {
         nSpaces = (int) (wide - strlen(wArr[i].p));
         printf("%s %*d\n", wArr[i].p, nSpaces, wArr[i].freq);
@@ -162,13 +158,11 @@ void pTest(inputConfig conf, SymbolTableVO st, int wide, int n) {
     free(wArr);
 }
 
-
-
 void printFreqVD(inputConfig conf, SymbolTableVD st, int wide, int n) {
     int i, nSpaces;
     word* wArr = calloc(n, sizeof(word));
     if (wArr == NULL) die("Error in memory allocation!");
-    stable_visitVD(st, &visitVD, wArr);
+    applyST_VD(st, &copyValue, wArr);
     if(conf.orderByAlpha)
         qsort(wArr, n, sizeof(word), compareAlphabet);
     else
@@ -182,14 +176,8 @@ void printFreqVD(inputConfig conf, SymbolTableVD st, int wide, int n) {
     free(wArr);
 }
 
-int visitVD (const char *key, EntryData *data, word *arr, int i) {
+int copyValue(const char *key, EntryData *data, word *arr, int i) {
     arr[i].p = estrdup(key);
     arr[i].freq = data->i;
     return 1;
-}
-
-/* Funções auxiliares */
-bool isValid(char c)  { return isalpha(c) || isdigit(c); }
-bool isNotAlpha(char c) {
-    return isdigit(c) || !isalpha(c);
 }
