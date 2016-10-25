@@ -2,6 +2,7 @@
   stable.h
 
   A symbol table associating generic data to strings.
+  This symbol table is always ordered by alphabetic order
 */
 #include <stdlib.h>
 #include <string.h>
@@ -15,15 +16,15 @@ typedef struct stable_s {
 	EntryData* values;
     unsigned int i;
     unsigned int max;
-    bool ordFreq;
 } stable_s;
 
 int cmpString (const void * a, const void * b);
+int bSearchRec (char *keys[], char *target, int b, int t);
 
 /*
   Return a new symbol table.
 */
-SymbolTableVO stable_createVO(bool sortByFreq) {
+SymbolTableVO stable_createVO() {
     int iniMax = 1024;
     SymbolTableVO t;
     t = emalloc(sizeof(stable_s));
@@ -32,7 +33,6 @@ SymbolTableVO stable_createVO(bool sortByFreq) {
     t -> values = calloc(iniMax ,sizeof(EntryData));
     if(t -> values == NULL) die("Error in memory allocation!");
     t -> keys = emalloc(iniMax * sizeof(char*));
-    t -> ordFreq = sortByFreq;
     return t;
 }
 
@@ -67,6 +67,17 @@ void reallocStableVO(SymbolTableVO t) {
     t->max = (t->max)*2;
 }
 
+int bSearchRec (char *keys[], char *target, int b, int t) {
+    int m, cmp;
+    if (b > t) return t;
+    m = (b + t)/2;
+    cmp = strcmp(keys[m], target);
+    if (!cmp)
+        return m;
+    if(cmp > 0)
+        return bSearchRec(keys, target, b, m - 1);
+    return bSearchRec(keys, target, m + 1, t);
+}
 
 /*
   Insert a new entry on the symbol table given its key.
@@ -85,13 +96,10 @@ InsertionResult stable_insertVO(SymbolTableVO table, const char *key) {
     char* cpy;
     ir.new = 0;
     cpy = estrdup(key);
-    /*Binary search*/
-
-    if (table->ordFreq)
-        pos = bsearch(key, table->keys, table->i, sizeof(char *), cmpString);
-
-    if(pos)printf("pos = %d\n",*pos );
-    // TODO: FIX HERE, check if bsort is working properly
+    /*Executing binary search*/
+    pos = bsearch(key, table->keys, table->i, sizeof(char *), cmpString);
+    if(pos) printf("pos = %d\n",*pos );
+    /* TODO: FIX HERE, check if bsort is working properly */
     if(*pos >= 0) {
         ir.data = &(table->values[*pos]);
         free(cpy);
@@ -146,6 +154,6 @@ int stable_visitVO(SymbolTableVO table,
         return 1;
 }
 
-int cmpString (const void * a, const void * b) {
+int cmpString (const char* a, const char* b) {
     return strcmp(((word *)a)->p, ((word *)b)->p);
 }

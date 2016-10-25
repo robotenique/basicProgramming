@@ -14,7 +14,7 @@ typedef struct stable_s *SymbolTableVO;
 /*
   Return a new symbol table.
 */
-SymbolTableVO stable_createVO(bool sortByFreq);
+SymbolTableVO stable_createVO();
 
 /*
   Destroy a given symbol table.

@@ -27,7 +27,7 @@ int max(int a, int b);
 int main(int argc, char const *argv[]) {
     FILE *input;
     inputConfig conf;
-    /* TODO: UNCOMMENT WHEN NEEDED!
+    /* TODO: UNCOMMENT WHEN NEEDED! */
     /* Entrada e verificação de erros
     if (argc != 4)
         die("Not Usage: ./ep4 <inputFile> <stableType> <sortingType>");
