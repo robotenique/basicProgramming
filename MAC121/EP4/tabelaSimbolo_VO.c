@@ -98,27 +98,16 @@ InsertionResult stable_insertVO(SymbolTableVO table, const char *key) {
     cpy = estrdup(key);
     /*Executing binary search*/
     pos = bSearchRec(table->keys, cpy, 0, table->i - 1);
-    if(pos >= 0) {
+    if(pos >= 0)
         if(!strcmp(table->keys[pos], key)) {
             ir.new = 0;
             ir.data = &(table->values[pos]);
             free(cpy);
             return ir;
         }
-        else {
-            if(table->i + 1 >= table->max)
-                reallocStableVO(table);
-            for (k = table->i - 1; k > pos; k--) {
-                table->keys[k + 1] = table->keys[k];
-                table->values[k + 1] = table->values[k];
-            }
-            table->keys[pos + 1] = cpy;
-            ir.data = &(table->values[pos + 1]);
-            table->i += 1;
-            return ir;
-        }
-    }
 
+    if(table->i + 1 >= table->max)
+        reallocStableVO(table);
     for (k = table->i - 1; k > pos; k--) {
         table->keys[k + 1] = table->keys[k];
         table->values[k + 1] = table->values[k];
