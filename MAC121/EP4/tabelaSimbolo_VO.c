@@ -102,6 +102,6 @@ int applyST_VO(SymbolTableVO table,
         int i;
         for (i = 0; i < table->i; i++)
                 if(!apply(table->keys[i], &(table->values[i]), arr, i))
-                return 0;
+                    return 0;
         return 1;
 }

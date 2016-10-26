@@ -27,6 +27,17 @@ SymbolTableLD createST_LD() {
     return t;
 }
 
+EntryData* insertLinkedL(Entry ** head, char *key) {
+    Entry * new;
+    EntryData * irPointer;
+    new = emalloc(sizeof(Entry));
+    new->key = estrdup(key);
+    irPointer = &(new->data);
+    new->next = *head;
+    *head = new;
+    return irPointer;
+}
+
 Entry * searchLinkedL(Entry * head, char *key) {
     /* Return NULL if value is x is not in the list */
     Entry * p;
@@ -34,14 +45,32 @@ Entry * searchLinkedL(Entry * head, char *key) {
     return p;
 }
 
+
 InsertionResult insertST_LD(SymbolTableLD table, const char *key) {
+    InsertionResult ir;
     Entry *p;
     char *cpy;
+    ir.new = 0;
     cpy = estrdup(key);
     p = searchLinkedL(table->head, cpy);
-    if(p != NULL)
+    if(p != NULL) {
+        ir.data =&(p->data);
+        free(cpy);
+        return ir;
+    }
+    ir.new = 1;
+    table->i += 1;
+    ir.data = insertLinkedL(&(table->head), cpy);
+    return ir;
+}
 
-
-    printf("KEY: %s , p = %p\n",key, (void *)p);
-    exit(-1);
+int applyST_LD(SymbolTableLD table,
+            int (*apply)(const char *key, EntryData *data, word *arr, int i),
+            word *arr) {
+        int i;
+        Entry *p;
+        for (p = table->head, i = 0; p; p = p->next, i++)
+            if(!apply(p->key, &(p->data), arr, i))
+                return 0;
+        return 1;
 }

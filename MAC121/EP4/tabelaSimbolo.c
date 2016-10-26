@@ -23,6 +23,7 @@ void calculateFreqVO(FILE *input, inputConfig conf);
 void calculateFreqLD(FILE *input, inputConfig conf);
 void printFreqVD(inputConfig conf, SymbolTableVD st, int wide, int n);
 void printFreqVO(inputConfig conf, SymbolTableVO st, int wide, int n);
+void printFreqLD(inputConfig conf, SymbolTableVO st, int wide, int n);
 int copyValue (const char *key, EntryData *data, word *arr, int i);
 
 int main(int argc, char const *argv[]) {
@@ -107,8 +108,8 @@ void calculateFreqLD(FILE *input, inputConfig conf) {
     }
     buffer_destroy(B);
     buffer_destroy(W);
-    /*printFreqVO(conf, st, wide, nElements);
-    destroyST_LD(st); */
+    printFreqLD(conf, st, wide, nElements);
+    destroyST_LD(st);
 }
 void calculateFreqVO(FILE *input, inputConfig conf) {
     SymbolTableVD st;
@@ -182,6 +183,22 @@ void printFreqVO(inputConfig conf, SymbolTableVO st, int wide, int n) {
     if (wArr == NULL) die("Error in memory allocation!");
     applyST_VO(st, &copyValue, wArr);
     if(!conf.orderByAlpha)
+        qsort(wArr, n, sizeof(word), compareFreq);
+    for (i = 0; i < n; i++) {
+        nSpaces = (int) (wide - strlen(wArr[i].p));
+        printf("%s %*d\n", wArr[i].p, nSpaces, wArr[i].freq);
+        free(wArr[i].p);
+    }
+    free(wArr);
+}
+void printFreqLD(inputConfig conf, SymbolTableVO st, int wide, int n) {
+    int i, nSpaces;
+    word* wArr = calloc(n, sizeof(word));
+    if (wArr == NULL) die("Error in memory allocation!");
+    applyST_LD(st, &copyValue, wArr);
+    if(conf.orderByAlpha)
+        qsort(wArr, n, sizeof(word), compareAlphabet);
+    else
         qsort(wArr, n, sizeof(word), compareFreq);
     for (i = 0; i < n; i++) {
         nSpaces = (int) (wide - strlen(wArr[i].p));
