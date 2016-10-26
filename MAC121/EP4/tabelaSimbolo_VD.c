@@ -1,8 +1,3 @@
-/*
-  stable.h
-
-  A symbol table associating generic data to strings.
-*/
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>

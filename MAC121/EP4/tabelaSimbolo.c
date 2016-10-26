@@ -6,6 +6,7 @@
 #include "buffer.h"
 #include "tabelaSimbolo_VD.h"
 #include "tabelaSimbolo_VO.h"
+#include "tabelaSimbolo_LD.h"
 
 /* Para debug em gdb:
  gcc -Wall -ansi -pedantic -O2 -g -o a.out tabelaSimbolo.c buffer.c tabelaSimbolo_VO.c tabelaSimbolo_VD.c arrayOps.c
@@ -19,6 +20,7 @@ typedef struct inputConfig {
 
 void calculateFreqVD(FILE *input, inputConfig conf);
 void calculateFreqVO(FILE *input, inputConfig conf);
+void calculateFreqLD(FILE *input, inputConfig conf);
 void printFreqVD(inputConfig conf, SymbolTableVD st, int wide, int n);
 void printFreqVO(inputConfig conf, SymbolTableVO st, int wide, int n);
 int copyValue (const char *key, EntryData *data, word *arr, int i);
@@ -53,7 +55,7 @@ int main(int argc, char const *argv[]) {
        die("Error opening file, aborting...");
     */
     input = fopen("in", "r");
-    conf.stableType = 2;
+    conf.stableType = 3;
     conf.orderByAlpha = false;
 
     switch (conf.stableType) {
@@ -64,7 +66,7 @@ int main(int argc, char const *argv[]) {
             calculateFreqVO(input, conf);
             break;
         case 3:
-
+            calculateFreqLD(input, conf);
             break;
         case 4:
 
@@ -76,7 +78,38 @@ int main(int argc, char const *argv[]) {
     fclose(input);
     return 0;
 }
-
+void calculateFreqLD(FILE *input, inputConfig conf) {
+    SymbolTableLD st;
+    Buffer *B;
+    Buffer *W;
+    InsertionResult ir;
+    int i, wide = 0, nElements = 0;
+    st = createST_LD(!conf.orderByAlpha);
+    B = buffer_create();
+    W = buffer_create();
+    while (read_line(input,B)) {
+        buffer_push_back(B,0);
+        i = 0;
+        while (i < B->i && B->data[i] != 0) {
+            for (; i < B->i && isNotAlpha(B->data[i]); i++);
+            while (i < (B -> i) &&  B->data[i] != 0 && isValid(B->data[i]))
+                buffer_push_back(W,B->data[i++]);
+            i++;
+            if(W->i != 0) {
+                buffer_push_back(W,0);
+                wide = max(wide, W->i);
+                ir = insertST_LD(st, W->data);
+                if(ir.new) nElements++;
+                ir.data->i = 1 + (!ir.new * ir.data->i);
+            }
+            buffer_reset(W);
+        }
+    }
+    buffer_destroy(B);
+    buffer_destroy(W);
+    /*printFreqVO(conf, st, wide, nElements);
+    destroyST_LD(st); */
+}
 void calculateFreqVO(FILE *input, inputConfig conf) {
     SymbolTableVD st;
     Buffer *B;
