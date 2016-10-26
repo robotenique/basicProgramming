@@ -11,27 +11,35 @@ typedef struct entryST {
 } Entry;
 
 struct stable_s {
-    int max;
-    int i;
-    Entry *entries;
     Entry *head;
 };
 
 
 SymbolTableLD createST_LD() {
-    int iniMax = 1;
     SymbolTableLD t = emalloc(sizeof(struct stable_s));
-    t -> i = 0;
-    t -> max = iniMax;
     t -> head = NULL;
     return t;
 }
 
+void destroyST_LD(SymbolTableLD table) {
+    Entry *next, *head;
+    head = table->head;
+    for (;head; head = next) {
+        next = head->next;
+        free(head->key);
+        free(head);
+    }
+    free(table);
+}
+
+
 EntryData* insertLinkedL(Entry ** head, char *key) {
-    Entry * new;
-    EntryData * irPointer;
+    Entry *new;
+    EntryData *irPointer;
     new = emalloc(sizeof(Entry));
-    new->key = estrdup(key);
+    new->key = key;
+    /* Initialize the bigger type of union with zero */
+    new->data.i = 0;
     irPointer = &(new->data);
     new->next = *head;
     *head = new;
@@ -41,7 +49,7 @@ EntryData* insertLinkedL(Entry ** head, char *key) {
 Entry * searchLinkedL(Entry * head, char *key) {
     /* Return NULL if value is x is not in the list */
     Entry * p;
-    for (p = head; p != NULL && strcmp(p->key, key); p = p->next);
+    for (p = head; p && strcmp(p->key, key); p = p->next);
     return p;
 }
 
@@ -59,7 +67,6 @@ InsertionResult insertST_LD(SymbolTableLD table, const char *key) {
         return ir;
     }
     ir.new = 1;
-    table->i += 1;
     ir.data = insertLinkedL(&(table->head), cpy);
     return ir;
 }
