@@ -56,8 +56,8 @@ int main(int argc, char const *argv[]) {
        die("Error opening file, aborting...");
     */
     input = fopen("in", "r");
-    conf.stableType = 3;
-    conf.orderByAlpha = false;
+    conf.stableType = 1;
+    conf.orderByAlpha = true;
 
     switch (conf.stableType) {
         case 1:
@@ -70,7 +70,7 @@ int main(int argc, char const *argv[]) {
             calculateFreqLD(input, conf);
             break;
         case 4:
-
+            /*calculateFreqLO(input, conf);*/
             break;
         case 5:
 
@@ -79,38 +79,7 @@ int main(int argc, char const *argv[]) {
     fclose(input);
     return 0;
 }
-void calculateFreqLD(FILE *input, inputConfig conf) {
-    SymbolTableLD st;
-    Buffer *B;
-    Buffer *W;
-    InsertionResult ir;
-    int i, wide = 0, nElements = 0;
-    st = createST_LD(!conf.orderByAlpha);
-    B = buffer_create();
-    W = buffer_create();
-    while (read_line(input,B)) {
-        buffer_push_back(B,0);
-        i = 0;
-        while (i < B->i && B->data[i] != 0) {
-            for (; i < B->i && isNotAlpha(B->data[i]); i++);
-            while (i < (B -> i) &&  B->data[i] != 0 && isValid(B->data[i]))
-                buffer_push_back(W,B->data[i++]);
-            i++;
-            if(W->i != 0) {
-                buffer_push_back(W,0);
-                wide = max(wide, W->i);
-                ir = insertST_LD(st, W->data);
-                if(ir.new) nElements++;
-                ir.data->i = 1 + (!ir.new * ir.data->i);
-            }
-            buffer_reset(W);
-        }
-    }
-    buffer_destroy(B);
-    buffer_destroy(W);
-    printFreqLD(conf, st, wide, nElements);
-    destroyST_LD(st);
-}
+
 void calculateFreqVO(FILE *input, inputConfig conf) {
     SymbolTableVD st;
     Buffer *B;
@@ -131,6 +100,7 @@ void calculateFreqVO(FILE *input, inputConfig conf) {
             if(W->i != 0) {
                 buffer_push_back(W,0);
                 wide = max(wide, W->i);
+                buffer_lower(W);
                 ir = insertST_VO(st, W->data); /* Consider Polymorphism... */
                 if(ir.new) nElements++;
                 ir.data->i = 1 + (!ir.new * ir.data->i);
@@ -164,6 +134,7 @@ void calculateFreqVD(FILE *input, inputConfig conf) {
             if(W->i != 0) {
                 buffer_push_back(W,0);
                 wide = max(wide, W->i);
+                buffer_lower(W);
                 ir = insertST_VD(st, W->data);
                 if(ir.new) nElements++;
                 ir.data->i = 1 + (!ir.new * ir.data->i);
@@ -177,28 +148,46 @@ void calculateFreqVD(FILE *input, inputConfig conf) {
     destroyST_VD(st);
 }
 
+void calculateFreqLD(FILE *input, inputConfig conf) {
+    SymbolTableLD st;
+    Buffer *B;
+    Buffer *W;
+    InsertionResult ir;
+    int i, wide = 0, nElements = 0;
+    st = createST_LD(!conf.orderByAlpha);
+    B = buffer_create();
+    W = buffer_create();
+    while (read_line(input,B)) {
+        buffer_push_back(B,0);
+        i = 0;
+        while (i < B->i && B->data[i] != 0) {
+            for (; i < B->i && isNotAlpha(B->data[i]); i++);
+            while (i < (B -> i) &&  B->data[i] != 0 && isValid(B->data[i]))
+                buffer_push_back(W,B->data[i++]);
+            i++;
+            if(W->i != 0) {
+                buffer_push_back(W,0);
+                wide = max(wide, W->i);
+                buffer_lower(W);
+                ir = insertST_LD(st, W->data);
+                if(ir.new) nElements++;
+                ir.data->i = 1 + (!ir.new * ir.data->i);
+            }
+            buffer_reset(W);
+        }
+    }
+    buffer_destroy(B);
+    buffer_destroy(W);
+    printFreqLD(conf, st, wide, nElements);
+    destroyST_LD(st);
+}
+
 void printFreqVO(inputConfig conf, SymbolTableVO st, int wide, int n) {
     int i, nSpaces;
     word* wArr = calloc(n, sizeof(word));
     if (wArr == NULL) die("Error in memory allocation!");
     applyST_VO(st, &copyValue, wArr);
     if(!conf.orderByAlpha)
-        qsort(wArr, n, sizeof(word), compareFreq);
-    for (i = 0; i < n; i++) {
-        nSpaces = (int) (wide - strlen(wArr[i].p));
-        printf("%s %*d\n", wArr[i].p, nSpaces, wArr[i].freq);
-        free(wArr[i].p);
-    }
-    free(wArr);
-}
-void printFreqLD(inputConfig conf, SymbolTableVO st, int wide, int n) {
-    int i, nSpaces;
-    word* wArr = calloc(n, sizeof(word));
-    if (wArr == NULL) die("Error in memory allocation!");
-    applyST_LD(st, &copyValue, wArr);
-    if(conf.orderByAlpha)
-        qsort(wArr, n, sizeof(word), compareAlphabet);
-    else
         qsort(wArr, n, sizeof(word), compareFreq);
     for (i = 0; i < n; i++) {
         nSpaces = (int) (wide - strlen(wArr[i].p));
@@ -226,6 +215,22 @@ void printFreqVD(inputConfig conf, SymbolTableVD st, int wide, int n) {
     free(wArr);
 }
 
+void printFreqLD(inputConfig conf, SymbolTableVO st, int wide, int n) {
+    int i, nSpaces;
+    word* wArr = calloc(n, sizeof(word));
+    if (wArr == NULL) die("Error in memory allocation!");
+    applyST_LD(st, &copyValue, wArr);
+    if(conf.orderByAlpha)
+        qsort(wArr, n, sizeof(word), compareAlphabet);
+    else
+        qsort(wArr, n, sizeof(word), compareFreq);
+    for (i = 0; i < n; i++) {
+        nSpaces = (int) (wide - strlen(wArr[i].p));
+        printf("%s %*d\n", wArr[i].p, nSpaces, wArr[i].freq);
+        free(wArr[i].p);
+    }
+    free(wArr);
+}
 int copyValue(const char *key, EntryData *data, word *arr, int i) {
     arr[i].p = estrdup(key);
     arr[i].freq = data->i;

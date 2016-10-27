@@ -6,8 +6,6 @@
  * Buffer Implementation
  */
 #include "buffer.h"
-#include "arrayOps.h"
-#include <stdlib.h>
 
  Buffer *buffer_create() {
      Buffer *B;
@@ -58,3 +56,9 @@
     }
     return count;
  }
+
+ void buffer_lower(Buffer *B) {
+     int k;
+     for (k = 0; k < B-> i && B->data[k] != 0; k++)
+        B->data[k] = tolower(B->data[k]);
+}

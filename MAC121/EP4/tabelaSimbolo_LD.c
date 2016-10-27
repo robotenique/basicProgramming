@@ -14,7 +14,6 @@ struct stable_s {
     Entry *head;
 };
 
-
 SymbolTableLD createST_LD() {
     SymbolTableLD t = emalloc(sizeof(struct stable_s));
     t -> head = NULL;
@@ -31,7 +30,6 @@ void destroyST_LD(SymbolTableLD table) {
     }
     free(table);
 }
-
 
 EntryData* insertLinkedL(Entry ** head, char *key) {
     Entry *new;
@@ -52,7 +50,6 @@ Entry * searchLinkedL(Entry * head, char *key) {
     for (p = head; p && strcmp(p->key, key); p = p->next);
     return p;
 }
-
 
 InsertionResult insertST_LD(SymbolTableLD table, const char *key) {
     InsertionResult ir;
