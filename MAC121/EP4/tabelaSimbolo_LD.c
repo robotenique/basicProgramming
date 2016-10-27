@@ -44,7 +44,7 @@ EntryData* insertLinkedL(Entry ** head, char *key) {
     return irPointer;
 }
 
-Entry * searchLinkedL(Entry * head, char *key) {
+Entry * searchLD(Entry * head, char *key) {
     /* Return NULL if value is x is not in the list */
     Entry * p;
     for (p = head; p && strcmp(p->key, key); p = p->next);
@@ -57,7 +57,7 @@ InsertionResult insertST_LD(SymbolTableLD table, const char *key) {
     char *cpy;
     ir.new = 0;
     cpy = estrdup(key);
-    p = searchLinkedL(table->head, cpy);
+    p = searchLD(table->head, cpy);
     if(p != NULL) {
         ir.data =&(p->data);
         free(cpy);
