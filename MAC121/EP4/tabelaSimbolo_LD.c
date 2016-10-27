@@ -31,7 +31,7 @@ void destroyST_LD(SymbolTableLD table) {
     free(table);
 }
 
-EntryData* insertLinkedL(Entry ** head, char *key) {
+EntryData* insertLD(Entry ** head, char *key) {
     Entry *new;
     EntryData *irPointer;
     new = emalloc(sizeof(Entry));
@@ -64,7 +64,7 @@ InsertionResult insertST_LD(SymbolTableLD table, const char *key) {
         return ir;
     }
     ir.new = 1;
-    ir.data = insertLinkedL(&(table->head), cpy);
+    ir.data = insertLD(&(table->head), cpy);
     return ir;
 }
 
