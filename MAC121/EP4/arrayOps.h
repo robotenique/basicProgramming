@@ -25,6 +25,11 @@ typedef struct {
     int i;
 } word_BST;
 
+typedef struct inputConfig {
+    minINT stableType;
+    bool orderByAlpha;
+} inputConfig;
+
 void *emalloc(int size);
 void die(const char *s);
 char *estrdup(const char *s);
@@ -34,4 +39,6 @@ int linearSearch (char **keys, char* str, int n);
 int max(int a, int b);
 bool isValid(char c);
 bool isNotAlpha(char c);
+int  copyValue (const char *key, EntryData *data, word *arr, int i);
+void copyValue_BST (const char *key, EntryData *data, word_BST *arr);
 #endif

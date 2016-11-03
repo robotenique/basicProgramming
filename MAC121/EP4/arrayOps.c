@@ -54,4 +54,16 @@ bool isValid(char c)  { return isalpha(c) || isdigit(c); }
 bool isNotAlpha(char c) {
     return isdigit(c) || !isalpha(c);
 }
+
+int copyValue(const char *key, EntryData *data, word *arr, int i) {
+    arr[i].p = estrdup(key);
+    arr[i].freq = data->i;
+    return 1;
+}
+
 int max(int a, int b) { return a > b ? a : b; }
+
+void copyValue_BST (const char *key, EntryData *data, word_BST *arr) {
+    arr->wArr[arr->i].p = estrdup(key);
+    arr->wArr[arr->i++].freq = data->i;
+}
