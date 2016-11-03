@@ -31,33 +31,28 @@ void destroyST_LO(SymbolTableLO table) {
     free(table);
 }
 
+
 InsertionResult insertST_LO(SymbolTableLO table, const char *key) {
     InsertionResult ir;
     Entry *p, *ant, *new;
-    char *cpy;
-    int cmp;
     ir.new = 0;
-    cpy = estrdup(key);
     p = table->head;
     ant = NULL;
-    while(p != NULL && (cmp = strcmp(p->key, cpy)) < 0) {
-        ant = p;
-        p = p->next;
-    }
-    if(cmp == 0) {
+    for (; p != NULL && strcmp(p->key, key) < 0; ant = p, p = p->next);
+    if(p != NULL && strcmp(p->key, key) == 0) {
         ir.data = &(p->data);
-        free(cpy);
-        return ir;
     }
-    ir.new = 1;
-    new = emalloc(sizeof(Entry));
-    new->key = cpy;
-    /* Initialize the bigger type of union with zero */
-    new->data.i = 0;
-    ir.data = &(new->data);
-    if(ant == NULL) table->head = new;
-    else ant->next = new;
-    new->next = p;
+    else {
+        ir.new = 1;
+        new = emalloc(sizeof(Entry));
+        new->key = estrdup(key);
+        /* Initialize the bigger type of union with zero */
+        new->data.i = 0;
+        ir.data = &(new->data);
+        if(ant == NULL) table->head = new;
+        else ant->next = new;
+        new->next = p;
+    }
     return ir;
 }
 

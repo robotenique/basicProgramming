@@ -10,7 +10,7 @@
 #include "tabelaSimbolo_LO.h"
 
 /* Para debug em gdb:
- gcc -Wall -ansi -pedantic -O2 -g -o a.out tabelaSimbolo.c buffer.c tabelaSimbolo_VO.c tabelaSimbolo_VD.c tabelaSimbolo_LD.c tabelaSimbolo_LO.c arrayOps.c
+ gcc -Wall -ansi -pedantic -pg -o a.out tabelaSimbolo.c buffer.c tabelaSimbolo_VO.c tabelaSimbolo_VD.c tabelaSimbolo_LD.c tabelaSimbolo_LO.c arrayOps.c
 */
 typedef struct inputConfig {
     minINT stableType;
@@ -191,7 +191,7 @@ void calculateFreqLO(FILE *input, inputConfig conf) {
     Buffer *W;
     InsertionResult ir;
     int i, wide = 0, nElements = 0;
-    st = createST_LD(!conf.orderByAlpha);
+    st = createST_LO(!conf.orderByAlpha);
     B = buffer_create();
     W = buffer_create();
     while (read_line(input,B)) {
@@ -207,8 +207,9 @@ void calculateFreqLO(FILE *input, inputConfig conf) {
                 wide = max(wide, W->i);
                 buffer_lower(W);
                 ir = insertST_LO(st, W->data);
-                if(ir.new) nElements++;
+                if(ir.new != 0) nElements++;
                 ir.data->i = 1 + (!ir.new * ir.data->i);
+
             }
             buffer_reset(W);
         }
@@ -276,7 +277,7 @@ void printFreqLO(inputConfig conf, SymbolTableLO st, int wide, int n) {
     applyST_LO(st, &copyValue, wArr);
     if(!conf.orderByAlpha)
         qsort(wArr, n, sizeof(word), compareFreq);
-    for (i = 0; i < n; i++) {
+    for (i = 0; i < n && wArr[i].p != NULL; i++) {
         nSpaces = (int) (wide - strlen(wArr[i].p));
         printf("%s %*d\n", wArr[i].p, nSpaces, wArr[i].freq);
         free(wArr[i].p);
