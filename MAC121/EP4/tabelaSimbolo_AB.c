@@ -48,7 +48,7 @@ Entry * insertRec (Entry *root, char *key, InsertionResult *ir) {
           new->right = NULL;
           return new;
       }
-    cmp = strcmp(root->key, key);
+    cmp = strcmp(key, root->key);
     if (cmp < 0)
         root->left  = insertRec(root->left, key, ir);
     else if(cmp > 0)
@@ -73,9 +73,9 @@ void apply_InOrder(Entry *root,
             word_BST *arr) {
     if(root == NULL)
         return;
-    apply_InOrder(root->right, apply, arr);
-    apply(root->key, &(root->data), arr);
     apply_InOrder(root->left, apply, arr);
+    apply(root->key, &(root->data), arr);
+    apply_InOrder(root->right, apply, arr);
 
 }
 

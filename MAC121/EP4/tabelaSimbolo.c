@@ -64,7 +64,7 @@ int main(int argc, char const *argv[]) {
        die("Error opening file, aborting...");
     */
     input = fopen("in", "r");
-    conf.stableType = 5;
+    conf.stableType = 1;
     conf.orderByAlpha = true;
 
     switch (conf.stableType) {
