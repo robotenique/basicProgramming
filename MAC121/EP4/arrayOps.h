@@ -20,6 +20,11 @@ typedef struct {
   EntryData *data;  /* Data associated with entry. */
 } InsertionResult;
 
+typedef struct {
+    word *wArr;
+    int i;
+} word_BST;
+
 void *emalloc(int size);
 void die(const char *s);
 char *estrdup(const char *s);

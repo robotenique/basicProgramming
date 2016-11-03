@@ -8,9 +8,10 @@
 #include "tabelaSimbolo_VO.h"
 #include "tabelaSimbolo_LD.h"
 #include "tabelaSimbolo_LO.h"
+#include "tabelaSimbolo_AB.h"
 
 /* Para debug em gdb:
- gcc -Wall -ansi -pedantic -pg -g -o a.out tabelaSimbolo.c buffer.c tabelaSimbolo_VO.c tabelaSimbolo_VD.c tabelaSimbolo_LD.c tabelaSimbolo_LO.c arrayOps.c
+ gcc -Wall -ansi -pedantic -pg -g -o a.out tabelaSimbolo.c buffer.c tabelaSimbolo_VO.c tabelaSimbolo_VD.c tabelaSimbolo_LD.c tabelaSimbolo_LO.c tabelaSimbolo_AB.c arrayOps.c
 */
 typedef struct inputConfig {
     minINT stableType;
@@ -19,14 +20,18 @@ typedef struct inputConfig {
 
 
 
+
 void calculateFreqVD (FILE *input, inputConfig conf);
 void calculateFreqVO (FILE *input, inputConfig conf);
 void calculateFreqLD (FILE *input, inputConfig conf);
 void calculateFreqLO (FILE *input, inputConfig conf);
+void calculateFreqAB (FILE *input, inputConfig conf);
 void printFreqVD (inputConfig conf, SymbolTableVD st, int wide, int n);
 void printFreqVO (inputConfig conf, SymbolTableVO st, int wide, int n);
-void printFreqLD (inputConfig conf, SymbolTableVO st, int wide, int n);
-void printFreqLO (inputConfig conf, SymbolTableVO st, int wide, int n);
+void printFreqLD (inputConfig conf, SymbolTableLD st, int wide, int n);
+void printFreqLO (inputConfig conf, SymbolTableLO st, int wide, int n);
+void printFreqAB (inputConfig conf, SymbolTableAB st, int wide, int n);
+void copyValue_BST (const char *key, EntryData *data, word_BST *arr);
 int  copyValue (const char *key, EntryData *data, word *arr, int i);
 
 int main(int argc, char const *argv[]) {
@@ -59,7 +64,7 @@ int main(int argc, char const *argv[]) {
        die("Error opening file, aborting...");
     */
     input = fopen("in", "r");
-    conf.stableType = 3;
+    conf.stableType = 5;
     conf.orderByAlpha = true;
 
     switch (conf.stableType) {
@@ -76,7 +81,7 @@ int main(int argc, char const *argv[]) {
             calculateFreqLO(input, conf);
             break;
         case 5:
-
+            calculateFreqAB(input, conf);
             break;
     }
     fclose(input);
@@ -157,7 +162,7 @@ void calculateFreqLD(FILE *input, inputConfig conf) {
     Buffer *W;
     InsertionResult ir;
     int i, wide = 0, nElements = 0;
-    st = createST_LD(!conf.orderByAlpha);
+    st = createST_LD();
     B = buffer_create();
     W = buffer_create();
     while (read_line(input,B)) {
@@ -191,7 +196,7 @@ void calculateFreqLO(FILE *input, inputConfig conf) {
     Buffer *W;
     InsertionResult ir;
     int i, wide = 0, nElements = 0;
-    st = createST_LO(!conf.orderByAlpha);
+    st = createST_LO();
     B = buffer_create();
     W = buffer_create();
     while (read_line(input,B)) {
@@ -218,6 +223,40 @@ void calculateFreqLO(FILE *input, inputConfig conf) {
     buffer_destroy(W);
     printFreqLO(conf, st, wide, nElements);
     destroyST_LO(st);
+}
+
+void calculateFreqAB(FILE *input, inputConfig conf) {
+    SymbolTableAB st;
+    Buffer *B;
+    Buffer *W;
+    InsertionResult ir;
+    int i, wide = 0, nElements = 0;
+    st = createST_AB();
+    B = buffer_create();
+    W = buffer_create();
+    while (read_line(input,B)) {
+        buffer_push_back(B,0);
+        i = 0;
+        while (i < B->i && B->data[i] != 0) {
+            for (; i < B->i && isNotAlpha(B->data[i]); i++);
+            while (i < (B -> i) &&  B->data[i] != 0 && isValid(B->data[i]))
+                buffer_push_back(W,B->data[i++]);
+            i++;
+            if(W->i != 0) {
+                buffer_push_back(W,0);
+                wide = max(wide, W->i);
+                buffer_lower(W);
+                ir = insertST_AB(st, W->data);
+                if(ir.new != 0) nElements++;
+                ir.data->i = 1 + (!ir.new * ir.data->i);
+            }
+            buffer_reset(W);
+        }
+    }
+    buffer_destroy(B);
+    buffer_destroy(W);
+    printFreqAB(conf, st, wide, nElements);
+    destroyST_AB(st);
 }
 
 void printFreqVO(inputConfig conf, SymbolTableVO st, int wide, int n) {
@@ -285,6 +324,26 @@ void printFreqLO(inputConfig conf, SymbolTableLO st, int wide, int n) {
     free(wArr);
 }
 
+void printFreqAB(inputConfig conf, SymbolTableAB st, int wide, int n) {
+    int i, nSpaces;
+    word_BST wBST;
+    wBST.i = 0;
+    wBST.wArr = calloc(n, sizeof(word));
+    if (wBST.wArr == NULL) die("Error in memory allocation!");
+    applyST_AB(st, &copyValue_BST, &(wBST));
+    if(!conf.orderByAlpha)
+        qsort(wBST.wArr, n, sizeof(word), compareFreq);
+    for (i = 0; i < n && wBST.wArr[i].p != NULL; i++) {
+        nSpaces = (int) (wide - strlen(wBST.wArr[i].p));
+        printf("%s %*d\n", wBST.wArr[i].p, nSpaces, wBST.wArr[i].freq);
+        free(wBST.wArr[i].p);
+    }
+    free(wBST.wArr);
+}
+void copyValue_BST (const char *key, EntryData *data, word_BST *arr) {
+    arr->wArr[arr->i].p = estrdup(key);
+    arr->wArr[arr->i++].freq = data->i;
+}
 int copyValue(const char *key, EntryData *data, word *arr, int i) {
     arr[i].p = estrdup(key);
     arr[i].freq = data->i;
