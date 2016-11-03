@@ -10,7 +10,7 @@
 #include "tabelaSimbolo_LO.h"
 
 /* Para debug em gdb:
- gcc -Wall -ansi -pedantic -pg -o a.out tabelaSimbolo.c buffer.c tabelaSimbolo_VO.c tabelaSimbolo_VD.c tabelaSimbolo_LD.c tabelaSimbolo_LO.c arrayOps.c
+ gcc -Wall -ansi -pedantic -pg -g -o a.out tabelaSimbolo.c buffer.c tabelaSimbolo_VO.c tabelaSimbolo_VD.c tabelaSimbolo_LD.c tabelaSimbolo_LO.c arrayOps.c
 */
 typedef struct inputConfig {
     minINT stableType;
