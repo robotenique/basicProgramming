@@ -111,7 +111,7 @@ void calculateFreqVO(FILE *input, inputConfig conf) {
                 buffer_push_back(W,0);
                 wide = max(wide, W->i);
                 buffer_lower(W);
-                ir = insertST_VO(st, W->data); /* Consider Polymorphism... */
+                ir = insertST_VO(st, W->data); 
                 if(ir.new) nElements++;
                 ir.data->i = 1 + (!ir.new * ir.data->i);
             }
