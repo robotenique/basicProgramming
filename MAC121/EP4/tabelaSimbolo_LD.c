@@ -31,40 +31,23 @@ void destroyST_LD(SymbolTableLD table) {
     free(table);
 }
 
-EntryData* insertLD(Entry ** head, char *key) {
-    Entry *new;
-    EntryData *irPointer;
-    new = emalloc(sizeof(Entry));
-    new->key = key;
-    /* Initialize the bigger type of union with zero */
-    new->data.i = 0;
-    irPointer = &(new->data);
-    new->next = *head;
-    *head = new;
-    return irPointer;
-}
-
-Entry * searchLD(Entry * head, char *key) {
-    /* Return NULL if value is x is not in the list */
-    Entry * p;
-    for (p = head; p && strcmp(p->key, key); p = p->next);
-    return p;
-}
-
 InsertionResult insertST_LD(SymbolTableLD table, const char *key) {
     InsertionResult ir;
-    Entry *p;
-    char *cpy;
+    Entry *p, *new;
     ir.new = 0;
-    cpy = estrdup(key);
-    p = searchLD(table->head, cpy);
-    if(p != NULL) {
-        ir.data =&(p->data);
-        free(cpy);
-        return ir;
+    for (p = table->head; p != NULL; p = p->next) {
+        if (strcmp(p->key, key) == 0) {
+            ir.data = &(p->data);
+            return ir;
+        }
     }
+    new = emalloc(sizeof(Entry));
+    new->key = estrdup(key);
+    new->data.i = 0;
+    new->next = table->head;
+    table->head = new;
     ir.new = 1;
-    ir.data = insertLD(&(table->head), cpy);
+    ir.data = &(new->data);
     return ir;
 }
 

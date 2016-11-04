@@ -6,8 +6,7 @@
 
 
 /* Para debug em gdb:
- gcc -Wall -ansi -pedantic -pg -g -o a.out tabelaSimbolo.c buffer.c tabelaSimbolo_VO.c tabelaSimbolo_VD.c tabelaSimbolo_LD.c tabelaSimbolo_LO.c tabelaSimbolo_AB.c arrayOps.c
-@TODO: CHECAR STRCMP em tabelaLO
+ gcc -Wall -ansi -pedantic -pg -g -o a.out tabelaSimbolo.c buffer.c tabelaSimbolo_VO.c tabelaSimbolo_VD.c tabelaSimbolo_LD.c tabelaSimbolo_LO.c tabelaSimbolo_AB.c arrayOps.c frequenciaCalc.c
 */
 
 void copyValue_BST (const char *key, EntryData *data, word_BST *arr);
@@ -18,7 +17,7 @@ int main(int argc, char const *argv[]) {
     /* TODO: UNCOMMENT WHEN NEEDED! */
     /* Entrada e verificação de erros
     if (argc != 4)
-        die("Not Usage: ./ep4 <inputFile> <stableType> <sortingType>");
+        die("Usage: ./ep4 <inputFile> <stableType> <sortingType>");
     if(!strcmp(argv[2],"VD"))
         conf.stableType = 1;
     else if (!strcmp(argv[2],"VO"))
@@ -51,7 +50,7 @@ int main(int argc, char const *argv[]) {
      */
 
     input = fopen("in", "r");
-    conf.stableType = 4;
+    conf.stableType = 3;
     conf.orderByAlpha = true;
 
     switch (conf.stableType) {
