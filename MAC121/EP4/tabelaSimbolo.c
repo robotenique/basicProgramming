@@ -1,15 +1,19 @@
+/*
+ * @author: Juliano Garcia de Oliveira
+ * nº usp = 9277086
+ * MAC0121
+ * 14/11/2016
+ * Arquivo principal: Faz a leitura e chama as funções corretas.
+ */
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include "arrayOps.h"
 #include "frequenciaCalc.h"
 
-
 /* Para debug em gdb:
  gcc -Wall -ansi -pedantic -pg -g -o a.out tabelaSimbolo.c buffer.c tabelaSimbolo_VO.c tabelaSimbolo_VD.c tabelaSimbolo_LD.c tabelaSimbolo_LO.c tabelaSimbolo_AB.c arrayOps.c frequenciaCalc.c
 */
-
-void copyValue_BST (const char *key, EntryData *data, word_BST *arr);
 
 int main(int argc, char const *argv[]) {
     FILE *input;
@@ -51,8 +55,9 @@ int main(int argc, char const *argv[]) {
 
     input = fopen("in", "r");
     conf.stableType = 3;
-    conf.orderByAlpha = true;
+    conf.orderByAlpha = false;
 
+    /* Chama a função correta de acordo com a entrada */
     switch (conf.stableType) {
         case 1:
             calculateFreqVD(input, conf);
@@ -70,6 +75,8 @@ int main(int argc, char const *argv[]) {
             calculateFreqAB(input, conf);
             break;
     }
+
     fclose(input);
+
     return 0;
 }
