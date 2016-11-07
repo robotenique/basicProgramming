@@ -53,9 +53,9 @@ int main(int argc, char const *argv[]) {
      * AB = 0.34s
      */
 
-    input = fopen("in", "r");
-    conf.stableType = 3;
-    conf.orderByAlpha = false;
+    input = fopen("Dictionary.txt", "r");
+    conf.stableType = 5;
+    conf.orderByAlpha = true;
 
     /* Chama a função correta de acordo com a entrada */
     switch (conf.stableType) {

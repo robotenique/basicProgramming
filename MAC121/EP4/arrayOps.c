@@ -4,6 +4,7 @@
  * MAC0121
  * 14/11/2016
  * Funções auxiliares para a tabela de símbolos e leitura.
+ * Para detalhes de cada função, verificar o header.
  */
 #include <stdio.h>
 #include <stdlib.h>

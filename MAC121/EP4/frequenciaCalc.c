@@ -1,3 +1,11 @@
+/*
+ * @author: Juliano Garcia de Oliveira
+ * nº usp = 9277086
+ * MAC0121
+ * 14/11/2016
+ * Arquivo com as funções de cálculo e impressão das frequências.
+ * Maiores detalhes sobre as funções no arquivo header.
+ */
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -8,13 +16,27 @@
 #include "tabelaSimbolo_LD.h"
 #include "tabelaSimbolo_LO.h"
 #include "tabelaSimbolo_AB.h"
+
+/* -------------------------Funções de impressão--------------------------
+ * printFreqVO;
+ * printFreqVD;
+ * printFreqLD;
+ * printFreqLO;
+ * printFreqAB.
+ * Todas estas funções copiam a tabela de símbolos para um vetor,
+ * ordenam este vetor se for necessário, e em seguida imprimem os pares
+ * 'palavra' - 'frequencia'.
+ */
 void printFreqVO(inputConfig conf, SymbolTableVO st, int wide, int n) {
     int i, nSpaces;
     word* wArr = calloc(n, sizeof(word));
     if (wArr == NULL) die("Error in memory allocation!");
+    /* Copia a tabela de símbolos para um vetor */
     applyST_VO(st, &copyValue, wArr);
+    /* Caso necessaŕio, ordena o  vetor */
     if(!conf.orderByAlpha)
         qsort(wArr, n, sizeof(word), compareFreq);
+    /* Impressão */
     for (i = 0; i < n; i++) {
         nSpaces = (int) (wide - strlen(wArr[i].p));
         printf("%s %*d\n", wArr[i].p, nSpaces, wArr[i].freq);
@@ -100,9 +122,11 @@ void calculateFreqVO(FILE *input, inputConfig conf) {
     B = buffer_create();
     W = buffer_create();
     while (read_line(input,B)) {
+        /* Adiciona um '0' para marcar o final da string */
         buffer_push_back(B,0);
         i = 0;
         while (i < B->i && B->data[i] != 0) {
+            /* Preenche o buffer W com a palavra */
             for (; i < B->i && isNotAlpha(B->data[i]); i++);
             while (i < (B -> i) &&  B->data[i] != 0 && isValid(B->data[i]))
                 buffer_push_back(W,B->data[i++]);
@@ -111,8 +135,12 @@ void calculateFreqVO(FILE *input, inputConfig conf) {
                 buffer_push_back(W,0);
                 wide = max(wide, W->i);
                 buffer_lower(W);
-                ir = insertST_VO(st, W->data); 
+                /* Insere a palavra na tabela de símbolos */
+                ir = insertST_VO(st, W->data);
                 if(ir.new) nElements++;
+                /* Se a palavra for nova, a frequência vale 1,
+                 * senão é somado 1 à frequência.
+                 */
                 ir.data->i = 1 + (!ir.new * ir.data->i);
             }
             buffer_reset(W);

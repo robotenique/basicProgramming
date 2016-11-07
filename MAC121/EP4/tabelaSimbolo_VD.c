@@ -1,9 +1,22 @@
+/*
+ * @author: Juliano Garcia de Oliveira
+ * nº usp = 9277086
+ * MAC0121
+ * 14/11/2016
+ * Implementação da tabela de símbolos usando um vetor desordenado.
+ */
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
 #include "tabelaSimbolo_VD.h"
 #include "arrayOps.h"
 
+/* A tabela de símbolos contém:
+ * keys: Um array com as chaves
+ * values: Um array com os valores
+ * i: Pŕóxima posição livre
+ * max: Máximo de elementos disponível na tabela
+ */
 typedef struct stable_s {
     char** keys;
 	EntryData* values;
@@ -11,19 +24,41 @@ typedef struct stable_s {
     unsigned int max;
 } stable_s;
 
+/*
+ * Função: createST_VD
+ * --------------------------------------------------------
+ * Cria a tabela de símbolos (VD). No caso de um vetor desordenado,
+ * aloca a estrutura, o vetor de palavras e o vetor de chaves, sendo que 'i'
+ * recebe 0 para indicar que a tabela está vazia.
+ *
+ * @args
+ *
+ * @return Uma tabela de símbolos (VD) vazia.
+ */
 SymbolTableVD createST_VD() {
+    /* Tamanho inicial máximo */
     int iniMax = 1024;
     SymbolTableVD t;
     t = emalloc(sizeof(stable_s));
-    t -> i = 0;
-    t -> max = iniMax;
-    t -> values = calloc(iniMax ,sizeof(EntryData));
-    if(t -> values == NULL) die("Error in memory allocation!");
-    t -> keys = emalloc(iniMax * sizeof(char*));
+    t->i = 0;
+    t->max = iniMax;
+    t->values = calloc(iniMax ,sizeof(EntryData));
+    if(t->values == NULL) die("Error in memory allocation!");
+    t->keys = emalloc(iniMax*sizeof(char *));
     return t;
 }
 
-
+/*
+ * Função: destroyST_VD
+ * --------------------------------------------------------
+ * Libera toda a memória alocada pela tabela de símbolos (VD),
+ * percorrendo cada elemento dos vetores das chaves e liberando a memória, em
+ * seguida liberando todos os outros vetores.
+ *
+ * @args    table: Tabela de símbolos (VD)
+ *
+ * @return
+ */
 void destroyST_VD(SymbolTableVD table) {
     int i;
     free(table -> values);
@@ -32,6 +67,7 @@ void destroyST_VD(SymbolTableVD table) {
     free(table -> keys);
     free(table);
 }
+
 
 void reallocST_VD(SymbolTableVD t) {
     char** ktemp;

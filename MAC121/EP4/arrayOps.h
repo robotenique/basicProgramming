@@ -169,7 +169,7 @@ bool isValid(char c);
  *
  * @args    c: char para ser verificado
  *
- * @return true se é um número um não é uma letra, false caso contrário
+ * @return true se é um número ou não é uma letra, false caso contrário
  */
 bool isNotAlpha(char c);
 
