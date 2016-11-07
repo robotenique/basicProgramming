@@ -70,8 +70,8 @@ void destroyST_LD(SymbolTableLD table) {
 /*
  * Função: insertST_LD
  * --------------------------------------------------------
- * Função que insere um elemento na primeira posição da tabela de símbolos (LD) se o elemento
- * não estiver na tabela. Se estiver, o elemento não é inserido.
+ * Função que insere um elemento na primeira posição da tabela de símbolos (LD)
+ * se o elemento não estiver na tabela. Se estiver, o elemento não é inserido.
  *
  * @args    table: Tabela de Símbolos (LD)
  *          key:   Nova chave para ser inserida na tabela
@@ -106,13 +106,13 @@ InsertionResult insertST_LD(SymbolTableLD table, const char *key) {
 /*
  * Função: applyST_LD
  * --------------------------------------------------------
- * Para cada elemento da árvore, aplica a função 'apply'.
+ * Para cada elemento da lista, aplica a função 'apply'.
  *
  * @args    table:  Tabela de símbolos (LD)
  *          apply:  Ponteiro para a função
  *          arr:    Ponteiro para um array de pares {palavra:frequência}
  *
- * @return
+ * @return 0 se a função foi interrompida pela 'apply', 1 caso contrário
  */
 int applyST_LD(SymbolTableLD table,
             int (*apply)(const char *key, EntryData *data, word *arr, int i),

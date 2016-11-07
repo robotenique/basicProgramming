@@ -11,15 +11,22 @@
 #include "arrayOps.h"
 #include "frequenciaCalc.h"
 
-/* Para debug em gdb:
- gcc -Wall -ansi -pedantic -pg -g -o a.out tabelaSimbolo.c buffer.c tabelaSimbolo_VO.c tabelaSimbolo_VD.c tabelaSimbolo_LD.c tabelaSimbolo_LO.c tabelaSimbolo_AB.c arrayOps.c frequenciaCalc.c
-*/
 
+/*
+ * Função: main
+ * --------------------------------------------------------
+ * Lê os argumentos passados pela linha de comando, checa se houve erros
+ * e chama as funções corretas para calcular a frequência.
+ *
+ * @args    argc: Quantidade de argumentos
+ *          argv: Vetor com o conteúdo dos argumentos
+ *
+ * @return  retorno padrão do C
+ */
 int main(int argc, char const *argv[]) {
     FILE *input;
     inputConfig conf;
-    /* TODO: UNCOMMENT WHEN NEEDED! */
-    /* Entrada e verificação de erros
+    /* Entrada e verificação de erros */
     if (argc != 4)
         die("Usage: ./ep4 <inputFile> <stableType> <sortingType>");
     if(!strcmp(argv[2],"VD"))
@@ -43,19 +50,8 @@ int main(int argc, char const *argv[]) {
     input = fopen(argv[1], "r");
     if (input == NULL)
        die("Error opening file, aborting...");
-    */
 
-    /* ~~OLOCO~~
-     * VD =  3.57s
-     * VO =  0.50s
-     * LD = 33.38s
-     * LO = 54.73s
-     * AB = 0.34s
-     */
 
-    input = fopen("Dictionary.txt", "r");
-    conf.stableType = 5;
-    conf.orderByAlpha = true;
 
     /* Chama a função correta de acordo com a entrada */
     switch (conf.stableType) {

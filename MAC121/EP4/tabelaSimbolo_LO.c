@@ -111,13 +111,13 @@ InsertionResult insertST_LO(SymbolTableLO table, const char *key) {
 /*
  * Função: applyST_LO
  * --------------------------------------------------------
- * Para cada elemento da árvore, aplica a função 'apply'.
+ * Para cada elemento da lista, aplica a função 'apply'.
  *
  * @args    table:  Tabela de símbolos (LO)
  *          apply:  Ponteiro para a função
  *          arr:    Ponteiro para um array de pares {palavra:frequência}
  *
- * @return
+ * @return 0 se a função foi interrompida pela 'apply', 1 caso contrário
  */
 int applyST_LO(SymbolTableLO table,
             int (*apply)(const char *key, EntryData *data, word *arr, int i),

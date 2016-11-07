@@ -68,7 +68,16 @@ void destroyST_VD(SymbolTableVD table) {
     free(table);
 }
 
-
+/*
+ * Função: reallocST_VD
+ * --------------------------------------------------------
+ * Realoca a tabela de símbolos (VD), copiando os dados da tabela de símbolos
+ * atual para uma nova com o dobro de tamanho.
+ *
+ * @args    t:  Tabela de Símbolos (VD)
+ *
+ * @return
+ */
 void reallocST_VD(SymbolTableVD t) {
     char** ktemp;
     EntryData* vtemp;
@@ -88,6 +97,18 @@ void reallocST_VD(SymbolTableVD t) {
     t->max = (t->max)*2;
 }
 
+/*
+ * Função: insertST_VD
+ * --------------------------------------------------------
+ * Função que insere um elemento na primeira posição livre 'i' da tabela de
+ * símbolos (VD) se o elemento não estiver na tabela. Se estiver, o elemento
+ * não é inserido.
+ *
+ * @args    table: Tabela de Símbolos (VD)
+ *          key:   Nova chave para ser inserida na tabela
+ *
+ * @return Um Insertion Result com os dados da inserção.
+ */
 InsertionResult insertST_VD(SymbolTableVD table, const char *key) {
     InsertionResult ir;
     int pos;
@@ -95,11 +116,13 @@ InsertionResult insertST_VD(SymbolTableVD table, const char *key) {
     ir.new = 0;
     cpy = estrdup(key);
     pos = linearSearch(table -> keys, cpy, table -> i);
+    /* Se o elemento estiver na tabela */
     if(pos >= 0) {
         ir.data = &(table -> values[pos]);
         free(cpy);
         return ir;
     }
+    /* Se o elemento não está na tabela */
     else {
         ir.new = 1;
         if (table -> i >= table -> max)
@@ -111,12 +134,23 @@ InsertionResult insertST_VD(SymbolTableVD table, const char *key) {
         return ir;
 }
 
+/*
+ * Função: applyST_VD
+ * --------------------------------------------------------
+ * Para cada elemento da tabela de símbolos (VD), aplica a função 'apply'.
+ *
+ * @args    table:  Tabela de símbolos (VD)
+ *          apply:  Ponteiro para a função
+ *          arr:    Ponteiro para um array de pares {palavra:frequência}
+ *
+ * @return 0 se a função foi interrompida pela 'apply', 1 caso contrário
+ */
 int applyST_VD(SymbolTableVD table,
             int (*apply)(const char *key, EntryData *data, word *arr, int i),
             word *arr) {
-        int i;
-        for (i = 0; i < table->i; i++)
-                if(!apply(table->keys[i], &(table->values[i]), arr, i))
-                return 0;
-        return 1;
+    int i;
+    for (i = 0; i < table->i; i++)
+        if(!apply(table->keys[i], &(table->values[i]), arr, i))
+            return 0;
+    return 1;
 }
