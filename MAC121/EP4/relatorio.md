@@ -15,13 +15,13 @@ Os algoritmos implementados são algoritmos básicos das estruturas de dado. Cad
 Para a leitura dos arquivos, usei um "Buffer", estrutura de dados que implementamos na matéria de Técnicas de Programação I (MAC216). A implementação de um Buffer é fácil e bastante óbvia, basta ver o código em *buffer.c*.
 
 A implementação das tabelas de símbolos usa a interface que aprendi em Técnicas de programação, só que simplificada.
-Na minha simplificação, uma tabela de símbolos contém as seguintes operações:
-- ***create***: Cria uma tabela de símbolos
-- ***destroy***: Libera a memória e destrói a tabela de símbolos
-- ***insert***: Insere uma chave se ela não estiver na tabela de símbolos. Retorna sempre uma estrutura que contém um ponteiro para o dado da chave recebida como argumento.
-- ***apply***: Aplica uma determinada função recebida como *callback* em todos os elementos da tabela de símbolo.
+Na minha simplificação, uma tabela de símbolos contém as seguintes operações, cujo comportamente é igual para todas as diferentes implementações:
+- ***create***: Cria uma tabela de símbolos vazia e a retorna;
+- ***destroy***: Libera a memória e destrói a tabela de símbolos recebida como argumento;
+- ***insert***: Insere uma chave se ela não estiver na tabela de símbolos. Retorna sempre uma estrutura que contém um ponteiro para o valor da chave recebida como argumento, juntamente com um indicador para determinar se a chave é nova ou não;
+- ***apply***: Aplica uma determinada função recebida como *callback* em todos os elementos da tabela de símbolo, ou até que seja interrompida pelo *callback* (com exceção da tabela usando árvore binária, que não permite a interrupção).
 
-Outros funções como *find* e *delete* não foram implementadas por não serem necessárias ao escopo do EP.
+Outros funções como *find* e *delete* não foram implementadas por não serem necessárias no escopo do EP.
 
 ####2.1 **Tabela de símbolos**
 Cada implementação da tabela de símbolos possui alguma particularidade, que são explicadas a seguir.
@@ -35,19 +35,34 @@ Cada implementação da tabela de símbolos possui alguma particularidade, que s
     Inserção:$\mathcal{O}(1)$
 - **Vetor ordenado**
 
-    A implementação do vetor ordenado é mais sofisticada. É igualmente criado dois vetores, um para as chaves e outro para os valores. Para inserir um elemento, simplemente procura-se usando uma busca binária no vetor de chaves a chave em questão, e se não estiver no vetor, o novo elemento é inserido na posição correta da tabela de símbolo.
+    A implementação do vetor ordenado é mais sofisticada. É igualmente criado dois vetores, um para as chaves e outro para os valores. Para inserir um elemento, simplemente procura-se usando uma busca binária no vetor de chaves a chave em questão, e se não estiver no vetor, o novo elemento é inserido na posição correta da tabela de símbolo, e todos os outros elementos devem ser deslocados para frente.
 
     Busca: $\mathcal{O}(\log{}n)$
 
-    Inserção:$\mathcal{O}(1)$
+    Inserção:$\mathcal{O}(k)$ , onde $k$ é a quantidade de elementos que se deve deslocar. Se a entrada fosse totalmente aleatória, teríamos $\mathcal{O}(\frac{n}{2})$.
 - **Lista ligada desordenada**
 
-    A implementação do vetor ordenado é mais sofisticada. É igualmente criado dois vetores, um para as chaves e outro para os valores. Para inserir um elemento, simplemente procura-se usando uma busca binária no vetor de chaves a chave em questão, e se não estiver no vetor, o novo elemento é inserido na posição correta da tabela de símbolo.
+    A implementação da lista ligada desordenada armazena cada elemento em uma *struct* que representa um par *{chave : valor}* na tabela de símbolos. Como cada um desses pares não estão armazenados em nenhuma ordem específica na lista ligada, para inserir um elemento é necessário comparar com cada um, e se o elemento não estiver na lista ligada, é criada uma nova *struct* e o elemento em questão é adicionado no final da lista ligada.
 
-    Busca: $\mathcal{O}(\log{}n)$
+    Busca: $\mathcal{O}(n)$
 
     Inserção:$\mathcal{O}(1)$
 
+- **Lista ligada ordenada**
+
+    A implementação da lista ligada ordenada armazena os elementos da tabela de símbolos igualmente a desordenada, com execeção de que os elementos da lista ligada estão ordenados pelas chaves. A diferença é que na inserção, não é necessário comparar todos os elementos da lista ligada, já que a busca pode ser parada assim que um elemento maior que a chave em questão foi encontrado na lista. Em seguida, o programa verifica se a chave na qual a busca parou é igual a chave a ser inserida. Se for diferente, cria-se uma nova *struct* para armazenar a nova entrada da tabela de símbolos, e ela é encaixada na sua posição correta, de modo que atabela de símbolos permaneça ordenada.
+
+    Busca: $\mathcal{O}(\frac{n}{2})$ no caso médio, considerando que a entrada é totalmente aleatória. Isso quase nunca acontece se pegarmos um texto 'normal',pois em praticamente nenhum idioma a frequência das palavras segue uma distribuição uniforme (algumas palavras tem frequência bem maior que outras).
+
+    Inserção:$\mathcal{O}(1)$
+
+- **Árvore de busca binária**
+
+    A implementação da árvore de busca binária é parecida com a de listas ligadas. Cada elemento da tabela de símbolos é representado por uma *struct* que contém o par *{ chave : valor}*, além de um ponteiro para a subárvore direita e outro para a subárvore esquerda. A maioria das operçaões é implementada recursivamente, sendo que a inserção faz uma recursão na estrutura de árvore até inserir o elemento no seu dervido lugar, caso ainda não esteja na árvore.
+
+    Busca: $\mathcal{O}(\log{}n)$ no caso médio
+
+    Inserção:$\mathcal{O}(\log{}n)$ no caso médio
 
 ###3. Ordenação
 O algoritmo usa 2 matrizes para fazer a ordenação. As duas matrizes são a matriz ***v*** e a matriz ***s***. Ambas são matrizes ***2 x n***, sendo que a primeira linha de cada matriz guarda os números lidos na entrada padrão, e a segunda linha é auxiliar para a ordenação.
