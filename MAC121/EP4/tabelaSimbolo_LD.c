@@ -80,10 +80,10 @@ void destroyST_LD(SymbolTableLD table) {
  */
 InsertionResult insertST_LD(SymbolTableLD table, const char *key) {
     InsertionResult ir;
-    Entry *p, *new;
+    Entry *p, *ant, *new;
     ir.new = 0;
     /* Busca linear na lista ligada */
-    for (p = table->head; p != NULL; p = p->next) {
+    for (ant = NULL, p = table->head; p != NULL; ant = p, p = p->next) {
         /* Se o elemento foi encontrado, para o loop */
         if (strcmp(p->key, key) == 0) {
             ir.data = &(p->data);
@@ -93,11 +93,15 @@ InsertionResult insertST_LD(SymbolTableLD table, const char *key) {
     /* Se o elemento não foi encontrado, cria uma nova entrada na tabela de
      *  símbolos e coloca no início da lista ligada
      */
+
     new = emalloc(sizeof(Entry));
     new->key = estrdup(key);
     new->data.i = 0;
-    new->next = table->head;
-    table->head = new;
+    new->next = NULL;
+    if(ant != NULL)
+        ant->next = new;
+    else
+        table->head = new;
     ir.new = 1;
     ir.data = &(new->data);
     return ir;
