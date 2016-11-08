@@ -10,12 +10,19 @@ date: "14 de Novembro, 2016"
  O EP4 consiste em implementar 5 tabelas de símbolos usando diferentes estruturas de dados, sendo elas: Vetor desordenado, vetor ordenado, lista ligada desordenada, lista ligada ordenada e uma árvore de busca binária. Deve-se criar um arquivo principal que irá receber instruções da linha de comando, ler um arquivo e contar a frequência das palavras do arquivo usando as tabelas de símbolos implementadas, e em seguida imprimir os pares {palavra : frequência} na ordem especificada pela entrada.
 
 ###2. Algoritmo(s) e estruturas de dados
-Os algoritmos implementados são algoritmos básicos das estruturas de dado. Cada tabela de símbolo usa implementa as operações com os algoritmos corretos para manipular as respectivas estruturas. As operações de cada estrutura são melhor explicadas nas próximas seções.
+Os algoritmos implementados são algoritmos básicos das estruturas de dados. Cada tabela de símbolo usa implementa as operações com os algoritmos corretos para manipular as respectivas estruturas. As operações de cada estrutura são melhor explicadas nas próximas seções, e as funções específicas do programa podem ser vistas no código-fonte onde são tratadas com mais detalhe.
 
-Para a leitura dos arquivos, usei um "Buffer", estrutura de dados que implementamos na matéria de Técnicas de Programação I (MAC216). A implementação de um Buffer é fácil e bastante óbvia, basta ver o código em *buffer.c*.
+Para a leitura dos arquivos, usei um "Buffer", estrutura de dados que implementamos na matéria de Técnicas de Programação I (MAC216). A implementação de um Buffer é fácil e bastante óbvia, basta ver o código em *buffer.c*. A operações do Buffer são as seguintes:
+- ***create***: Cria um Buffer vazio e o retorna;
+- ***destroy***: Libera a memória e destrói o Buffer recebido como argumento;
+- ***reset***: Aloca novamente o Buffer, apagando o conteúdo antigo;
+- ***push_back***: Adiciona o caractere recebido como argumetno no final do Buffer;
+- ***lower***: Trasforma todos os elementos do Buffer para minúsculo;
+- ***read_line***: Lê uma linha do arquivo recebido como parâmetro e armazena no Buffer.
 
-A implementação das tabelas de símbolos usa a interface que aprendi em Técnicas de programação, só que simplificada.
-Na minha simplificação, uma tabela de símbolos contém as seguintes operações, cujo comportamente é igual para todas as diferentes implementações:
+
+A implementação das tabelas de símbolos usa a interface que aprendemos em Técnicas de programação I, só que um pouco modificada.
+No EP em questão, uma tabela de símbolos contém as seguintes operações, cujo comportamente é igual para todas as diferentes implementações:
 - ***create***: Cria uma tabela de símbolos vazia e a retorna;
 - ***destroy***: Libera a memória e destrói a tabela de símbolos recebida como argumento;
 - ***insert***: Insere uma chave se ela não estiver na tabela de símbolos. Retorna sempre uma estrutura que contém um ponteiro para o valor da chave recebida como argumento, juntamente com um indicador para determinar se a chave é nova ou não;
@@ -23,7 +30,18 @@ Na minha simplificação, uma tabela de símbolos contém as seguintes operaçõ
 
 Outros funções como *find* e *delete* não foram implementadas por não serem necessárias no escopo do EP.
 
-####2.1 **Tabela de símbolos**
+####2.1 **Leitura**
+A leitura das palavras é feita através do *Buffer*, usando a operação *read_line*. O algoritmo é bastante simples: Enquanto houver caracteres lidos pelo Buffer, separa-se as palavras da linha segundo as especificações do EP, e a palavra é inserida na tabela de símbolos usando a operação *insert*. Caso a palavra seja nova, o valor correspondente da chave inserida recebe **1**, caso contrário este valor é incrementado.
+
+####2.2 **Tabela de símbolos**
+As estruturas de dados das tabelas de símbolos mais importantes são a ***stable_s***,  ***InsertionResult*** e ***EntryData***.
+
+A ***stable_s*** define a implementação em si da tabela de símbolos, e é diferente pra cada implementação das tabelas de símbolos. Para usar um padrão de desenvolvimento mais correto, as tabelas de símbolo de cada tipo são criadas como um ponteiro para a estrutura *stable_s*, o que não acontece em uma estrutura simples como o *Buffer*, no qual explicitamente declara-se um ponteiro para a estrutura.
+
+O *InsertionResult* foi o modo mais simples de permitir com que o usuário mude o valor de determinada chave na tabela de símbolos, e foi apresentado na matéria de Técnicas de Programação I (MAC216). O *InsertionResult* contém a variável *new*, que (após a operação de inserção) tem valor ***1*** caso a chave foi inserida na tabela, ou 0 caso contrário (a chave já estava na tabela). O outro campo do *InsertionResult* contém um ponteiro para o valor da entrada da tabela, isto é, um ponteiro para a *struct* *EntryData*.
+
+Cada valor da tabela é do tipo *EntryData*, que é um *union* de alguns tipos básicos para valores. Assim, temos uma implementação genérica da tabela de símbolos, sendo que ela pode ser usada para vários outros propósitos, e não apenas para mapear a chave para um inteiro. Ou seja, é uma implementação *agnóstica* de tabela de símbolos, que pode ser usada no futuro para outras funcionalidades.
+
 Cada implementação da tabela de símbolos possui alguma particularidade, que são explicadas a seguir.
 
 - **Vetor desordenado**
@@ -32,7 +50,8 @@ Cada implementação da tabela de símbolos possui alguma particularidade, que s
 
     Busca: $\mathcal{O}(n)$
 
-    Inserção:$\mathcal{O}(1)$
+    Inserção: $\mathcal{O}(1)$
+
 - **Vetor ordenado**
 
     A implementação do vetor ordenado é mais sofisticada. É igualmente criado dois vetores, um para as chaves e outro para os valores. Para inserir um elemento, simplemente procura-se usando uma busca binária no vetor de chaves a chave em questão, e se não estiver no vetor, o novo elemento é inserido na posição correta da tabela de símbolo, e todos os outros elementos devem ser deslocados para frente.
@@ -46,7 +65,7 @@ Cada implementação da tabela de símbolos possui alguma particularidade, que s
 
     Busca: $\mathcal{O}(n)$
 
-    Inserção:$\mathcal{O}(1)$
+    Inserção: $\mathcal{O}(1)$
 
 - **Lista ligada ordenada**
 
@@ -54,17 +73,20 @@ Cada implementação da tabela de símbolos possui alguma particularidade, que s
 
     Busca: $\mathcal{O}(\frac{n}{2})$ no caso médio, considerando que a entrada é totalmente aleatória. Isso quase nunca acontece se pegarmos um texto 'normal',pois em praticamente nenhum idioma a frequência das palavras segue uma distribuição uniforme (algumas palavras tem frequência bem maior que outras).
 
-    Inserção:$\mathcal{O}(1)$
+    Inserção: $\mathcal{O}(1)$
 
 - **Árvore de busca binária**
 
     A implementação da árvore de busca binária é parecida com a de listas ligadas. Cada elemento da tabela de símbolos é representado por uma *struct* que contém o par *{ chave : valor}*, além de um ponteiro para a subárvore direita e outro para a subárvore esquerda. A maioria das operçaões é implementada recursivamente, sendo que a inserção faz uma recursão na estrutura de árvore até inserir o elemento no seu dervido lugar, caso ainda não esteja na árvore.
 
-    Busca: $\mathcal{O}(\log{}n)$ no caso médio
+    Busca: $\mathcal{O}(\log{}n)$ no caso médio.
 
-    Inserção:$\mathcal{O}(\log{}n)$ no caso médio
+    Inserção: $\mathcal{O}(\log{}n)$ no caso médio.
 
-###3. Ordenação
+
+###3.Padrão de Desenvolvimento
+Este EP é um ótimo exemplo das vantagens de se usar um paradigma de programação de Orientação a Objetos. Ao invés de criar várias funções que são praticamente iguais (cuja única diferença é o tipo da tabela de símbolos usada), o ideal e mais limpo seria criar um classe base para a tabela de símbolo, e então 5 classes filhas que herdam da classe base, aplicando polimorfismo para cada operação da tabela de símbolos. Assim, o código ficaria mais conciso e coerente. Uma alternativa (não tão boa) seria usar um tipo *union* cujos membros contém todas as 5 implementações diferentes das tabelas de símbolos, e passar as operações corretas de acordo com a tabela utilizada como *callbacks*, o que reduziria a quantidade de funções similares mas redurizia bastante a legibilidade do código, pois não ficaria explícito a chamada das funções de cada tiop diferente.
+
 O algoritmo usa 2 matrizes para fazer a ordenação. As duas matrizes são a matriz ***v*** e a matriz ***s***. Ambas são matrizes ***2 x n***, sendo que a primeira linha de cada matriz guarda os números lidos na entrada padrão, e a segunda linha é auxiliar para a ordenação.
 A matriz ***v*** é a matriz do vetor **original**, i.e. o vetor lido na entrada padrão.
 A matriz ***s*** é a matriz do vetor **ordenado**.

@@ -42,7 +42,7 @@ struct stable_s {
  */
 SymbolTableLD createST_LD() {
     SymbolTableLD t = emalloc(sizeof(struct stable_s));
-    t -> head = NULL;
+    t->head = NULL;
     return t;
 }
 
