@@ -40,6 +40,13 @@ Cada implementação da tabela de símbolos possui alguma particularidade, que s
     Busca: $\mathcal{O}(\log{}n)$
 
     Inserção:$\mathcal{O}(1)$
+- **Lista ligada desordenada**
+
+    A implementação do vetor ordenado é mais sofisticada. É igualmente criado dois vetores, um para as chaves e outro para os valores. Para inserir um elemento, simplemente procura-se usando uma busca binária no vetor de chaves a chave em questão, e se não estiver no vetor, o novo elemento é inserido na posição correta da tabela de símbolo.
+
+    Busca: $\mathcal{O}(\log{}n)$
+
+    Inserção:$\mathcal{O}(1)$
 
 
 ###3. Ordenação
