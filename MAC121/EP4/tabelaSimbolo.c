@@ -26,7 +26,7 @@ int main(int argc, char const *argv[]) {
     FILE *input;
     inputConfig conf;
     /* Entrada e verificação de erros */
-    /*
+
     if (argc != 4)
         die("Usage: ./ep4 <inputFile> <stableType> <sortingType>");
     if(!strcmp(argv[2],"VD"))
@@ -50,10 +50,6 @@ int main(int argc, char const *argv[]) {
     input = fopen(argv[1], "r");
     if (input == NULL)
        die("Error opening file, aborting...");
-    */
-    conf.stableType = 3;
-    conf.orderByAlpha = true;
-    input = fopen("in", "r");
 
 
     /* Chama a função correta de acordo com a entrada */
