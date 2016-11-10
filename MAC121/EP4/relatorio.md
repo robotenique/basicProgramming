@@ -7,34 +7,53 @@ date: "14 de Novembro, 2016"
 
 ###1. Especificação do EP
 
- O EP4 consiste em implementar 5 tabelas de símbolos usando diferentes estruturas de dados, sendo elas: Vetor desordenado, vetor ordenado, lista ligada desordenada, lista ligada ordenada e uma árvore de busca binária. Deve-se criar um arquivo principal que irá receber instruções da linha de comando, ler um arquivo e contar a frequência das palavras do arquivo usando as tabelas de símbolos implementadas, e em seguida imprimir os pares {palavra : frequência} na ordem especificada pela entrada.
+ O EP4 consiste em implementar 5 tabelas de símbolos usando diferentes estruturas de dados, sendo elas: Vetor desordenado, vetor ordenado, lista .ligada desordenada, lista ligada ordenada e uma árvore de busca binária. Deve-se criar um arquivo principal que irá receber instruções da linha de comando, ler um arquivo e contar a frequência das palavras do arquivo usando as tabelas de símbolos implementadas, e em seguida imprimir os pares {palavra : frequência} na ordem especificada pela entrada.
 
 ###2. Algoritmo(s) e estruturas de dados
 Os algoritmos implementados são os algoritmos básicos de cada estrutura de dados. Cada tabela de símbolo implementa as operações com os algoritmos corretos para manipular as respectivas estruturas. As operações de cada estrutura são explicadas adiante, e as funções específicas do programa podem ser vistas no código-fonte onde são tratadas com mais detalhe.
 
 Para a leitura dos arquivos, usei um "Buffer" para armazenar os caracteres. O Buffer é uma estrutura de dados que implementamos na matéria de Técnicas de Programação I (MAC216). A implementação de um Buffer é fácil e bastante óbvia, basta ver o código em *buffer.c*. As operações do Buffer são as seguintes:
+
 - ***create***: Cria um Buffer vazio e o retorna;
+
 - ***destroy***: Libera a memória e destrói o Buffer recebido como argumento;
+
+
 - ***reset***: Aloca novamente o Buffer, apagando o conteúdo antigo;
+
+
 - ***push_back***: Adiciona o caractere recebido como parâmetro no final do Buffer;
+
+
 - ***lower***: Trasforma todos os elementos do Buffer para minúsculo;
+
+
 - ***read_line***: Lê uma linha do arquivo recebido como parâmetro e armazena no Buffer.
 
 
 A implementação das tabelas de símbolos usa a interface que aprendemos em Técnicas de programação I, só que um pouco modificada.
 No EP em questão, uma tabela de símbolos contém as seguintes operações, cujo comportamento é igual para todas as diferentes implementações:
+
+
 - ***create***: Cria uma tabela de símbolos vazia e a retorna;
+
+
 - ***destroy***: Libera a memória e destrói a tabela de símbolos recebida como argumento;
+
+
 - ***insert***: Insere uma chave se ela não estiver na tabela de símbolos. Retorna sempre uma estrutura que contém um ponteiro para o valor da chave recebida como argumento, junto com um indicador para determinar se a chave é nova ou não;
+
+
 - ***apply***: Aplica uma determinada função recebida como *callback* em todos os elementos da tabela de símbolo, ou até que seja interrompida pelo *callback* (com exceção da tabela usando árvore binária, que não permite a interrupção).
 
 
-####2.1 **Leitura**
+
+
+####2.1 Leitura $\\$
 A leitura das palavras é feita através do *Buffer*, usando a operação *read_line*. O algoritmo é bastante simples: Enquanto houver caracteres lidos pelo Buffer, separa-se as palavras da linha segundo as especificações do EP, e a palavra é inserida na tabela de símbolos usando a operação *insert*. Caso a palavra seja nova, o valor correspondente da chave inserida recebe **1**, caso contrário este valor é incrementado. Na leitura também é calculado o tamanho da maior palavra lida, para fazer a impressão corretamente. Este tamanho é armazenado na variável *wide*, que é usada nas funções de impressão.
 
-####2.2 **Tabela de símbolos**
-As estruturas de dados das tabelas de símbolos mais importantes são a ***stable_s***,  ***InsertionResult*** e ***EntryData***.
-
+####2.2 **Tabela de símbolos**$\\$
+As estruturas de dados das tabelas de símbolos mais importantes são a ***stable_s***,  ***InsertionResult*** e ***EntryData***.$\\$
 A ***stable_s*** define a implementação em si da tabela de símbolos, e é diferente pra cada implementação das tabelas de símbolos. Para usar um padrão de desenvolvimento mais correto, as tabelas de símbolo de cada tipo são criadas como um ponteiro para a estrutura *stable_s*, o que não acontece em uma estrutura simples como o *Buffer*, no qual explicitamente declara-se um ponteiro para a estrutura.
 
 O ***InsertionResult*** foi o modo mais simples de permitir com que o usuário mude o valor de determinada chave na tabela de símbolos, e foi apresentado na matéria de Técnicas de Programação I (MAC216). O *InsertionResult* contém a variável *new*, que (após a operação de inserção) tem valor ***1*** caso a chave foi inserida na tabela, ou 0 caso contrário (a chave já estava na tabela). O outro campo do *InsertionResult* contém um ponteiro para o valor da entrada da tabela, isto é, um ponteiro para a *struct* *EntryData*.
@@ -95,10 +114,19 @@ Não separei os arquivos *header* e *.c* em pastas diferentes (*include* e *src*
 Inicialmente, com arquivos relativamente pequenos o cálculo é quase instantâneo, não sendo possível diferenciar bem qual o tempo de cada implementação.
 
 As entradas dos testes abaixo são:
+
 - Bíblia: [*King James Bible*][1], versão da bíblia em inglês;
+
+
 - Aleatório: *Strings* geradas aleatoriamente (usando um script em *Python*). O texto é composto de palavras com 3 a 10 letras, no total de 111645 palavras diferentes no arquivo;
+
+
 - Francês: É uma compilação da Divina Comédia, *Histoire de Jane Grey* e os dois volumes de *Histoire de la République de Venise*, em francês. O arquivo tem 2637732 caracteres, e foram retirados os acentos do texto;
+
+
 - Ordenado: Arquivo texto com as palavras da [*King James Bible*][1], porém em ordem alfabética.
+
+
 
 O resultado dos testes estão dispostos na tabela abaixo (lembrar que o tempo específico varia de acordo com o computador).
 O teste é feito com a ordenação **alfabética**, sendo que a ordenação por frequência levaria pouco tempo a mais devido ao *quicksort* que é feito nas tabelas **VO**, **LO** e **AB**, que não é executado quando há ordenação alfabética.
@@ -121,7 +149,7 @@ Com o texto em francês o comportamento é parecido com o da Bíblia, e percebem
 
 E finalmente na execução do programa com o texto da Bíblia com as palavras ordenadas alfabeticamente, fica claro que é o pior caso para a tabela de símbolos **AB**. Quando o texto já está ordenado, a tabela de símbolos **AB** cria praticamente uma lista ligada comum, porém percorrendo usando recursão e outras operações comuns a árvore. Outro fato interessante é que neste caso a performance das tabelas **LD** e **LO** ficaram praticamente iguais, o que não ocorreu em nenhum dos outros casos, quando a tabela **LD** estava sempre com bastante vantagem em relação a tabela **LO**. Como a lista já está ordenada, é claro que a tabela **LD** se transforma praticamente na tabela **LO**.
 
-####4.1 Conclusão
+####4.1 Conclusão$\\$
 Na média, a melhor implementação da tabela de símbolos é a que usa uma árvore de busca binária. Em segundo lugar temos a implementação usando vetor ordenado, seguido pelo vetor desordenado e por fim a lista ligada desordenada e a ordenada.
 
 É complicado estudar o tempo em função da língua, já que é difícil achar textos exatamente iguais da mesma edição porém em línguas diferentes. No entanto, é fácil de estimar dependendo das palavras mais frequentes dessa língua, que influenciam mais a performance da tabela **LO**. E também há o fato de que se o texto estiver mais ordenado, a performance dele será ruim usando a tabela **AB**, e se estiver aleatório e com poucas palavras repetidas, a performance diminui no **VO**, por causa dos deslocamentos no vetor (O que provamente também ocorre com textos na ordem reversa).
@@ -130,7 +158,7 @@ Na média, a melhor implementação da tabela de símbolos é a que usa uma árv
 
 
 
-#### Fontes:
+#### Fontes:$\\$
 [1]: https://www.gutenberg.org/ebooks/10.txt.utf-8
 Buffer e tabela de Símbolos, disponível em https://www.ime.usp.br/~fmario/cursos/mac216-15/parte1.html
 
