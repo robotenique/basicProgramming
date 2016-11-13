@@ -107,6 +107,8 @@ Este EP é um ótimo exemplo das vantagens de se usar um paradigma de programaç
 
 Uma outra escolha do padrão de desenvolvimento foi tentar manter as implementações *agnósticas*, ou seja, são implementações de tabelas de símbolos que servem para armazenar praticamente qualquer informação e funcionar como uma tabela de símbolos em qualquer programa, não como uma tabela de símbolos específica que calcula frequência. Por este motivo, é necessário usar generalizações e considerar o escopo de cada função e operação da tabela de símbolos e da parte principal do EP.
 
+Com relação a otimização, não há muito o que fazer quando as estruturas de dados já são definidas, a não ser no jeito como será a implementação, que obviamente utilizei implementação. Por exemplo, para inserir um elemento na tabela de símbolos LD parece ser mais rápido simplesmente colocar o elemento no início, e ligar o ponteiro do novo elemento ao resto da lista ligada, porém isso é mais devagar (contrariando o senso comum), em partes por causa da frequência das palavras nas línguas que eu testei (português, inglês, e francês), e também pelo fato de que após fazer as buscas, é mais fácil (para o programa) inserir diretamente no último ponteiro. Outras otimizações são bastante simples, como fazer o *quick sort* para ordenar o vetor por ordem de ocorrência, e outras coisas do gênero.
+
 Não separei os arquivos *header* e *.c* em pastas diferentes (*include* e *src*) por causa das orientações do EP4.
 
 
