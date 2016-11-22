@@ -1,40 +1,67 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-typedef enum { false, true } bool;
-typedef enum { WHITE, BLACK } color;
+#include "hexBoard.h"
+#include "hexTypes.h"
+#include "game.h"
 
-void printUsage() {
-    printf("Usage: ./ep5 <pegColor(p, b)> [d]\n");
-    exit(EXIT_SUCCESS);
-}
+void printUsage(bool gameIsOn);
+
 int main(int argc, char const *argv[]) {
     bool gameIsOn;
     bool debug;
-    color myColor;
+    color myPlayer;
+    HexBoard *board;
     gameIsOn = debug = false;
 
-    /* Input verification */
+    /* Initial input verification */
     if(argc < 2 || argc > 3) {
-        printUsage();
+        printUsage(gameIsOn);
     }
-    if(strcmp(argv[1],"p") == 0) {
-        myColor = BLACK;
+    if(argc == 2) {
+        if(strcmp(argv[1],"p") == 0)
+            myColor = BLACK;
+        else if(strcmp(argv[1],"b") == 0)
+            myColor = WHITE;
+        else
+            printUsage(gameIsOn);
+        gameIsOn = true;
+
     }
-    else if(strcmp(argv[1],"b") == 0) {
-        myColor = WHITE;
-    }
-    else {
-        printUsage();
-    }
-    if(argc == 3) {
+    else if(argc == 3) {
+        if(strcmp(argv[1],"p") == 0)
+            myColor = BLACK;
+        else if(strcmp(argv[1],"b") == 0)
+            myColor = WHITE;
+        else
+            printUsage(gameIsOn);
         if(strcmp(argv[2],"d") == 0)
             debug = true;
         else
-            printUsage();
+            printUsage(gameIsOn);
+        gameIsOn = true;
     }
 
+    /* Assertion = gameIsOn = true, debug = (true || false) */
 
+    board = newHexBoard(N_SIZE);
+    if(myPlayer == BLACK) {
+        /* Read the move from the stdin, and update the Board*/
+        /* scanf(x,x), updtBoard() */
+        /* TODO: consider pie rule */
+    }
 
+    /* Start the loop */
+    gameLoop(board, myPlayer);
     return 0;
+}
+
+
+
+void printUsage(bool gameIsOn) {
+    if(gameIsOn)
+    printf("Usage: <row> <column> \n");
+    else
+        printf("Usage: ./ep5 <pegColor(p, b)> [d]\n");
+    exit(EXIT_SUCCESS);
 }
