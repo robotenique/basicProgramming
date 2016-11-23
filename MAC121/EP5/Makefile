@@ -11,7 +11,7 @@ CFLAGS = -ansi -Wall -pedantic -O2 -g
 all: ep5
 
 
-ep5: hex.o hexBoard.o game.o error.o
+ep5: hex.o hexBoard.o game.o pathFind.o error.o
 	$(CC) -o $@ $^
 
 

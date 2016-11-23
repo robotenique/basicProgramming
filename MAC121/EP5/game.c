@@ -1,18 +1,17 @@
+#include <stdio.h>
 #include "game.h"
 /* TODO: Define a max-depth recursion size (in the gamePlay function)?? */
 color gamePlay(HexBoard *board, color player);
-int checkVictory(HexBoard *board);
+color checkVictory(HexBoard *board);
 void printVictory(color winner);
 
 void gameLoop(HexBoard *board, color myPlayer) {
     color winner;
-    char player1;
-    char player2;
-    isSolved = NONE;
+    winner = NONE;
     /* Play the game until one of the player wins */
     for(;;) {
         /* Make a move */
-        winner = gamePlay(*board, myPlayer);
+        winner = gamePlay(board, myPlayer);
         /* Check if we won */
         if(winner != NONE) {
             printf("%c ganhou\n",(winner == WHITE) ? 'b' : 'p');
@@ -20,7 +19,7 @@ void gameLoop(HexBoard *board, color myPlayer) {
         }
         /* TODO: remind to read the PLAY from the STDIN! */
         /* Make a move with the other player */
-        winner = gamePlay(*board, myPlayer);
+        winner = gamePlay(board, myPlayer);
         /* Check if player2 won */
         if(winner) {
             printf("%c ganhou\n",(winner == WHITE) ? 'b' : 'p');
@@ -29,8 +28,6 @@ void gameLoop(HexBoard *board, color myPlayer) {
     }
 }
 
-void printVictory(color winner) {
-}
 color gamePlay(HexBoard *board, color player) {
     color winner = checkVictory(board);
     if(winner == WHITE || winner == BLACK) {
@@ -39,32 +36,33 @@ color gamePlay(HexBoard *board, color player) {
 
     return NONE;
 
+}
 
-	// Is it my turn ?
-	if(grid->turn_player!=player) {
-		printf("It's not my turn ...\n");
-		hexgrid_destroy(grid);
-		return 0;
+color checkVictory(HexBoard *board) {
+    
+}
+int hex_game_checkVictory(HexGrid * grid) {
+	// Verify Victory Conditions
+	DijkstraResult * dres;
+	DijkstraPath * dpath;
+
+	int victory = BLANK;
+
+	dres = dijkstra(grid, hexgrid_getTopBorder(grid), hexgrid_getBotBorder(grid), 0x04, 1, 1, 1);
+	dpath = dijkstra_getPath(dres, -1);
+	if(dpath->length>0) {
+		victory = BLACK;
 	}
+	dijkstra_destroyPath(dpath);
+	dijkstra_destroy(dres);
 
-	// Decide & Play !
-	hexgrid_setCellColor(hex_game_decide(grid, player, useRandom, useABSearch, useMTDf, maxDepth), grid, player);
-
-	grid->turn_nb++;
-	if(grid->turn_player==WHITE) {
-		grid->turn_player=BLACK;
-	} else {
-		grid->turn_player=WHITE;
+	dres = dijkstra(grid, hexgrid_getRightBorder(grid), hexgrid_getLeftBorder(grid), 0x02, 1, 1, 1);
+	dpath = dijkstra_getPath(dres, -1);
+	if(dpath->length>0) {
+		victory = WHITE;
 	}
+	dijkstra_destroyPath(dpath);
+	dijkstra_destroy(dres);
 
-	// Save the grid
-	hexgrid_save(path, grid);
-
-	// Print the grid
-	hexgrid_print(grid, NULL);
-
-	// Destroy the grid
-	hexgrid_destroy(grid);
-
-	return 1;
+	return victory;
 }

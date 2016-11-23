@@ -5,6 +5,7 @@
 #include "hexTypes.h"
 #include "game.h"
 
+/* TODO: remove unused functions */
 void printUsage(bool gameIsOn);
 
 int main(int argc, char const *argv[]) {
@@ -20,9 +21,9 @@ int main(int argc, char const *argv[]) {
     }
     if(argc == 2) {
         if(strcmp(argv[1],"p") == 0)
-            myColor = BLACK;
+            myPlayer = BLACK;
         else if(strcmp(argv[1],"b") == 0)
-            myColor = WHITE;
+            myPlayer = WHITE;
         else
             printUsage(gameIsOn);
         gameIsOn = true;
@@ -30,9 +31,9 @@ int main(int argc, char const *argv[]) {
     }
     else if(argc == 3) {
         if(strcmp(argv[1],"p") == 0)
-            myColor = BLACK;
+            myPlayer = BLACK;
         else if(strcmp(argv[1],"b") == 0)
-            myColor = WHITE;
+            myPlayer = WHITE;
         else
             printUsage(gameIsOn);
         if(strcmp(argv[2],"d") == 0)

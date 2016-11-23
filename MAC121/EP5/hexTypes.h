@@ -5,7 +5,7 @@
 
 /* Simple type definition */
 typedef enum { false, true } bool;
-typedef enum { NONE, WHITE, BLACK } color;
+typedef enum { NONE, WHITE, BLACK, INVALID } color;
 typedef unsigned short int s_Int;
 
 /* Structures definition */
