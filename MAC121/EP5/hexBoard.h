@@ -20,11 +20,16 @@ bool isHexBotBorder(int id, HexBoard *board);
 bool isHexLeftBorder(int id, HexBoard *board);
 bool isHexRightBorder(int id, HexBoard *board);
 /* Get neighbors functions */
-getHexTopLeftN(int id, HexBoard *board);
-getHexTopRightN(int id, HexBoard *board);
-getHexLeftN(int id, HexBoard *board);
-getHexRightN(int id, HexBoard *board);
-getHexBotLeftN(int id, HexBoard *board);
-getHexBotRightN(int id, HexBoard *board);
+int getHexTopLeftN(int id, HexBoard *board);
+int getHexTopRightN(int id, HexBoard *board);
+int getHexLeftN(int id, HexBoard *board);
+int getHexRightN(int id, HexBoard *board);
+int getHexBotLeftN(int id, HexBoard *board);
+int getHexBotRightN(int id, HexBoard *board);
+/* Get borders function */
+int boardGetLeftBorder(HexBoard *board);
+int boardGetTopBorder(HexBoard *board);
+int boardGetRightBorder(HexBoard *board);
+int boardGetBotBorder(HexBoard *board);
 
 #endif

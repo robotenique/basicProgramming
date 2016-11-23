@@ -39,7 +39,12 @@ color gamePlay(HexBoard *board, color player) {
 }
 
 color checkVictory(HexBoard *board) {
-    
+    /* Verificando condições de vitória */
+    DjkStorage *djkS;
+    DjkPath *djkPath;
+    color winner;
+
+    winner = NONE;
 }
 int hex_game_checkVictory(HexGrid * grid) {
 	// Verify Victory Conditions

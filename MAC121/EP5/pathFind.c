@@ -32,28 +32,24 @@ typedef struct {
 } DjkPath;
 
 
-DjkStorage *dijkstra(HexBoard *board, int start, int final,
-    unsigned char c_mask, int noneWeight, int blackWeight, int whiteWeight);
-void djkDestroy(DjkStorage *djkS);
-DjkPath *djkGetPath(DjkStorage *storage, int final);
-void djkDestroyPath(DjkPath *path);
 void djkPrintPath(DjkPath *path);
 
 
 /* Calcula o menor caminho para um Node, ou para todos os Nodes no HexBoard,
  * usando apenas hexágonos que combinam com a c_mask!
  * args: start: O hexágono inicial
- *       final: Hexágono final, ou uma posição inválida (como id < 0) para
- *              calcular o caminho de tods os Nodes.
- *       c_mask: Bitmask das cores para saber em quais Nodes é o algoritmo
- *               pode percorrer (ver verifyColorsMask).
+ *       final: Hexágono final, ou uma posição inválida (id < 0) para
+ *              calcular o caminho de todos os Nodes.
+ *       c_mask: (color)Bitmask das cores para saber em quais Nodes é o
+ *              algoritmo pode percorrer (ver verifyColorsMask).
  */
  /* Impl https://pt.wikipedia.org/wiki/Algoritmo_de_Dijkstra */
 
 DjkStorage *dijkstra(HexBoard *board, int start, int final,
     unsigned char c_mask, int noneWeight, int blackWeight, int whiteWeight) {
-    int hexCount, i, QNb, u, *dist, *previous, *n_Nodes, *v;
+    int hexCount, i, QNb, u, tmpDist, *dist, *previous, *n_Nodes, *v;
     s_Int *Q;
+    DjkStorage *djkS;
 
     if(!isHexagonValid(start, board)) {
         printf("[Dijkstra] Posição inválida do Hexagon! D:\n");
@@ -67,7 +63,7 @@ DjkStorage *dijkstra(HexBoard *board, int start, int final,
     Q = emalloc(sizeof(int)*hexCount);
     QNb = 0;
 
-    for(i=0; i < hexCount; i++) {
+    for(i = 0; i < hexCount; i++) {
         /* Todas as distâncias recebem peso "Infinito" */
         dist[i] = INT_MAX;
         /* Inicializa os outros arrays com valor indefinido */
@@ -88,7 +84,7 @@ DjkStorage *dijkstra(HexBoard *board, int start, int final,
     /* Loop principal do Dijkstra */
     while(QNb > 0) {
         /* Pega o Node em Q com a menor distância que combina com c_mask */
-        u = chooseInQ_SmallestDistance(Q, dist, cellsNb, hexgrid, colorsMask);
+        u = getMinDistance_Q(Q, dist, hexCount, board, c_mask);
 
         /* Retira o Node 'u' do array Q */
         Q[u] = 0;
@@ -105,71 +101,124 @@ DjkStorage *dijkstra(HexBoard *board, int start, int final,
         /* Vizinhos do node 'u' */
         v = getHexagonNeighbors(u, board);
 
-
-
-    }
-
-    /** Main Loop **/
-    while(QNb>0) {
-
-
-        // Get neighbors of u
-        int * v = hexgrid_getCellNeighbors(u, hexgrid);
-
-        // Foreach neighbors v[i] of u
-        for(i=0; i<hexgrid_getCellNeighborsNumber(u, hexgrid); i++) {
-            // Does v[i] exist ? Maybe we're near a border of the graph or outside
-            if(v[i]<0) {
+        for(i = 0; i < getHexagonNeighborC(u, board); i++) {
+            /* Verifica se o vizinho em questão existe */
+            if(v[i] < 0)
                 continue;
-            }
-
-            // v[i] has to be in Q; otherwise we already explored it or it's not reachable because of colorMask ...
-            if(Q[v[i]]==0) {
+            /* O v[i] deve estar em Q, caso contrário ele já foi explorado
+             * ou não combinou com c_mask
+             */
+            if(Q[v[i]] == 0)
                 continue;
-            }
 
-            // v[i] has to match our colorsMask or be a border, otherwise we can't walk on it
-            if(verifyColorsMask(hexgrid, v[i], colorsMask)==0) {
+            if(!verifyColorsMask(board, v[i], c_mask))
                 continue;
-            }
 
-            // Compute the distance from source to v[i]. In the HexGrid, every x->y distance == 1
-            int alt = 0;
-            if     (hexgrid_getCellColor(v[i], hexgrid)==WHITE)    alt = dist[u] + whiteWeight;
-            else if(hexgrid_getCellColor(v[i], hexgrid)==BLACK)       alt = dist[u] + blackWeight;
-            else                                                    alt = dist[u] + blankWeight;
+            /* Calcula a distância do 'start' até v[i].
+             * obs: a distância no  HexBoard de a -> b == 1
+             */
+            tmpDist = 0;
+            if(getHexagonColor(v[i], board) == WHITE)
+                tmpDist = dist[u] + whiteWeight;
+            else if(getHexagonColor(v[i], board) == BLACK)
+                tmpDist = dist[u] + blackWeight;
+            else
+                tmpDist = dist[u] + noneWeight;
 
-            // If the new path is shorter than the previously found
-            if(alt<dist[v[i]]) {
+            /* Se o novo caminho é mais curto que o anterior,
+             * troca os valores para o caminho calculado */
+            if(tmpDist < dist[v[i]]) {
                 dist[v[i]] = alt;
                 previous[v[i]] = u;
                 Q[v[i]] = 1;
-                nbOfNodes[v[i]] = nbOfNodes[u] + 1;
+                n_Nodes[v[i]] = n_Nodes[u] + 1;
             }
         }
 
-        // Free the neighbors
         free(v);
     }
 
     free(Q);
 
-    // Create the result
-    DijkstraResult * result = malloc(sizeof(DijkstraResult));
-    result->hexgrid = hexgrid;
-    result->source = source;
-    result->destination = destination;
-    result->colorsMask = colorsMask;
-    result->dist = dist;
-    result->previous = previous;
-    result->nbOfNodes = nbOfNodes;
+    /* Cria um DjkStorage com as informações */
+    djkS = emalloc(sizeof(DjkStorage));
+    djkS->board = board;
+    djkS->start = start;
+    djkS->final = final;
+    djkS->colorMask = c_mask;
+    djkS->dist = dist;
+    djkS->previous = previous;
+    djkS->n_Nodes = n_Nodes;
 
-    // Print the results
-    //dijkstra_print(result);
+    /* imprimir dijkstra: dijkstraPrint(djkS); */
 
-    return result;
+    return djkS;
 }
 
+/* Retorna o caminho (legível) para o node 'final'. */
+DjkPath *djkGetPath(DjkStorage *storage, int final) {
+    int u, i;
+    DjkPath *path;
+    /* Verificação de erros */
+    if(final >= 0 ** storage->final >= 0 && final != storage->final)
+        return NULL;
+
+    if(!isHexagonValid(final, storage->board) &&
+       !isHexagonValid(storage->final, storage->board))
+        return NULL;
+
+        typedef struct {
+            HexBoard *board; /* The original hexagonal board */
+            int start; /* The start node ID*/
+            int final; /* The final node ID*/
+            int length;  /* Number of jumps in the path */
+            int n_Nodes; /* Number of nodes in the path */
+            /* Array (size = length) with the path.
+             * The start node is not in the array, although the final is;
+             */
+             int * path;
+        } DjkPath;
+
+    path = emalloc(sizeof(DjkPath));
+    path->start = storage->start;
+    if(final >= 0)
+        path->final = final;
+    else
+        path->final = storage->final;
+    path->length = storage->dist[path->final];
+    path->n_Nodes = storage->n_Nodes[path->final];
+    path->board = storage->board;
+
+    if(path->length != INT_MAX && path->length != -1) {
+        /* O caminho é construído */
+        path->path = emalloc(sizeof(int)*(path->n_Nodes));
+        u = path->final;
+        i = path->n_Nodes - 1;
+        while(storage->previous[u] != -1) {
+            path->path[i] = u;
+            u = storage->previous[u];
+            i--;
+        }
+    }
+    else {
+        path->length = -1;
+    }
+
+    return path;
+}
+
+void djkDestroyPath(DjkPath *path) {
+    if(path->length >= 0)
+        free(path->path);
+    free(path);
+}
+
+void djkDestroy(DjkStorage *djkS) {
+    free(djkS->previous);
+    free(djkS->dist);
+    free(djkS->n_Nodes);
+    free(djkS);
+}
 
 /* Retorna o Node em 'Q' que possui a menor distância e combina com a c_mask,
  * além de considerar caso seja uma borda.
@@ -181,7 +230,6 @@ DjkStorage *dijkstra(HexBoard *board, int start, int final,
  * hexBoard = O tabuleiro hexagonal para procurar as cores
  * c_mask = Bitmask com as cores aceitas
  */
-
 int getMinDistance_Q(s_Int *Q, int *dist, int hexCount, hexBoard *board,
     unsigned char c_mask) {
     int i, min;
@@ -224,4 +272,3 @@ bool verifyColorsMask(HexBoard *board, int id, unsigned char c_mask) {
     else
         return false;
 }
-dok
