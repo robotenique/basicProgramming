@@ -1,38 +1,13 @@
 #include <limits.h>
-#include "pathFind.c"
+#include <stdio.h>
+#include "pathFind.h"
+#include "error.h"
 
+/* Protótipos de funções locais */
+bool verifyColorsMask(HexBoard *board, int id, unsigned char c_mask);
+int getMinDistance_Q(s_Int *Q, int *dist, int hexCount, HexBoard *board,
+    unsigned char c_mask);
 
-/* Stores information after a dijkstra algorithm run */
-
-typedef struct {
-    HexBoard *board; /* The original hexagonal board */
-    int start; /* The start node ID*/
-    /* The final node ID or a invalid node ID if the traverse is 100% */
-    int final;
-    /* A color mask available to traverse (NONE | WHITE | BLACK)*/
-    s_Int colorMask;
-    /* Array of the shortest distances to all nodes or to the final node */
-    int * dist;
-    /* array to define the shortest path to all nodes or to the final node */
-    int * previous;
-    /* Array to store how many nodes in the path to the final node */
-    int * n_Nodes;
-} DjkStorage;
-
-typedef struct {
-    HexBoard *board; /* The original hexagonal board */
-    int start; /* The start node ID*/
-    int final; /* The final node ID*/
-    int length;  /* Number of jumps in the path */
-    int n_Nodes; /* Number of nodes in the path */
-    /* Array (size = length) with the path.
-     * The start node is not in the array, although the final is;
-     */
-     int * path;
-} DjkPath;
-
-
-void djkPrintPath(DjkPath *path);
 
 
 /* Calcula o menor caminho para um Node, ou para todos os Nodes no HexBoard,
@@ -128,7 +103,7 @@ DjkStorage *dijkstra(HexBoard *board, int start, int final,
             /* Se o novo caminho é mais curto que o anterior,
              * troca os valores para o caminho calculado */
             if(tmpDist < dist[v[i]]) {
-                dist[v[i]] = alt;
+                dist[v[i]] = tmpDist;
                 previous[v[i]] = u;
                 Q[v[i]] = 1;
                 n_Nodes[v[i]] = n_Nodes[u] + 1;
@@ -160,24 +135,12 @@ DjkPath *djkGetPath(DjkStorage *storage, int final) {
     int u, i;
     DjkPath *path;
     /* Verificação de erros */
-    if(final >= 0 ** storage->final >= 0 && final != storage->final)
+    if(final >= 0 && storage->final >= 0 && final != storage->final)
         return NULL;
 
     if(!isHexagonValid(final, storage->board) &&
        !isHexagonValid(storage->final, storage->board))
         return NULL;
-
-        typedef struct {
-            HexBoard *board; /* The original hexagonal board */
-            int start; /* The start node ID*/
-            int final; /* The final node ID*/
-            int length;  /* Number of jumps in the path */
-            int n_Nodes; /* Number of nodes in the path */
-            /* Array (size = length) with the path.
-             * The start node is not in the array, although the final is;
-             */
-             int * path;
-        } DjkPath;
 
     path = emalloc(sizeof(DjkPath));
     path->start = storage->start;
@@ -227,10 +190,10 @@ void djkDestroy(DjkStorage *djkS) {
  * Q = Um conjunto de Nodes , possui Nodes na c_mask
  * dist = Array com a distância dos Nodes
  * hexCount = Número de hexágonos em Q e em dist
- * hexBoard = O tabuleiro hexagonal para procurar as cores
+ * board = O tabuleiro hexagonal para procurar as cores
  * c_mask = Bitmask com as cores aceitas
  */
-int getMinDistance_Q(s_Int *Q, int *dist, int hexCount, hexBoard *board,
+int getMinDistance_Q(s_Int *Q, int *dist, int hexCount, HexBoard *board,
     unsigned char c_mask) {
     int i, min;
     i = min = 0;
@@ -248,7 +211,6 @@ int getMinDistance_Q(s_Int *Q, int *dist, int hexCount, hexBoard *board,
 
     return min;
 }
-
 
 /* Check if a hexagon in the board match the colorMask.
  * Returns true if the c_mask is matched or the Hexagon is from the border.

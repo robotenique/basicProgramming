@@ -1,13 +1,17 @@
 #include <stdio.h>
 #include "game.h"
+#include "pathFind.h"
+#include "hexAI.h"
+#define MAX_DEPTH 4
 /* TODO: Define a max-depth recursion size (in the gamePlay function)?? */
 color gamePlay(HexBoard *board, color player);
 color checkVictory(HexBoard *board);
-void printVictory(color winner);
 
 void gameLoop(HexBoard *board, color myPlayer) {
     color winner;
     winner = NONE;
+    boardPrint(board);
+    exit(EXIT_SUCCESS);
     /* Play the game until one of the player wins */
     for(;;) {
         /* Make a move */
@@ -17,7 +21,10 @@ void gameLoop(HexBoard *board, color myPlayer) {
             printf("%c ganhou\n",(winner == WHITE) ? 'b' : 'p');
             return;
         }
-        /* TODO: remind to read the PLAY from the STDIN! */
+        /* TODO: remind to read the PLAY from the STDIN, And then
+         * update the board. We do not need to call 'gamePlay' again
+         * BElow, the move is read from the STDIN.
+         */
         /* Make a move with the other player */
         winner = gamePlay(board, myPlayer);
         /* Check if player2 won */
@@ -30,44 +37,40 @@ void gameLoop(HexBoard *board, color myPlayer) {
 
 color gamePlay(HexBoard *board, color player) {
     color winner = checkVictory(board);
-    if(winner == WHITE || winner == BLACK) {
+
+    if(winner == WHITE || winner == BLACK)
         return winner;
-    }
+
+    /*setHexagonColor(gameDecide(board, player, MAX_DEPTH), board, player); */
+
+    /* TODO: finish this function */
 
     return NONE;
 
 }
 
 color checkVictory(HexBoard *board) {
-    /* Verificando condições de vitória */
     DjkStorage *djkS;
     DjkPath *djkPath;
     color winner;
-
     winner = NONE;
-}
-int hex_game_checkVictory(HexGrid * grid) {
-	// Verify Victory Conditions
-	DijkstraResult * dres;
-	DijkstraPath * dpath;
+    /* TODO: invert the colors here, white <==> black, and adjust c_mask correspondly*/
+    /* Verificando condições de vitória */
+    djkS = dijkstra(board, boardGetTopBorder(board), boardGetLeftBorder(board),
+                    0x04, 1, 1, 1);
+    djkPath = djkGetPath(djkS, -1);
+    if(djkPath->length > 0)
+        winner = BLACK;
+    djkDestroyPath(djkPath);
+    djkDestroy(djkS);
 
-	int victory = BLANK;
+    djkS = dijkstra(board, boardGetRightBorder(board), boardGetLeftBorder(board),
+                    0x02, 1, 1, 1);
+    djkPath = djkGetPath(djkS, -1);
+    if(djkPath->length > 0)
+        winner = WHITE;
+    djkDestroyPath(djkPath);
+    djkDestroy(djkS);
 
-	dres = dijkstra(grid, hexgrid_getTopBorder(grid), hexgrid_getBotBorder(grid), 0x04, 1, 1, 1);
-	dpath = dijkstra_getPath(dres, -1);
-	if(dpath->length>0) {
-		victory = BLACK;
-	}
-	dijkstra_destroyPath(dpath);
-	dijkstra_destroy(dres);
-
-	dres = dijkstra(grid, hexgrid_getRightBorder(grid), hexgrid_getLeftBorder(grid), 0x02, 1, 1, 1);
-	dpath = dijkstra_getPath(dres, -1);
-	if(dpath->length>0) {
-		victory = WHITE;
-	}
-	dijkstra_destroyPath(dpath);
-	dijkstra_destroy(dres);
-
-	return victory;
+    return winner;
 }

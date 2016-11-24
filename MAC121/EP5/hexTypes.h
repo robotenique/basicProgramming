@@ -15,6 +15,7 @@ typedef struct {
 
 typedef struct {
     s_Int size; /* The size n of the grid (we use n = 14) */
+    unsigned int turnN; /* Number of the turn */
     color player; /* The player to play */
     Hexagon *hexs; /* The hexagons of the grid */
 } HexBoard;

@@ -33,9 +33,9 @@ typedef struct {
 
 DjkStorage *dijkstra(HexBoard *board, int start, int final,
     unsigned char c_mask, int noneWeight, int blackWeight, int whiteWeight);
-void djkDestroy(DjkStorage *djkS);
 DjkPath *djkGetPath(DjkStorage *storage, int final);
-void djkDestroyPath(DjkPath *path);
 void djkPrintPath(DjkPath *path);
+void djkDestroy(DjkStorage *djkS);
+void djkDestroyPath(DjkPath *path);
 
 #endif

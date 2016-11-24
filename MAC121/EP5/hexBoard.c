@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <stdio.h>
 #include "error.h"
 #include "hexBoard.h"
 
@@ -6,8 +7,10 @@ HexBoard *newHexBoard( s_Int size) {
     int i;
     HexBoard *board = emalloc(sizeof(HexBoard));
     board->size = size;
+    /* TODO: change the player on first play... */
     board->player = WHITE;
     board->hexs = emalloc(sizeof(Hexagon) *(size*size + 4));
+    board->turnN = 1;
     for(i = 0; i < size*size; board->hexs[i].color = NONE, i++);
     /* TODO: Check borders colors after (see if the order is correct) */
     board->hexs[size*size].color = BLACK;
@@ -108,25 +111,25 @@ int *getHexagonNeighbors(int id, HexBoard *board) {
     return neighbors;
 }
 
-int isHexTopBorder(int id,HexBoard *board) {
+bool isHexTopBorder(int id,HexBoard *board) {
     if(id == board->size*board->size)
         return true;
     return false;
 }
 
-int isHexBotBorder(int id,HexBoard *board) {
+bool isHexBotBorder(int id,HexBoard *board) {
     if(id == board->size*board->size+2)
         return true;
     return false;
 }
 
-int isHexLeftBorder(int id,HexBoard *board) {
+bool isHexLeftBorder(int id,HexBoard *board) {
     if(id == board->size*board->size+3)
         return true;
     return false;
 }
 
-int isHexRightBorder(int id,HexBoard *board) {
+bool isHexRightBorder(int id,HexBoard *board) {
     if(id == board->size*board->size+1)
         return true;
     return false;
@@ -186,7 +189,7 @@ int getHexBotLeftN(int id, HexBoard *board) {
     if(isHexNearLeftBorder(id, board))
         return board->size*board->size+3;
 
-    return id + hexgrid->size-1;
+    return id + board->size-1;
 }
 
 /* TODO; maybe adjust this function below to match the above... */
@@ -210,7 +213,7 @@ int getHexagonNeighborC(int id, HexBoard *board) {
     if(!isHexagonValid(id, board))
         return -1;
     if(id >= board->size*board->size)
-        return hexgrid->size;
+        return board->size;
     else
      return 6;
  }
@@ -231,34 +234,32 @@ int boardGetBotBorder(HexBoard *board) {
     return board->size*board->size+2;
  }
 
+void setHexagonColor(int id, HexBoard *board, color color) {
+    if(!isHexagonValid(id, board))
+        return;
+    if(color != WHITE && color != BLACK && color != NONE)
+        return;
+    board->hexs[id].color = color;
+}
 
+void boardPrint(HexBoard *board) {
+    int i, j;
+    /* Initial implementation */
+    printf("\\ ");
+    for(i = 0; i < board->size*board->size; i++) {
+        if(i % board->size == 0 && i > 0) {
+            printf("\\\n");
+            for(j = 0; j < i/board->size; j++)
+                printf(" ");
+            printf("\\ ");
+        }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-x
+        if(board->hexs[i].color == WHITE)
+            printf("b ");
+        else if(board->hexs[i].color == BLACK)
+            printf("p ");
+        else
+            printf("- ");
+    }
+    printf("\\\n");
+}
