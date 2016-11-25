@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include "error.h"
 #include "hexBoard.h"
+int getBoardStrLength(HexBoard *board);
 
 HexBoard *newHexBoard( s_Int size) {
     int i;
@@ -42,6 +43,20 @@ HexBoard *cloneHexBoard(HexBoard *board) {
 
 }
 
+/* Retorna uma representação em texto da HexBoard
+ * (Sem as bordas)
+ */
+char *stringfyBoard(HexBoard *board) {
+    int i;
+    char *str;
+    str = emalloc(getBoardStrLength(board)*sizeof(char) + 1);
+    for(i = 0; i < getHexagonsCount(board); i++) {
+        str[i] = '0' + board->hexs[i].color;
+    }
+    str[i] = '\0';
+    return str;
+}
+
 int getHexagonsCount(HexBoard *board) {
     return board->size*board->size + 4;
 }
@@ -53,6 +68,14 @@ bool isHexagonValid(int id, HexBoard *board) {
         return false;
 }
 
+int isHexagonPlayable(int id, HexBoard *board) {
+    if(!isHexagonValid(id, board))
+        return -1;
+    if(board->hexs[id].color == NONE)
+        return 1;
+    else
+        return 0;
+}
 /* Check if a given Hexagon is not a border Hexagon */
 bool isHexagonSimple(int id, HexBoard *board) {
     if(id >= 0 && id <= getHexagonsCount(board) - 4)
@@ -278,4 +301,41 @@ void boardPrint(HexBoard *board) {
             printf("- ");
     }
     printf("\\\n");
+}
+
+bool isHexNearTopBorder(int id, HexBoard *board) {
+    if(!isHexagonValid(id, board)) return -1;
+    if(id >= 0 && id < board->size)
+        return 1;
+    else
+        return 0;
+}
+
+bool isHexNearBotBorder(int id, HexBoard *board) {
+    if(!isHexagonValid(id, board)) return -1;
+    if(id >= board->size*board->size - board->size &&
+       id < board->size*board->size)
+         return 1;
+    else
+        return 0;
+}
+
+bool isHexNearLeftBorder(int id, HexBoard *board) {
+    if(!isHexagonValid(id, board)) return -1;
+    if((id + 1) % board->size == 1)
+        return 1;
+    else
+        return 0;
+}
+
+bool isHexNearRightBorder(int id, HexBoard *board) {
+    if(!isHexagonValid(id, board)) return -1;
+    if((id + 1) % board->size == 0)
+        return 1;
+    else
+        return 0;
+}
+
+int getBoardStrLength(HexBoard * board) {
+    return getHexagonsCount(board);
 }

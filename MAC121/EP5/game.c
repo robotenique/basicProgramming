@@ -5,7 +5,6 @@
 #define MAX_DEPTH 4
 
 color gamePlay(HexBoard *board, color player);
-color checkVictory(HexBoard *board);
 int gameDecide(HexBoard *board, color player, int maxDepth);
 
 void gameLoop(HexBoard *board, color myPlayer) {
@@ -54,9 +53,11 @@ color gamePlay(HexBoard *board, color player) {
 
 int gameDecide(HexBoard *board, color player, int maxDepth) {
     int bestM;
+    HexBoard *dup;
     bestM = -1;
-    HexBoard *dup = cloneHexBoard(board);
-    MTDfAlgorithm(dup, player, maxDepth, &bestM);
+    dup = cloneHexBoard(board);
+    /*MTDfAlgorithm(dup, player, maxDepth, &bestM);*/
+    return 0; /* ops */
 
 }
 
@@ -67,19 +68,19 @@ color checkVictory(HexBoard *board) {
     winner = NONE;
     /* TODO: invert the colors here, white <==> black, and adjust c_mask correspondly*/
     /* Verificando condições de vitória */
-    djkS = dijkstra(board, boardGetTopBorder(board), boardGetLeftBorder(board),
-                    0x04, 1, 1, 1);
-    djkPath = djkGetPath(djkS, -1);
-    if(djkPath->length > 0)
-        winner = BLACK;
-    djkDestroyPath(djkPath);
-    djkDestroy(djkS);
-
-    djkS = dijkstra(board, boardGetRightBorder(board), boardGetLeftBorder(board),
+    djkS = dijkstra(board, boardGetTopBorder(board), boardGetBotBorder(board),
                     0x02, 1, 1, 1);
     djkPath = djkGetPath(djkS, -1);
     if(djkPath->length > 0)
         winner = WHITE;
+    djkDestroyPath(djkPath);
+    djkDestroy(djkS);
+
+    djkS = dijkstra(board, boardGetRightBorder(board), boardGetLeftBorder(board),
+                    0x04, 1, 1, 1);
+    djkPath = djkGetPath(djkS, -1);
+    if(djkPath->length > 0)
+        winner = BLACK;
     djkDestroyPath(djkPath);
     djkDestroy(djkS);
 

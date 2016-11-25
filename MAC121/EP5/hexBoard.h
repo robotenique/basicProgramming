@@ -4,7 +4,9 @@
 
 HexBoard *newHexBoard(s_Int size);
 HexBoard *cloneHexBoard(HexBoard *board);
-HexBoard *destroyHexBoard(HexBoard *board);
+void destroyHexBoard(HexBoard *board);
+char *stringfyBoard(HexBoard *board);
+
 
 /* Funções dos hexágonos */
 bool isHexagonValid(int id, HexBoard *board);
@@ -13,6 +15,8 @@ color getHexagonColor(int id, HexBoard *board);
 void setHexagonColor(int id, HexBoard *board, color color);
 int *getHexagonNeighbors(int id, HexBoard *board);
 int getHexagonNeighborC(int id, HexBoard *board);
+/* TODO: checar onde essa função deve ser chamada */
+int isHexagonPlayable(int id, HexBoard *board);
 
 /* Border verification functions */
 bool isHexNearTopBorder(int id, HexBoard *board);

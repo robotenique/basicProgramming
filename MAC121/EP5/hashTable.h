@@ -41,8 +41,6 @@ typedef struct {
  */
 HashTable *HashTableCreate(long numOfBuckets);
 
-HashTableSetKeyComparisonFunction(transTable, alpha_beta_keycmp);
-
 /*
  * Function: HashTableSetHashFunction
  * --------------------------------------------------------
@@ -84,25 +82,6 @@ void HashTableSetDeallocationFunctions(HashTable *hashTable,
                                         void (*valueDeallocator)(void *value));
 
 
-/*--------------------------------------------------------------------------*\
- *  NAME:
- *      HashTableSetKeyComparisonFunction()
- *              - specifies the function used to compare keys in a HashTable
- *  DESCRIPTION:
- *      Specifies the function used to compare keys in the specified
- *      HashTable.  The specified function should return zero if the two
- *      keys are considered equal, and non-zero otherwise.  The default
- *      function is one that simply compares pointers.
- *  ARGUMENTS:
- *      hashTable    - the HashTable whose key comparison function is being
- *                     specified
- *      keycmp       - a function which returns zero if the two arguments
- *                     passed to it are considered "equal" keys and non-zero
- *                     otherwise
- *  RETURNS:
- *      <nothing>
-\*--------------------------------------------------------------------------*/
-
 /*
  * Function: HashTableSetKeyComparisonFunction
  * --------------------------------------------------------
@@ -111,17 +90,76 @@ void HashTableSetDeallocationFunctions(HashTable *hashTable,
  * A função default é a única que simplesmente compara os pointers.
  *
  * @args    hashTable:  Uma HashTable
- *          hashFunction : Ponteiro para uma função que retorna um hashCode
- *                         adequado para uma dada chave (key)
- *          keyDeallocator: Se != NULL, é a função que será chamada quando a
- *                          chave for removida da HashTable
- *          valueDeallocator: Se != NULL, a função chamada quando o valor
- *                            é removido da HashTable.
+ *          keycmp: Função que retorna zero se ambos os argumentos passados
+ *                  são considerados chaves "iguais", != 0 caso contrário.
  *
  * @return
  */
 void HashTableSetKeyComparisonFunction(HashTable *hashTable,
                              int (*keycmp)(const void *key1, const void *key2));
 
+
+
+/*
+* Function: HashTableDestroy
+* --------------------------------------------------------
+* Destrói uma HashTable existente.
+*
+* @args    hashTable : A HashTable que será destruída
+*
+* @return
+*/
+void HashTableDestroy(HashTable *hashTable);
+
+
+/*
+ * Function: HashTableSize
+ * --------------------------------------------------------
+ * Retorna o número de elementos na HashTable. (O número de elementos
+ * "chave" : valor).
+ *
+ * @args    hashTable: A hashTable
+ *
+ * @return O número de pares "chave":valor que estão na hashTable.
+ */
+long HashTableSize(const HashTable *hashTable);
+/*
+ * Function: HashTableStringHashFunction
+ * --------------------------------------------------------
+ * Implementação de uma boa função de hash para strings!
+ *
+ * @args    key: a chave para aplicar o hashing
+ *
+ * @return O valor do hash para uma determinada chave.
+ */
+unsigned long HashTableStringHashFunction(const void *key);
+
+/*
+ * Function: HashTableGet
+ * --------------------------------------------------------
+ * Retorna o valor da chava especificada armanada na HashTable
+ *
+ * @args    hashTable: A hashTable para fazer a busca
+ *          key: A chave cujo valor é o procurado
+ *
+ * @return O valor da chave especificada, ou NULL se a chave não existe na
+ *         HashTable
+ */
+void *HashTableGet(const HashTable *hashTable, const void *key);
+
+/*
+ * Function: HashTablePut
+ * --------------------------------------------------------
+ * Adiciona o valor "key":value especificado como argumento na HashTable.
+ * Se a chave já está na HashTable, o valor antigo é sobrescito com o novo
+ * valor especificado. Se a tabela está cheia, pode acionar o rehash().
+ *
+ * @args    hashTable: A HashTable para adicionar o elemento
+ *          key: A chave para adicionar / sobrescrever
+ *          value: O valor associado com a chave
+ *
+ * @return 0 caso houve sucesso, -1 se houve erro.
+ */
+int HashTablePut(HashTable *hashTable, const void *key, void *value);
 
 #endif

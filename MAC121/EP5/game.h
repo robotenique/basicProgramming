@@ -4,5 +4,6 @@
 #include "hexTypes.h"
 
 void gameLoop(HexBoard *board, color myPlayer);
+color checkVictory(HexBoard *board);
 
 #endif

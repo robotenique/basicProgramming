@@ -33,7 +33,7 @@ typedef struct {
 
 DjkStorage *dijkstra(HexBoard *board, int start, int final,
     unsigned char c_mask, int noneWeight, int blackWeight, int whiteWeight);
-DjkPath *djkGetPath(DjkStorage *storage, int final);
+DjkPath * djkGetPath(DjkStorage *storage, int final);
 void djkPrintPath(DjkPath *path);
 void djkDestroy(DjkStorage *djkS);
 void djkDestroyPath(DjkPath *path);
