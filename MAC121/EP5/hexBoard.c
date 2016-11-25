@@ -26,6 +26,22 @@ void destroyHexBoard(HexBoard *board) {
     free(board);
 }
 
+HexBoard *cloneHexBoard(HexBoard *board) {
+    int i;
+
+    HexBoard *h = emalloc(sizeof(HexBoard));
+    h->size = board->size;
+    h->turnN = board->turnN;
+    h->player = board->player;
+    h->hexs = emalloc(sizeof(HexBoard)*(h->size*h->size+4));
+
+    for(i = 0; i < h->size*h->size+4; i++)
+        h->hexs[i].color = h->hexs[i].color;
+
+    return h;
+
+}
+
 int getHexagonsCount(HexBoard *board) {
     return board->size*board->size + 4;
 }

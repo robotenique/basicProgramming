@@ -2,8 +2,9 @@
 #define _HEX_BOARD_H_
 #include "hexTypes.h"
 
-HexBoard *newHexBoard( s_Int size);
-void destroyHexBoard(HexBoard *board);
+HexBoard *newHexBoard(s_Int size);
+HexBoard *cloneHexBoard(HexBoard *board);
+HexBoard *destroyHexBoard(HexBoard *board);
 
 /* Funções dos hexágonos */
 bool isHexagonValid(int id, HexBoard *board);

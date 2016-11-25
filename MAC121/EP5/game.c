@@ -3,9 +3,10 @@
 #include "pathFind.h"
 #include "hexAI.h"
 #define MAX_DEPTH 4
-/* TODO: Define a max-depth recursion size (in the gamePlay function)?? */
+
 color gamePlay(HexBoard *board, color player);
 color checkVictory(HexBoard *board);
+int gameDecide(HexBoard *board, color player, int maxDepth);
 
 void gameLoop(HexBoard *board, color myPlayer) {
     color winner;
@@ -35,6 +36,7 @@ void gameLoop(HexBoard *board, color myPlayer) {
     }
 }
 
+
 color gamePlay(HexBoard *board, color player) {
     color winner = checkVictory(board);
 
@@ -46,6 +48,15 @@ color gamePlay(HexBoard *board, color player) {
     /* TODO: finish this function */
 
     return NONE;
+
+
+}
+
+int gameDecide(HexBoard *board, color player, int maxDepth) {
+    int bestM;
+    bestM = -1;
+    HexBoard *dup = cloneHexBoard(board);
+    MTDfAlgorithm(dup, player, maxDepth, &bestM);
 
 }
 
