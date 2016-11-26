@@ -9,15 +9,11 @@
 #include "game.h"
 
 /* TODO: remove unused functions */
-/* TODO: Fix dijkstra */
 void printUsage(bool gameIsOn);
 
 int main(int argc, char const *argv[]) {
     bool gameIsOn;
-    bool debug;
     color myPlayer;
-    DjkStorage * res;
-DjkPath * path;
     HexBoard *board;
     gameIsOn = debug = false;
 
@@ -65,6 +61,7 @@ DjkPath * path;
 
     /* Start the loop*/
     gameLoop(board, myPlayer);
+    /*
     board = newHexBoard(4);
     printf("BOARD - STATE 0\n");
     boardPrint(board);
@@ -119,7 +116,7 @@ printf("---DIJKSTRA 100%%---\n");
 
     destroyHexBoard(board);
 
-    printf("-->Deu tudo OKEI !\n");
+    printf("-->Deu tudo OKEI !\n");*/
 
     return 0;
 }

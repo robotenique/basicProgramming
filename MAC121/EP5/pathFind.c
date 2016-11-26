@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include "pathFind.h"
 #include "error.h"
-
+/* TODO: FIX DIJKSTRA */
 /* Protótipos de funções locais */
 bool verifyColorsMask(HexBoard *board, int id, unsigned char c_mask);
 int getMinDistance_Q(s_Int *Q, int *dist, int hexCount, HexBoard *board,
@@ -10,7 +10,7 @@ int getMinDistance_Q(s_Int *Q, int *dist, int hexCount, HexBoard *board,
 
 
 void printPath(DjkPath *p) {
-    /*int size, i;
+    int size, i;
     char *extra;
     fprintf(stderr,"CHAMANDO PRINTPATH\n");
     fflush(stderr);
@@ -27,7 +27,7 @@ void printPath(DjkPath *p) {
     printf("SIZE = %d\n",p->board->size);
     extra[p->start] = 'S';
     extra[p->final] = 'D';
-    bPrint2(p->board, extra);*/
+    bPrint2(p->board, extra);
 }
 /* Calcula o menor caminho para um Node, ou para todos os Nodes no HexBoard,
  * usando apenas hexágonos que combinam com a c_mask!

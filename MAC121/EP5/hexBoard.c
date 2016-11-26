@@ -13,6 +13,7 @@ HexBoard *newHexBoard( s_Int size) {
     board->hexs = emalloc(sizeof(Hexagon) *(size*size + 4));
     board->turnN = 1;
     for(i = 0; i < size*size; board->hexs[i].color = NONE, i++);
+
     /* TODO: Check borders colors after (see if the order is correct) */
     board->hexs[size*size].color = BLACK;
     board->hexs[size*size+1].color = WHITE;
@@ -281,39 +282,37 @@ void setHexagonColor(int id, HexBoard *board, color color) {
     board->hexs[id].color = color;
 }
 
+char getBoardChar(int c) {
+    if(c == 1)
+        return 'b';
+    if(c == 2)
+        return 'p';
+    return '-';
+}
 void boardPrint(HexBoard *board) {
-    int i, j, tmp[14][14];
-
-    /* Initial implementation */
-    /*fprintf(stderr, "\\ ");*/
-    /*
-    for(i = 0; i < board->size*board->size; i++)
-        tmp[i%14][i/14] = board->hexs[i].color;
-    for(i = 0; i < 14; i++){
-        for(j = 0; j < 14; j++)
-            printf("[%d] ",tmp[i][j]);
-        printf("\n");
+    int i, j, k, len;
+    char **list;
+    if(debug) return;
+    len = board->size;
+    list = emalloc(sizeof(char*)*len);
+    for(i = 0; i < len; i++)
+        list[i] = emalloc(sizeof(char)*len);
+    for(i = 0; i < len; i++)
+        for(j = 0; j < len; j++)
+            list[i][j] = 0;
+    for(i = 0;i < len; i++)
+        for(j = 0; j < len; j++)
+            list[i][j] = board->hexs[j*len + i].color;
+    for(i = 0; i < len; i++){
+        for(k = 0; k < i; fprintf(stderr, " "), k++);
+        fprintf(stderr, "\\");
+        for(j = 0;j < len;j++)
+            fprintf(stderr, "%c ",getBoardChar(list[i][j]));
+        fprintf(stderr, "\\\n");
     }
-    */
-    fprintf(stderr, "\\ ");
-    for(i = 0; i < board->size*board->size; i++) {
-        if(i % board->size == 0 && i > 0) {
-            fprintf(stderr, "\\\n");
-            for(j = 0; j < i/board->size; j++)
-                fprintf(stderr, " ");
-            fprintf(stderr, "\\ ");
-        }
-
-
-        if(board->hexs[i].color == WHITE)
-            fprintf(stderr, "b ");
-        else if(board->hexs[i].color == BLACK)
-            fprintf(stderr, "p ");
-        else
-            fprintf(stderr, "- ");
-    }
-    fprintf(stderr, "\\\n");
-    fflush(stderr);
+    for(i = 0; i < len; i++)
+        free(list[i]);
+    free(list);
 }
 
 

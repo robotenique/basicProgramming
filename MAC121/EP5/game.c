@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <time.h>
 #include "game.h"
 #include "pathFind.h"
 #include "hexAI.h"
@@ -15,26 +16,6 @@ void gameLoop(HexBoard *board, color myPlayer) {
         p2 = BLACK;
     else
         p2 = WHITE;
-    printf("VAMO LA VEI\n");
-    /*setHexagonColor(13, board, BLACK);
-    setHexagonColor(14, board, BLACK);
-    setHexagonColor(27, board, BLACK);
-    setHexagonColor(40, board, BLACK);
-    setHexagonColor(53, board, BLACK);
-    setHexagonColor(66, board, BLACK);
-    setHexagonColor(79, board, BLACK);
-    setHexagonColor(92, board, BLACK);
-    setHexagonColor(105, board, BLACK);
-    setHexagonColor(118, board, BLACK);
-    setHexagonColor(131, board, BLACK);
-    setHexagonColor(144, board, BLACK);
-    setHexagonColor(157, board, BLACK);
-    setHexagonColor(170, board, BLACK);
-    setHexagonColor(183, board, BLACK);
-    boardPrint(board);
-    checkVictory(board);
-    exit(-1);*/
-
     printf("TENTANDO 1ª JOGADA...\n");
     /* Play the game until one of the player wins */
     for(;;) {
@@ -64,6 +45,7 @@ color gamePlay(HexBoard *board, color player) {
     color winner = checkVictory(board);
     if(winner == WHITE || winner == BLACK)
         return winner;
+
     setHexagonColor(gameDecide(board, player, MAX_DEPTH), board, player);
     board->turnN++;
     if(board->player == WHITE)
@@ -76,9 +58,28 @@ color gamePlay(HexBoard *board, color player) {
 }
 
 int gameDecide(HexBoard *board, color player, int maxDepth) {
-    int bestM;
+    int bestM, arand;
     HexBoard *dup;
     bestM = -1;
+    if(board->turnN < 2) {
+        srand(time(NULL));
+
+        if(player != WHITE)
+            bestM = board->size*board->size/2;
+        else
+            bestM = (int)(board->size*board->size*(rand()/(1.0 + RAND_MAX)));
+
+        while(!isHexagonPlayable(bestM, board))
+            bestM = (int) (board->size*board->size*(rand()/(1.0 + RAND_MAX)));
+        return bestM;
+    }
+    arand = rand()%1000;
+    if(arand < 100) {
+        bestM = (int)(board->size*board->size*(rand()/(1.0 + RAND_MAX)));
+        while(!isHexagonPlayable(bestM, board))
+            bestM = (int)(board->size*board->size*(rand()/(1.0 + RAND_MAX)));
+        return bestM;
+    }
     dup = cloneHexBoard(board);
     MTDfRun(dup, player, maxDepth, &bestM);
     destroyHexBoard(dup);

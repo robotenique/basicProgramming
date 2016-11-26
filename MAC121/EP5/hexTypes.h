@@ -20,4 +20,5 @@ typedef struct {
     Hexagon *hexs; /* The hexagons of the grid */
 } HexBoard;
 
+bool debug;
 #endif

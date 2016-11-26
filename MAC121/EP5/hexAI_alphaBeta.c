@@ -111,7 +111,7 @@ int alphaBetaAlgorithm(HexBoard * board, int alpha, int beta, int depth,
 
     /* Prunning do alpha */
     if (value <= alpha) {
-        /* falhas com 'value' baixo significa uma UPPERBOUND */
+        /* folhas com 'value' baixo significa uma UPPERBOUND */
         abCache(board, transTable, UPPERBOUND, value, depth);
     }
     /* Foi encontrado um resultado preciso */
@@ -120,7 +120,7 @@ int alphaBetaAlgorithm(HexBoard * board, int alpha, int beta, int depth,
     }
     /* Prunning do beta */
     if(value >= beta) {
-        /* falhas com 'value' alto significa uma LOWERBOUND */
+        /* folhas com 'value' alto significa uma LOWERBOUND */
         abCache(board, transTable, LOWERBOUND, value, depth);
     }
 
@@ -177,15 +177,15 @@ int abGetVal(HexBoard *board, color player, int depth) {
      * Um da primeira borda até o último hexágono que foi colocado,
      * e outro do último hexágono colocado até a segunda borda.
      */
-    if(player == WHITE) {
+    if(player == BLACK) {
         start = boardGetBotBorder(board);
         end = boardGetTopBorder(board);
-        mask = 0x01+0x02;
+        mask = 0x04 + 0x01;
     }
     else {
         start = boardGetLeftBorder(board);
         end = boardGetRightBorder(board);
-        mask = 0x04 + 0x01;
+        mask = 0x02 + 0x01;
     }
 
     /* Calcula a distância necessária para a vitória,
