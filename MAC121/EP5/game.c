@@ -15,6 +15,26 @@ void gameLoop(HexBoard *board, color myPlayer) {
         p2 = BLACK;
     else
         p2 = WHITE;
+    printf("VAMO LA VEI\n");
+    /*setHexagonColor(13, board, BLACK);
+    setHexagonColor(14, board, BLACK);
+    setHexagonColor(27, board, BLACK);
+    setHexagonColor(40, board, BLACK);
+    setHexagonColor(53, board, BLACK);
+    setHexagonColor(66, board, BLACK);
+    setHexagonColor(79, board, BLACK);
+    setHexagonColor(92, board, BLACK);
+    setHexagonColor(105, board, BLACK);
+    setHexagonColor(118, board, BLACK);
+    setHexagonColor(131, board, BLACK);
+    setHexagonColor(144, board, BLACK);
+    setHexagonColor(157, board, BLACK);
+    setHexagonColor(170, board, BLACK);
+    setHexagonColor(183, board, BLACK);
+    boardPrint(board);
+    checkVictory(board);
+    exit(-1);*/
+
     printf("TENTANDO 1ª JOGADA...\n");
     /* Play the game until one of the player wins */
     for(;;) {
@@ -76,25 +96,20 @@ color checkVictory(HexBoard *board) {
     winner = NONE;
     /* Verificando condições de vitória */
     djkS = dijkstra(board, boardGetTopBorder(board), boardGetBotBorder(board),
-                    0x02, 1, 1, 1);
-    printf("------------DIJKSTRA 1 --------------\n");
+                    0x04, 1, 1, 1);
     djkPath = djkGetPath(djkS, -1);
     if(djkPath->length > 0)
-        winner = WHITE;
-    printPath(djkPath);  /*TODO: REMOVE */
+        winner = BLACK;
     djkDestroyPath(djkPath);
     djkDestroy(djkS);
 
     djkS = dijkstra(board, boardGetRightBorder(board), boardGetLeftBorder(board),
-                    0x04, 1, 1, 1);
+                    0x02, 1, 1, 1);
     djkPath = djkGetPath(djkS, -1);
-    printf("------------DIJKSTRA 2 --------------\n");
     if(djkPath->length > 0)
-        winner = BLACK;
-    printPath(djkPath);  /*TODO: REMOVE */
+        winner = WHITE;
     djkDestroyPath(djkPath);
     djkDestroy(djkS);
-
     return winner;
 }
 

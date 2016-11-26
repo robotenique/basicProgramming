@@ -286,6 +286,7 @@ void boardPrint(HexBoard *board) {
 
     /* Initial implementation */
     /*fprintf(stderr, "\\ ");*/
+    /*
     for(i = 0; i < board->size*board->size; i++)
         tmp[i%14][i/14] = board->hexs[i].color;
     for(i = 0; i < 14; i++){
@@ -293,6 +294,26 @@ void boardPrint(HexBoard *board) {
             printf("[%d] ",tmp[i][j]);
         printf("\n");
     }
+    */
+    fprintf(stderr, "\\ ");
+    for(i = 0; i < board->size*board->size; i++) {
+        if(i % board->size == 0 && i > 0) {
+            fprintf(stderr, "\\\n");
+            for(j = 0; j < i/board->size; j++)
+                fprintf(stderr, " ");
+            fprintf(stderr, "\\ ");
+        }
+
+
+        if(board->hexs[i].color == WHITE)
+            fprintf(stderr, "b ");
+        else if(board->hexs[i].color == BLACK)
+            fprintf(stderr, "p ");
+        else
+            fprintf(stderr, "- ");
+    }
+    fprintf(stderr, "\\\n");
+    fflush(stderr);
 }
 
 
@@ -333,28 +354,33 @@ int getBoardStrLength(HexBoard * board) {
     return getHexagonsCount(board);
 }
 
-
-void bPrint2(HexBoard *board, char *extra) {
+void bPrint2(HexBoard * board, char * extra) {
     int i, j;
-    /* Initial implementation */
+
     fprintf(stderr, "\\ ");
-    for(i = 0; i < board->size*board->size; i++) {
-        if(i % board->size == 0 && i > 0) {
+
+    for(i=0; i<board->size*board->size; i++) {
+        if(i%board->size==0 && i>0) {
             fprintf(stderr, "\\\n");
-            for(j = 0; j < i/board->size; j++)
+
+            for(j=0; j<i/board->size; j++) {
                 fprintf(stderr, " ");
+            }
+
             fprintf(stderr, "\\ ");
         }
 
-        if(extra!=NULL && extra[i]!=0)
-            printf("%c ",extra[i]);
-        else if(board->hexs[i].color == WHITE)
-            fprintf(stderr, "b ");
-        else if(board->hexs[i].color == BLACK)
+        if(extra!=NULL && extra[i]!=0) {
+            fprintf(stderr, "%c ", extra[i]);
+        } else if(board->hexs[i].color==BLACK) {
             fprintf(stderr, "p ");
-        else
+        } else if(board->hexs[i].color==WHITE){
+            fprintf(stderr, "b ");
+        } else {
             fprintf(stderr, "- ");
+        }
     }
+
     fprintf(stderr, "\\\n");
     fflush(stderr);
 

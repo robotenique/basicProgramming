@@ -10,7 +10,7 @@ int getMinDistance_Q(s_Int *Q, int *dist, int hexCount, HexBoard *board,
 
 
 void printPath(DjkPath *p) {
-    int size, i;
+    /*int size, i;
     char *extra;
     fprintf(stderr,"CHAMANDO PRINTPATH\n");
     fflush(stderr);
@@ -21,10 +21,13 @@ void printPath(DjkPath *p) {
 
     for(i = 0; i < p->n_Nodes; i++)
         extra[p->path[i]] = '*';
-
+    for(i = 0; i < p->n_Nodes; i++)
+        printf("%d \n",p->path[i]);
+    for(i = 0; i < size; printf("%d , ",extra[i++]));
+    printf("SIZE = %d\n",p->board->size);
     extra[p->start] = 'S';
     extra[p->final] = 'D';
-    bPrint2(p->board, extra);
+    bPrint2(p->board, extra);*/
 }
 /* Calcula o menor caminho para um Node, ou para todos os Nodes no HexBoard,
  * usando apenas hexágonos que combinam com a c_mask!
