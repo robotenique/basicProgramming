@@ -6,12 +6,16 @@
 
 color gamePlay(HexBoard *board, color player);
 int gameDecide(HexBoard *board, color player, int maxDepth);
+int getOponentMove(HexBoard *board, color p2);
 
 void gameLoop(HexBoard *board, color myPlayer) {
-    color winner;
+    color winner, p2;
     winner = NONE;
-    boardPrint(board);
-    exit(EXIT_SUCCESS);
+    if(myPlayer == WHITE)
+        p2 = BLACK;
+    else
+        p2 = WHITE;
+    printf("TENTANDO 1ª JOGADA...\n");
     /* Play the game until one of the player wins */
     for(;;) {
         /* Make a move */
@@ -21,34 +25,34 @@ void gameLoop(HexBoard *board, color myPlayer) {
             printf("%c ganhou\n",(winner == WHITE) ? 'b' : 'p');
             return;
         }
+        fflush(stdin);
+        setHexagonColor(getOponentMove(board, p2), board, p2);
+
+        /* TODO: REMOVE */
         /* TODO: remind to read the PLAY from the STDIN, And then
          * update the board. We do not need to call 'gamePlay' again
          * BElow, the move is read from the STDIN.
          */
         /* Make a move with the other player */
-        winner = gamePlay(board, myPlayer);
         /* Check if player2 won */
-        if(winner) {
-            printf("%c ganhou\n",(winner == WHITE) ? 'b' : 'p');
-            return;
-        }
+
     }
 }
 
 
 color gamePlay(HexBoard *board, color player) {
     color winner = checkVictory(board);
-
     if(winner == WHITE || winner == BLACK)
         return winner;
+    setHexagonColor(gameDecide(board, player, MAX_DEPTH), board, player);
+    board->turnN++;
+    if(board->player == WHITE)
+        board->player = BLACK;
+    else
+        board->player = WHITE;
 
-    /*setHexagonColor(gameDecide(board, player, MAX_DEPTH), board, player); */
-
-    /* TODO: finish this function */
-
+    boardPrint(board);
     return NONE;
-
-
 }
 
 int gameDecide(HexBoard *board, color player, int maxDepth) {
@@ -56,9 +60,13 @@ int gameDecide(HexBoard *board, color player, int maxDepth) {
     HexBoard *dup;
     bestM = -1;
     dup = cloneHexBoard(board);
-    /*MTDfAlgorithm(dup, player, maxDepth, &bestM);*/
-    return 0; /* ops */
-
+    MTDfRun(dup, player, maxDepth, &bestM);
+    destroyHexBoard(dup);
+    if(!isHexagonPlayable(bestM, board)){
+        printf("BUGOU LEGALLL\n"); /* TODO REMOVE */
+        exit(EXIT_FAILURE);
+    }
+    return bestM;
 }
 
 color checkVictory(HexBoard *board) {
@@ -66,23 +74,38 @@ color checkVictory(HexBoard *board) {
     DjkPath *djkPath;
     color winner;
     winner = NONE;
-    /* TODO: invert the colors here, white <==> black, and adjust c_mask correspondly*/
     /* Verificando condições de vitória */
     djkS = dijkstra(board, boardGetTopBorder(board), boardGetBotBorder(board),
                     0x02, 1, 1, 1);
+    printf("------------DIJKSTRA 1 --------------\n");
     djkPath = djkGetPath(djkS, -1);
     if(djkPath->length > 0)
         winner = WHITE;
+    printPath(djkPath);  /*TODO: REMOVE */
     djkDestroyPath(djkPath);
     djkDestroy(djkS);
 
     djkS = dijkstra(board, boardGetRightBorder(board), boardGetLeftBorder(board),
                     0x04, 1, 1, 1);
     djkPath = djkGetPath(djkS, -1);
+    printf("------------DIJKSTRA 2 --------------\n");
     if(djkPath->length > 0)
         winner = BLACK;
+    printPath(djkPath);  /*TODO: REMOVE */
     djkDestroyPath(djkPath);
     djkDestroy(djkS);
 
     return winner;
+}
+
+int getOponentMove(HexBoard *board, color p2) {
+    int x, y, id;
+    do {
+    scanf("%d %d", &x, &y);
+    id = y*N_SIZE + x;
+    }
+    while ( y > 13 || x > 13 || y < 0 || x < 0 ||
+            !isHexagonValid(id, board) ||
+            isHexagonPlayable(id, board) != 1);
+    return id;
 }

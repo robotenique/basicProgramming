@@ -37,7 +37,8 @@ HexBoard *cloneHexBoard(HexBoard *board) {
     h->hexs = emalloc(sizeof(HexBoard)*(h->size*h->size+4));
 
     for(i = 0; i < h->size*h->size+4; i++)
-        h->hexs[i].color = h->hexs[i].color;
+        h->hexs[i].color = board->hexs[i].color;
+
 
     return h;
 
@@ -231,7 +232,6 @@ int getHexBotLeftN(int id, HexBoard *board) {
     return id + board->size-1;
 }
 
-/* TODO; maybe adjust this function below to match the above... */
 int getHexBotRightN(int id, HexBoard *board) {
     if(!isHexagonValid(id, board))
         return -1;
@@ -282,26 +282,19 @@ void setHexagonColor(int id, HexBoard *board, color color) {
 }
 
 void boardPrint(HexBoard *board) {
-    int i, j;
-    /* Initial implementation */
-    printf("\\ ");
-    for(i = 0; i < board->size*board->size; i++) {
-        if(i % board->size == 0 && i > 0) {
-            printf("\\\n");
-            for(j = 0; j < i/board->size; j++)
-                printf(" ");
-            printf("\\ ");
-        }
+    int i, j, tmp[14][14];
 
-        if(board->hexs[i].color == WHITE)
-            printf("b ");
-        else if(board->hexs[i].color == BLACK)
-            printf("p ");
-        else
-            printf("- ");
+    /* Initial implementation */
+    /*fprintf(stderr, "\\ ");*/
+    for(i = 0; i < board->size*board->size; i++)
+        tmp[i%14][i/14] = board->hexs[i].color;
+    for(i = 0; i < 14; i++){
+        for(j = 0; j < 14; j++)
+            printf("[%d] ",tmp[i][j]);
+        printf("\n");
     }
-    printf("\\\n");
 }
+
 
 bool isHexNearTopBorder(int id, HexBoard *board) {
     if(!isHexagonValid(id, board)) return -1;
@@ -338,4 +331,31 @@ bool isHexNearRightBorder(int id, HexBoard *board) {
 
 int getBoardStrLength(HexBoard * board) {
     return getHexagonsCount(board);
+}
+
+
+void bPrint2(HexBoard *board, char *extra) {
+    int i, j;
+    /* Initial implementation */
+    fprintf(stderr, "\\ ");
+    for(i = 0; i < board->size*board->size; i++) {
+        if(i % board->size == 0 && i > 0) {
+            fprintf(stderr, "\\\n");
+            for(j = 0; j < i/board->size; j++)
+                fprintf(stderr, " ");
+            fprintf(stderr, "\\ ");
+        }
+
+        if(extra!=NULL && extra[i]!=0)
+            printf("%c ",extra[i]);
+        else if(board->hexs[i].color == WHITE)
+            fprintf(stderr, "b ");
+        else if(board->hexs[i].color == BLACK)
+            fprintf(stderr, "p ");
+        else
+            fprintf(stderr, "- ");
+    }
+    fprintf(stderr, "\\\n");
+    fflush(stderr);
+
 }

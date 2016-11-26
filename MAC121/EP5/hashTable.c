@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <stdio.h>
 #include "error.h"
 #include "hashTable.h"
 static int pointercmp(const void *pointer1, const void *pointer2);
@@ -113,9 +114,10 @@ int HashTablePut(HashTable *hashTable, const void *key, void *value) {
     float aux;
     KeyValuePair *pair, *newPair;
     if(key == NULL || value == NULL) return -1;
-    hValue = hashTable->hashFunction(key) & hashTable->numOfBuckets;
+    hValue = hashTable->hashFunction(key) % hashTable->numOfBuckets;
     pair = hashTable->bucketArray[hValue];
 
+    /* Linear Probing */
     while(pair != NULL && hashTable->keycmp(key, pair->key) != 0)
         pair = pair->next;
 

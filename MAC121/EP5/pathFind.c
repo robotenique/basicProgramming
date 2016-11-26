@@ -9,7 +9,23 @@ int getMinDistance_Q(s_Int *Q, int *dist, int hexCount, HexBoard *board,
     unsigned char c_mask);
 
 
+void printPath(DjkPath *p) {
+    int size, i;
+    char *extra;
+    fprintf(stderr,"CHAMANDO PRINTPATH\n");
+    fflush(stderr);
+    size = getHexagonsCount(p->board);
+    extra = emalloc(sizeof(char)*size);
+    for(i = 0; i < size; i++)
+        extra[i] = 0;
 
+    for(i = 0; i < p->n_Nodes; i++)
+        extra[p->path[i]] = '*';
+
+    extra[p->start] = 'S';
+    extra[p->final] = 'D';
+    bPrint2(p->board, extra);
+}
 /* Calcula o menor caminho para um Node, ou para todos os Nodes no HexBoard,
  * usando apenas hexágonos que combinam com a c_mask!
  * args: start: O hexágono inicial
@@ -27,7 +43,7 @@ DjkStorage *dijkstra(HexBoard *board, int start, int final,
     DjkStorage *djkS;
 
     if(!isHexagonValid(start, board)) {
-        printf("[Dijkstra] Posição inválida do Hexagon! D:\n");
+        printf("[Dijkstra] Posição inválida do Hexágono! D:\n");
         /* TODO: finish the function here?? */
     }
 
@@ -126,7 +142,6 @@ DjkStorage *dijkstra(HexBoard *board, int start, int final,
     djkS->n_Nodes = n_Nodes;
 
     /* imprimir dijkstra: dijkstraPrint(djkS); */
-
     return djkS;
 }
 

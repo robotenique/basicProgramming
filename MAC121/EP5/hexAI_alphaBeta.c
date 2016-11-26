@@ -1,5 +1,6 @@
 #include <limits.h>
 #include <string.h>
+#include <stdio.h>
 #include "hexAI_alphaBeta.h"
 #include "pathFind.h"
 #include "hashTable.h"
@@ -21,8 +22,7 @@ int alphaBetaAlgorithm(HexBoard * board, int alpha, int beta, int depth,
     int maxDepth, color player, char type, HashTable *transTable,
     int *bestM) {
     int i, b, a, auxVal;
-    /* mod = Ponteiro para verificar se houve modificação,
-     * value = O score / peso associado
+    /* value = O score / peso associado
      * nHexs = O número de hexágonos no tabuleiro
      */
     int mod, value, nHexs;
@@ -150,7 +150,6 @@ void abCache(HexBoard *board, HashTable *transTable, int type, int score, int de
     entry->depth = depth;
     entry->score = score;
     entry->type = type;
-
     HashTablePut(transTable, str, entry);
 
 }
@@ -207,6 +206,7 @@ int abGetVal(HexBoard *board, color player, int depth) {
 HexBoard * abNewChild(HexBoard *board, int i) {
     HexBoard *child;
     stats_nodes++;
+
     child = cloneHexBoard(board);
     child->hexs[i].color = child->player;
     child->turnN++;

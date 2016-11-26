@@ -15,7 +15,6 @@ color getHexagonColor(int id, HexBoard *board);
 void setHexagonColor(int id, HexBoard *board, color color);
 int *getHexagonNeighbors(int id, HexBoard *board);
 int getHexagonNeighborC(int id, HexBoard *board);
-/* TODO: checar onde essa função deve ser chamada */
 int isHexagonPlayable(int id, HexBoard *board);
 
 /* Border verification functions */
@@ -44,5 +43,5 @@ int boardGetBotBorder(HexBoard *board);
 
 /* Funções auxiliares */
 void boardPrint(HexBoard *board);
-
+void bPrint2(HexBoard *board, char *extra); /* TODO : REMOVE */
 #endif

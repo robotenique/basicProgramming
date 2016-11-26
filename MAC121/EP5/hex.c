@@ -6,6 +6,7 @@
 #include "game.h"
 
 /* TODO: remove unused functions */
+/* TODO: Fix dijkstra */
 void printUsage(bool gameIsOn);
 
 int main(int argc, char const *argv[]) {
@@ -16,6 +17,7 @@ int main(int argc, char const *argv[]) {
     gameIsOn = debug = false;
 
     /* Initial input verification */
+    /*
     if(argc < 2 || argc > 3) {
         printUsage(gameIsOn);
     }
@@ -41,7 +43,11 @@ int main(int argc, char const *argv[]) {
         else
             printUsage(gameIsOn);
         gameIsOn = true;
-    }
+    }*/
+    myPlayer = WHITE;
+    gameIsOn = true;
+    debug = false;
+
 
     /* Assertion = gameIsOn = true, debug = (true || false) */
 
