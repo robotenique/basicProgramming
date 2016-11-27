@@ -174,14 +174,6 @@ int gameDecide(HexBoard *board, color player, int maxDepth) {
         }
     }
 
-
-    /* Coloca um pouco de aleatoriedade no jogo :)  */
-    if(board->turnN < 10 && (rand()%1000) < 50) {
-        bestM = (board->size*board->size*(rand()/(1.0 + RAND_MAX)));
-        while(!isHexagonPlayable(bestM, board))
-            bestM = (board->size*board->size*(rand()/(1.0 + RAND_MAX)));
-        return bestM;
-    }
     /* Duplica o tabuleiro e executa o algoritmo MTDf na cópia */
     dup = cloneHexBoard(board);
     MTDfRun(dup, player, maxDepth, &bestM);

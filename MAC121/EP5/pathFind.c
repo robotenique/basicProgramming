@@ -204,7 +204,7 @@ int getMinDistance_Q(s_Int *Q, int *dist, int hexCount, HexBoard *board,
 * A bitmask de cores funciona assim:
 * O dígito menos significativo é para o 'NONE'
 * O dígito do meio é para a cor 'WHITE'
-* O diǵito menos significativo é para a cor 'BLACK'
+* O diǵito mais significativo é para a cor 'BLACK'
 * Exemplo, c_mask = 0b011: Permite WHITE e NONE, mas não BLACK.
 *
 * @args    board: O tabuleiro com os hexágonos
