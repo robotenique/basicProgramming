@@ -43,5 +43,4 @@ int boardGetBotBorder(HexBoard *board);
 
 /* Funções auxiliares */
 void boardPrint(HexBoard *board);
-void bPrint2(HexBoard *board, char *extra); /* TODO : REMOVE */
 #endif

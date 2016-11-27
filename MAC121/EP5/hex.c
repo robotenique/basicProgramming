@@ -17,7 +17,7 @@ int main(int argc, char const *argv[]) {
     bool applyPie, gameIsOn;
     color myPlayer;
     HexBoard *board;
-    
+
     gameIsOn = false;
     debug = false;
     srand(time(NULL));

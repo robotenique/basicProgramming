@@ -4,6 +4,18 @@
 #include "pathFind.h"
 #include "hexAI.h"
 #define MAX_DEPTH 4
+/* TODO: VALGRIND
+ COMMENT ALL functions (looking for FEOFILLOF)
+ REVIEW printf
+ REPORT:
+    - simple rules
+    - generic structure
+    - Data structure implementation (what is a Hexagon, a hexboard, generic graph concepts)
+    - specific algorithm implementation (hash, alpha, mtdf)
+    - talk about: design pattern: time limits, max depth
+    - theories, my dijkstra and the conclusion
+    - conclusion + references (remember google chrome bookmarks)
+    */
 
 color gamePlay(HexBoard *board, color player);
 int gameDecide(HexBoard *board, color player, int maxDepth);

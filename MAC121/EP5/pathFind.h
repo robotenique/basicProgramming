@@ -37,5 +37,4 @@ DjkPath * djkGetPath(DjkStorage *storage, int final);
 void djkPrintPath(DjkPath *path);
 void djkDestroy(DjkStorage *djkS);
 void djkDestroyPath(DjkPath *path);
-void printPath(DjkPath *p); /* TODO: REMOVE */
 #endif
