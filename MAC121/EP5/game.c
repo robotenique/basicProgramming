@@ -1,22 +1,20 @@
+/*
+ * @author: Juliano Garcia de Oliveira
+ * nº usp = 9277086
+ * MAC0121
+ * 28/11/2016
+ * Implementação do gerenciador do jogo, que lê, processa, verifica e executa
+ * os turnos de cada jogador.
+ */
 #include <stdio.h>
 #include <time.h>
 #include "game.h"
 #include "pathFind.h"
 #include "hexAI.h"
 #define MAX_DEPTH 4
-/* TODO: VALGRIND
- COMMENT ALL functions (looking for FEOFILLOF)
- REVIEW printf
- REPORT:
-    - simple rules
-    - generic structure
-    - Data structure implementation (what is a Hexagon, a hexboard, generic graph concepts)
-    - specific algorithm implementation (hash, alpha, mtdf)
-    - talk about: design pattern: time limits, max depth
-    - theories, my dijkstra and the conclusion
-    - conclusion + references (remember google chrome bookmarks)
-    */
 
+
+/* Protótipo de Funções locais */
 color gamePlay(HexBoard *board, color player);
 int gameDecide(HexBoard *board, color player, int maxDepth);
 
@@ -29,7 +27,7 @@ void gameLoop(HexBoard *board, color myPlayer) {
         p2 = BLACK;
     else
         p2 = WHITE;
-    /* Play the game until one of the player wins */
+    /* Joga até que haja um vencedor */
     for(;;) {
         if(board->player == myPlayer) {
             /* Faz um movimento */
@@ -49,6 +47,7 @@ void gameLoop(HexBoard *board, color myPlayer) {
             myPlayer = BLACK;
         }
         else {
+            /* Jogada comum */
             setHexagonColor(p2Move, board, p2);
             if(board->player == WHITE)
                 board->player = BLACK;
@@ -59,7 +58,64 @@ void gameLoop(HexBoard *board, color myPlayer) {
     }
 }
 
+color checkVictory(HexBoard *board) {
+    DjkStorage *djkS;
+    DjkPath *djkPath;
+    color winner;
 
+    winner = NONE;
+    /* OBS: Lembrar que o board está transposto, então as condições de
+     * vitória de cada jogador também estão "invertidas"
+     */
+
+    /* Verificando condições de vitória (BLACK) */
+    djkS = dijkstra(board, boardGetTopBorder(board), boardGetBotBorder(board),
+                    0x04, 1, 1, 1);
+    djkPath = djkGetPath(djkS, -1);
+    if(djkPath->length > 0)
+        winner = BLACK;
+    djkDestroyPath(djkPath);
+    djkDestroy(djkS);
+
+    if(winner == BLACK)
+        return winner;
+
+    /* Verificando condições de vitória (WHITE) */
+    djkS = dijkstra(board, boardGetRightBorder(board), boardGetLeftBorder(board),
+                    0x02, 1, 1, 1);
+    djkPath = djkGetPath(djkS, -1);
+    if(djkPath->length > 0)
+        winner = WHITE;
+    djkDestroyPath(djkPath);
+    djkDestroy(djkS);
+
+    return winner;
+}
+
+int getOponentMove(HexBoard *board, color p2) {
+    int x, y, id;
+    do {
+    scanf("%d %d", &x, &y);
+    id = y*N_SIZE + x;
+    }
+    while ( y > 13 || x > 13 || y < 0 || x < 0 ||
+            !isHexagonValid(id, board) ||
+            (isHexagonPlayable(id, board) != 1 && board->turnN != 2));
+    return id;
+}
+
+/*
+ * Function: gamePlay
+ * --------------------------------------------------------
+ * Checa se há algum vencedor no jogo. Se não há, decide qual jogada
+ * fazer, executa a jogada e altera o tabuleiro, imprimindo a jogada.
+ *
+ * @args    board: Um tabuleiro hexagonal (HexBoard)
+ *          player: O jogador atual (WHITE ou BLACK)
+ *
+ * @return Se houve algum vencedor, retorna WHITE / BLACK, dependendo
+ *         de quem venceu. Se apenas fez um movimento normal, retorna NONE.
+ */
 color gamePlay(HexBoard *board, color player) {
     int move;
     color winner = checkVictory(board);
@@ -78,8 +134,22 @@ color gamePlay(HexBoard *board, color player) {
     return NONE;
 }
 
+/*
+ * Function: gameDecide
+ * --------------------------------------------------------
+ * Decide qual jogada fazer, e retorna essa jogada. Se está nos turnos
+ * iniciais, a jogada é escolhida de modo aleatório ou tenta pegar o meio.
+ * Se o turno é < 10, há uma pequena chance de que a jogada seja aleatória.
+ * Senão, é feita uma execução do algoritmo de Minmax para decidir uma jogada.
+ *
+ * @args    board: Um tabuleiro hexagonal (HexBoard)
+ *          player: O jogador atual (WHITE ou BLACK)
+ *          maxDepth: A profundidade máxima da game Tree (padrao = 4)
+ *
+ * @returno ID do hexágono para fazer a jogada.
+ */
 int gameDecide(HexBoard *board, color player, int maxDepth) {
-    int bestM, arand, i, j;
+    int bestM, i, j;
     HexBoard *dup;
     bestM = -1;
     if(board->turnN < 3) {
@@ -97,61 +167,30 @@ int gameDecide(HexBoard *board, color player, int maxDepth) {
             return bestM;
         }
         else if(player == BLACK) {
-            do {
-                bestM = board->size*board->size/2;
-            } while(!isHexagonPlayable(bestM, board));
+            bestM = board->size*board->size/2;
+            while(!isHexagonPlayable(bestM, board))
+                bestM = (board->size*board->size*(rand()/(1.0 + RAND_MAX)));
             return bestM;
         }
     }
-    arand = rand()%1000;
+
+
     /* Coloca um pouco de aleatoriedade no jogo :)  */
-    if(arand < 50) {
-        bestM = (int)(board->size*board->size*(rand()/(1.0 + RAND_MAX)));
+    if(board->turnN < 10 && (rand()%1000) < 50) {
+        bestM = (board->size*board->size*(rand()/(1.0 + RAND_MAX)));
         while(!isHexagonPlayable(bestM, board))
-            bestM = (int)(board->size*board->size*(rand()/(1.0 + RAND_MAX)));
+            bestM = (board->size*board->size*(rand()/(1.0 + RAND_MAX)));
         return bestM;
     }
+    /* Duplica o tabuleiro e executa o algoritmo MTDf na cópia */
     dup = cloneHexBoard(board);
     MTDfRun(dup, player, maxDepth, &bestM);
     destroyHexBoard(dup);
 
+    /* Se algoritmo falhou, escolhe uma jogada aleatória */
     if(!isHexagonPlayable(bestM, board))
-        exit(EXIT_FAILURE);
+        while(!isHexagonPlayable(bestM, board))
+            bestM = (board->size*board->size*(rand()/(1.0 + RAND_MAX)));
+
     return bestM;
-}
-
-color checkVictory(HexBoard *board) {
-    DjkStorage *djkS;
-    DjkPath *djkPath;
-    color winner;
-    winner = NONE;
-    /* Verificando condições de vitória */
-    djkS = dijkstra(board, boardGetTopBorder(board), boardGetBotBorder(board),
-                    0x04, 1, 1, 1);
-    djkPath = djkGetPath(djkS, -1);
-    if(djkPath->length > 0)
-        winner = BLACK;
-    djkDestroyPath(djkPath);
-    djkDestroy(djkS);
-
-    djkS = dijkstra(board, boardGetRightBorder(board), boardGetLeftBorder(board),
-                    0x02, 1, 1, 1);
-    djkPath = djkGetPath(djkS, -1);
-    if(djkPath->length > 0)
-        winner = WHITE;
-    djkDestroyPath(djkPath);
-    djkDestroy(djkS);
-    return winner;
-}
-
-int getOponentMove(HexBoard *board, color p2) {
-    int x, y, id;
-    do {
-    scanf("%d %d", &x, &y);
-    id = y*N_SIZE + x;
-    }
-    while ( y > 13 || x > 13 || y < 0 || x < 0 ||
-            !isHexagonValid(id, board) ||
-            (isHexagonPlayable(id, board) != 1 && board->turnN != 2));
-    return id;
 }

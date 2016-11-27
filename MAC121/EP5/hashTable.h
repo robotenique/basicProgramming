@@ -1,7 +1,8 @@
 /* Implementação de HashTable */
 /*
- * Simplificação da implementação de HashTable por Keith Pomakis
+ * Simplificação da implementação de HashTable feita por Keith Pomakis
  * (pomakis@pobox.com), Agosto, 1998 (Public domain).
+ * http://www.pomakis.com/
  */
 
 #ifndef _HASH_TABLE_H
@@ -80,8 +81,6 @@ void HashTableSetHashFunction(HashTable *hashTable,
 void HashTableSetDeallocationFunctions(HashTable *hashTable,
                                         void (*keyDeallocator)(void *key),
                                         void (*valueDeallocator)(void *value));
-
-
 /*
  * Function: HashTableSetKeyComparisonFunction
  * --------------------------------------------------------
@@ -98,8 +97,6 @@ void HashTableSetDeallocationFunctions(HashTable *hashTable,
 void HashTableSetKeyComparisonFunction(HashTable *hashTable,
                              int (*keycmp)(const void *key1, const void *key2));
 
-
-
 /*
 * Function: HashTableDestroy
 * --------------------------------------------------------
@@ -110,7 +107,6 @@ void HashTableSetKeyComparisonFunction(HashTable *hashTable,
 * @return
 */
 void HashTableDestroy(HashTable *hashTable);
-
 
 /*
  * Function: HashTableSize
@@ -126,7 +122,7 @@ long HashTableSize(const HashTable *hashTable);
 /*
  * Function: HashTableStringHashFunction
  * --------------------------------------------------------
- * Implementação de uma boa função de hash para strings!
+ * Implementação de uma boa função de hash para strings (djb2)!
  *
  * @args    key: a chave para aplicar o hashing
  *

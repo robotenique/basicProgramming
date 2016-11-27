@@ -1,40 +1,96 @@
+/*
+* @author: Juliano Garcia de Oliveira
+* nº usp = 9277086
+* MAC0121
+* 28/11/2016
+* Header da implementação do algoritmo dijkstra para calcular caminhos
+* no tabuleiro.
+* Foi usado notações de: https://en.wikipedia.org/wiki/Dijkstra's_algorithm
+*/
 #ifndef _PATH_FIND_H_
 #define _PATH_FIND_H_
 #include "hexBoard.h"
 #include "hexTypes.h"
 
-/* Stores information after a dijkstra algorithm run */
+/* Armazena informações após executar o dijkstra */
 typedef struct {
-    HexBoard *board; /* The original hexagonal board */
-    int start; /* The start node ID*/
-    /* The final node ID or a invalid node ID if the traverse is 100% */
+    HexBoard *board; /* O tabuleiro original */
+    int start; /* O número do hexágono inicial */
+    /* O número do hexágono final ou -1 quando é um dijkstra completo */
     int final;
-    /* A color mask available to traverse (NONE | WHITE | BLACK)*/
+    /* Bitmask das cores permitidas (NONE | WHITE | BLACK)*/
     s_Int colorMask;
-    /* Array of the shortest distances to all nodes or to the final node */
+    /* Vetor com as menores distâncias dos hexágonos até o hexágono final */
     int * dist;
-    /* array to define the shortest path to all nodes or to the final node */
+    /* Define o menor caminho dos hexágonos até o hexágono final */
     int * previous;
-    /* Array to store how many nodes in the path to the final node */
+    /* Armazena a quantidade de hexágonos até o hexágono final */
     int * n_Nodes;
 } DjkStorage;
 
+/* Armazena informações do caminho calculado */
 typedef struct {
-    HexBoard *board; /* The original hexagonal board */
-    int start; /* The start node ID*/
-    int final; /* The final node ID*/
-    int length;  /* Number of jumps in the path */
-    int n_Nodes; /* Number of nodes in the path */
-    /* Array (size = length) with the path.
-     * The start node is not in the array, although the final is;
-     */
-     int * path;
+    HexBoard *board; /* O tabuleiro original */
+    int start; /* O número do hexágono inicial */
+    int final; /* O número do hexágono final */
+    int length;  /* O número do vértices no caminho */
+    int n_Nodes; /* Número de hexágonos no caminho */
+    /* Vetor com o caminho calculado (número dos hexágonos).
+     * O hexágono inicial não está incluído neste vetor */
+    int * path;
 } DjkPath;
-
+/*
+ * Function: dijkstra
+ * --------------------------------------------------------
+ * Calcula o menor caminho até um 'node' final, ou para todos os nodes no
+ * tabuleiro (dijkstra completo), porém só com os hexágonos que satisfazem
+ * a bitmask recebida como argumento (c_mask). A implementação desse dijkstra
+ * usou notações (nomes de variáveis, etc) como explicado nesta página:
+ * https://pt.wikipedia.org/wiki/Algoritmo_de_Dijkstra
+ *
+ * @args    board: O tabuleiro de hexágonos
+ *          start: O hexágono inicial
+ *          final: O hexágono final ou (-1) para calcular um dijkstra completo
+ *          c_mask: A bitmask das cores para saber em quais hexágonos o
+ *                  algoritmo deve percorrer.
+ *          noneWeight: O peso dos hexágonos sem cores
+ *          blackWeight: O peso dos hexágonos de cor BLACK
+ *          whiteWeight: O peso dos hexágonos de cor WHITE
+ *
+ * @return Uma instância do tipo DjkStorage com as informações do dijkstra
+ */
 DjkStorage *dijkstra(HexBoard *board, int start, int final,
     unsigned char c_mask, int noneWeight, int blackWeight, int whiteWeight);
+/*
+ * Function: djkGetPath
+ * --------------------------------------------------------
+ * Transforma o DjkStorage recebido em um DjkPath com o caminho já
+ * calculado.
+ *
+ * @args    storage : o DjkStorage com as informações do dijkstra
+ *          final: O node final (pode ser -1 para um dijkstra completo).
+ *
+ * @return um DjkPath com as informações do dijkstra
+ */
 DjkPath * djkGetPath(DjkStorage *storage, int final);
-void djkPrintPath(DjkPath *path);
-void djkDestroy(DjkStorage *djkS);
+/*
+ * Function: djkDestroyPath
+ * --------------------------------------------------------
+ * Destrói um objeto DjkPath, liberando sua memória
+ *
+ * @args   path : Um DjkPath
+ *
+ * @return
+ */
 void djkDestroyPath(DjkPath *path);
+/*
+ * Function: djkDestroy
+ * --------------------------------------------------------
+ * Destrói um DjkStorage, liberando a memória ocupada
+ *
+ * @args    djkS: Um DjkStorage
+ *
+ * @return
+ */
+void djkDestroy(DjkStorage *djkS);
 #endif

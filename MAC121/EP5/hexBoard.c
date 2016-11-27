@@ -1,29 +1,37 @@
+/*
+ * @author: Juliano Garcia de Oliveira
+ * nº usp = 9277086
+ * MAC0121
+ * 28/11/2016
+ * Implementação da HexBoard, estrutura de dados que representa o tabuleiro
+ * no jogo Hex.
+ */
 #include <stdlib.h>
 #include <stdio.h>
 #include "error.h"
 #include "hexBoard.h"
+
+/* Protótipos de  funções locais */
 int getBoardStrLength(HexBoard *board);
 
-HexBoard *newHexBoard( s_Int size) {
+
+HexBoard *newHexBoard(s_Int size) {
     int i;
     HexBoard *board = emalloc(sizeof(HexBoard));
+
     board->size = size;
     board->player = WHITE;
     board->hexs = emalloc(sizeof(Hexagon) *(size*size + 4));
     board->turnN = 1;
     for(i = 0; i < size*size; board->hexs[i].color = NONE, i++);
 
+    /* As bordas da HexBoard */
     board->hexs[size*size].color = BLACK;
     board->hexs[size*size+1].color = WHITE;
     board->hexs[size*size+2].color = BLACK;
     board->hexs[size*size+3].color = WHITE;
 
     return board;
-}
-
-void destroyHexBoard(HexBoard *board) {
-    free(board->hexs);
-    free(board);
 }
 
 HexBoard *cloneHexBoard(HexBoard *board) {
@@ -43,22 +51,42 @@ HexBoard *cloneHexBoard(HexBoard *board) {
 
 }
 
-/* Retorna uma representação em texto da HexBoard
- * (Sem as bordas)
- */
-char *stringfyBoard(HexBoard *board) {
+void destroyHexBoard(HexBoard *board) {
+    free(board->hexs);
+    free(board);
+}
+
+char * stringfyBoard(HexBoard *board) {
     int i;
     char *str;
+
     str = emalloc(getBoardStrLength(board)*sizeof(char) + 1);
-    for(i = 0; i < getHexagonsCount(board); i++) {
+
+    for(i = 0; i < getHexagonsCount(board); i++)
         str[i] = '0' + board->hexs[i].color;
-    }
+
     str[i] = '\0';
+    /* No final temos algo do tipo:
+     * 000000000001000000020100000101002 ... 000
+     */
     return str;
 }
 
 int getHexagonsCount(HexBoard *board) {
     return board->size*board->size + 4;
+}
+
+void setHexagonColor(int id, HexBoard *board, color color) {
+    if(!isHexagonValid(id, board))
+        return;
+    if(color != WHITE && color != BLACK && color != NONE)
+        return;
+    board->hexs[id].color = color;
+}
+
+color getHexagonColor(int id, HexBoard *board) {
+    if(!isHexagonValid(id, board)) return INVALID;
+    return board->hexs[id].color;
 }
 
 bool isHexagonValid(int id, HexBoard *board) {
@@ -76,36 +104,16 @@ int isHexagonPlayable(int id, HexBoard *board) {
     else
         return 0;
 }
-/* Check if a given Hexagon is not a border Hexagon */
-bool isHexagonSimple(int id, HexBoard *board) {
-    if(id >= 0 && id <= getHexagonsCount(board) - 4)
-        return true;
+
+int getHexagonNeighborC(int id, HexBoard *board) {
+    if(!isHexagonValid(id, board))
+        return -1;
+    if(id >= board->size*board->size)
+        return board->size;
     else
-        return false;
-}
+     return 6;
+ }
 
-color getHexagonColor(int id, HexBoard *board) {
-    if(!isHexagonValid(id, board)) return INVALID;
-    return board->hexs[id].color;
-}
-
-/* Retorna um array com os ID's dos 6 vizinhos de um Hexágono */
-/* Ordem dos vizinhos:
- *
- *                 _____
- *                /     \
- *          _____/   3   \_____
- *         /     \       /     \
- *        /   5   \_____/   1   \
- *        \       /     \       /
- *         \_____/  ID   \_____/
- *         /     \       /     \
- *        /   6   \_____/   2   \
- *        \       /     \       /
- *         \_____/   4   \_____/
- *               \       /
- *                \_____/
- */
 int *getHexagonNeighbors(int id, HexBoard *board) {
     int n, i, j, aux, *neighbors;
     if(!isHexagonValid(id, board))
@@ -148,6 +156,14 @@ int *getHexagonNeighbors(int id, HexBoard *board) {
         }
     }
     return neighbors;
+}
+
+bool isHexagonSimple(int id, HexBoard *board) {
+    /* Verifica se um hexágono não é da borda */
+    if(id >= 0 && id <= getHexagonsCount(board) - 4)
+        return true;
+    else
+        return false;
 }
 
 bool isHexTopBorder(int id,HexBoard *board) {
@@ -241,79 +257,6 @@ int getHexBotRightN(int id, HexBoard *board) {
     return id + board->size;
 }
 
-
-/* Retorna o número de vizinhos de um hexagono.
- * Se o hexágono é invalido, retorna -1
- * Se é um hexágono comum, retorna 6,
- * Se é um hexágono da borda, retorna o valor na borda
- */
-int getHexagonNeighborC(int id, HexBoard *board) {
-    if(!isHexagonValid(id, board))
-        return -1;
-    if(id >= board->size*board->size)
-        return board->size;
-    else
-     return 6;
- }
-
-int boardGetLeftBorder(HexBoard *board) {
-    return board->size*board->size+3;
- }
-
-int boardGetTopBorder(HexBoard *board) {
-    return board->size*board->size;
- }
-
-int boardGetRightBorder(HexBoard *board) {
-    return board->size*board->size+1;
- }
-
-int boardGetBotBorder(HexBoard *board) {
-    return board->size*board->size+2;
- }
-
-void setHexagonColor(int id, HexBoard *board, color color) {
-    if(!isHexagonValid(id, board))
-        return;
-    if(color != WHITE && color != BLACK && color != NONE)
-        return;
-    board->hexs[id].color = color;
-}
-
-char getBoardChar(int c) {
-    if(c == 1)
-        return 'b';
-    if(c == 2)
-        return 'p';
-    return '-';
-}
-void boardPrint(HexBoard *board) {
-    int i, j, k, len;
-    char **list;
-    if(!debug) return;
-    len = board->size;
-    list = emalloc(sizeof(char*)*len);
-    for(i = 0; i < len; i++)
-        list[i] = emalloc(sizeof(char)*len);
-    for(i = 0; i < len; i++)
-        for(j = 0; j < len; j++)
-            list[i][j] = 0;
-    for(i = 0;i < len; i++)
-        for(j = 0; j < len; j++)
-            list[i][j] = board->hexs[j*len + i].color;
-    for(i = 0; i < len; i++){
-        for(k = 0; k < i; fprintf(stderr, " "), k++);
-        fprintf(stderr, "\\");
-        for(j = 0;j < len;j++)
-            fprintf(stderr, "%c ",getBoardChar(list[i][j]));
-        fprintf(stderr, "\\\n");
-    }
-    for(i = 0; i < len; i++)
-        free(list[i]);
-    free(list);
-}
-
-
 bool isHexNearTopBorder(int id, HexBoard *board) {
     if(!isHexagonValid(id, board)) return -1;
     if(id >= 0 && id < board->size)
@@ -347,38 +290,78 @@ bool isHexNearRightBorder(int id, HexBoard *board) {
         return 0;
 }
 
+int boardGetTopBorder(HexBoard *board) {
+   return board->size*board->size;
+}
+
+int boardGetBotBorder(HexBoard *board) {
+   return board->size*board->size+2;
+}
+
+int boardGetLeftBorder(HexBoard *board) {
+    return board->size*board->size+3;
+}
+
+int boardGetRightBorder(HexBoard *board) {
+    return board->size*board->size+1;
+}
+
+/*
+ * Function: getBoardChar
+ * --------------------------------------------------------
+ * Transforma um inteiro que representa uma cor em um char.
+ *
+ * @args    c: Um inteiro do tabuleiro
+ *
+ * @return A representação em char do inteiro fornecido.
+ */
+char getBoardChar(int c) {
+    if(c == 1)
+        return 'b';
+    if(c == 2)
+        return 'p';
+    return '-';
+}
+
+/*
+* Function: getBoardStrLength
+* --------------------------------------------------------
+* Função que retorna qual deve ser o tamanho da string do tabuleiro. Foi
+* criada para maior semântica na hora de criar a string do tabuleiro.
+*
+* @args    board: O tabuleiro de hexágonos
+*
+* @return  O tamanho necessário para a string
+*/
 int getBoardStrLength(HexBoard * board) {
     return getHexagonsCount(board);
 }
 
-void bPrint2(HexBoard * board, char * extra) {
-    int i, j;
+void boardPrint(HexBoard *board) {
+    int i, j, k, len;
+    char **list;
+    if(!debug) return;
 
-    fprintf(stderr, "\\ ");
+    len = board->size;
+    list = emalloc(sizeof(char*)*len);
 
-    for(i=0; i<board->size*board->size; i++) {
-        if(i%board->size==0 && i>0) {
-            fprintf(stderr, "\\\n");
+    for(i = 0; i < len; i++)
+        list[i] = emalloc(sizeof(char)*len);
+    for(i = 0; i < len; i++)
+        for(j = 0; j < len; j++)
+            list[i][j] = 0;
+    for(i = 0; i < len; i++)
+        for(j = 0; j < len; j++)
+            list[i][j] = board->hexs[j*len + i].color;
 
-            for(j=0; j<i/board->size; j++) {
-                fprintf(stderr, " ");
-            }
-
-            fprintf(stderr, "\\ ");
-        }
-
-        if(extra!=NULL && extra[i]!=0) {
-            fprintf(stderr, "%c ", extra[i]);
-        } else if(board->hexs[i].color==BLACK) {
-            fprintf(stderr, "p ");
-        } else if(board->hexs[i].color==WHITE){
-            fprintf(stderr, "b ");
-        } else {
-            fprintf(stderr, "- ");
-        }
+    for(i = 0; i < len; i++){
+        for(k = 0; k < i; fprintf(stderr, " "), k++);
+        fprintf(stderr, "\\");
+        for(j = 0; j < len; j++)
+            fprintf(stderr, "%c ",getBoardChar(list[i][j]));
+        fprintf(stderr, "\\\n");
     }
-
-    fprintf(stderr, "\\\n");
-    fflush(stderr);
-
+    for(i = 0; i < len; i++)
+        free(list[i]);
+    free(list);
 }

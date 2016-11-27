@@ -1,8 +1,8 @@
 #
-# Makefile para EP4
+# Makefile para EP5
 #
 
-CFLAGS = -ansi -Wall -pedantic -O2 -g
+CFLAGS = -ansi -Wall -pedantic -O2
 
 
 .PHONY: clean

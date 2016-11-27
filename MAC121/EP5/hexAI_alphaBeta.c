@@ -1,3 +1,10 @@
+/*
+ * @author: Juliano Garcia de Oliveira
+ * nº usp = 9277086
+ * MAC0121
+ * 28/11/2016
+ * Implementação do algoritmo de redução de gameTree alpha beta.
+ */
 #include <limits.h>
 #include <string.h>
 #include <stdio.h>
@@ -6,11 +13,14 @@
 #include "hashTable.h"
 #include "game.h"
 #include "error.h"
-/* Macros usados na transposition Table */
+
+/* Tipos usados na transposition Table */
 #define LOWERBOUND 1
 #define UPPERBOUND 2
 #define EXACT 0
-/* Funções locais */
+
+
+/* Protótipos de Funções locais */
 int max(int x, int y, int * xLower);
 int min(int x, int y, int * xHigher);
 int abGetVal(HexBoard *board, color player, int depth);
@@ -18,8 +28,12 @@ transTEntry * getCache(HexBoard *board, HashTable *transTable);
 void abCache(HexBoard *board, HashTable *transTable, int type, int score, int depth);
 HexBoard * abNewChild(HexBoard *board, int i);
 
+
+/* Variáveis usadas para controle de tempo */
 float timeLen;
 clock_t tSpent;
+
+
 int alphaBetaAlgorithm(HexBoard * board, int alpha, int beta, int depth,
     int maxDepth, color player, char type, HashTable *transTable,
     int *bestM) {
@@ -36,6 +50,7 @@ int alphaBetaAlgorithm(HexBoard * board, int alpha, int beta, int depth,
     /* Checando a maxDepth */
     if(maxDepth < 1) exit(EXIT_FAILURE);
 
+    /* Verifica se o tabuleiro atual já foi calculado antes */
     cache = getCache(board, transTable);
     if(cache != NULL && cache->depth >= depth) {
         switch (cache->type) {
@@ -68,6 +83,7 @@ int alphaBetaAlgorithm(HexBoard * board, int alpha, int beta, int depth,
             return abGetVal(board, BLACK, depth);
     }
 
+    /* Minimiza o beta */
     if(type == MIN) {
         value = +INT_MAX;
         tSpent = clock() - t;
@@ -92,7 +108,7 @@ int alphaBetaAlgorithm(HexBoard * board, int alpha, int beta, int depth,
             i++;
         }
     }
-    else {
+    else { /* Maximiza o alpha */
         value = -INT_MAX;
         tSpent = clock() - t;
         timeLen = ((double)tSpent)/CLOCKS_PER_SEC;
@@ -136,18 +152,47 @@ int alphaBetaAlgorithm(HexBoard * board, int alpha, int beta, int depth,
     return value;
 }
 
+int abKeyCmp(const void *a, const void *b) {
+    return strcmp((char*)a, (char*)b);
+}
+/*
+ * Function: getCache
+ * --------------------------------------------------------
+ * Consulta a transTable para obter uma entrada que contém informações do
+ * tabuleiro especificado como parâmetro.
+ *
+ * @args    board: O tabuleiro para ser pesquisado
+ *          transTable: a transposition table
+ *
+ * @return Uma entrada da transposition table que contém as informações sobre
+ *         determinado tabuleiro, ou NULL quando o tabuleiro não está na
+ *         transposition table.
+ */
 transTEntry *getCache(HexBoard *board, HashTable *transTable) {
     char *str;
     transTEntry *entry;
-    if(transTable == NULL) return NULL;
 
+    if(transTable == NULL) return NULL;
     str = stringfyBoard(board);
     entry = HashTableGet(transTable, str);
     free(str);
     return entry;
 }
-
-void abCache(HexBoard *board, HashTable *transTable, int type, int score, int depth) {
+/*
+ * Function: abCache
+ * --------------------------------------------------------
+ * Adiciona na transposition table as informações de um tabuleiro atual.
+ *
+ * @args    board: O tabuleiro do jogo
+ *          transTable: A HashTable que representa a transposition table
+ *          type: O tipo daquele tabuleiro (MIN? MAX?)
+ *          score: O valor dado ao tabuleiro
+ *          depth: A profundidade que ele foi calculado no algoritmo alphaBeta
+ *
+ *
+ * @return
+ */
+void abCache(HexBoard *board, HashTable *transTable, int type, int score,int depth) {
     char *str;
     transTEntry *entry;
 
@@ -159,13 +204,23 @@ void abCache(HexBoard *board, HashTable *transTable, int type, int score, int de
     entry->score = score;
     entry->type = type;
     HashTablePut(transTable, str, entry);
-
 }
-
-int abKeyCmp(const void *a, const void *b) {
-    return strcmp((char*)a, (char*)b);
-}
-
+/*
+ * Function: abGetVal
+ * --------------------------------------------------------
+ * Avalia um dado tabuleiro (que é uma folha da árvore de alpha Beta), e
+ * retorna o valor / peso / pontuação daquele dado tabuleiro. Essa função
+ * inicialmente verifica se houve vitória, atribuindo um peso maior ao
+ * tabuleiro. Senão, faz um dijkstra até o hexágono onde o jogador venceria.
+ * Com base no tamanho do caminho calculado pelo dijkstra, ele dá um valor
+ * para a jogada.
+ *
+ * @args    board: O tabuleiro do jogo
+ *          player: A cor do jogador (WHITE ou BLACK)
+ *          depth: A profundidade da árvore
+ *
+ * @return O valor do tabuleiro
+ */
 int abGetVal(HexBoard *board, color player, int depth) {
     int start, end, value;
     char mask;
@@ -180,26 +235,27 @@ int abGetVal(HexBoard *board, color player, int depth) {
     if(winner == player)
         return 3000;
 
-    /* A função faz dois Dijkstra:
-     * Um da primeira borda até o último hexágono que foi colocado,
-     * e outro do último hexágono colocado até a segunda borda.
-     */
+
     if(player == BLACK) {
         start = boardGetBotBorder(board);
         end = boardGetTopBorder(board);
-        mask = 0x04 + 0x01;
+        mask = 0x04 + 0x01; /* Pretas e vazias */
     }
     else {
         start = boardGetLeftBorder(board);
         end = boardGetRightBorder(board);
-        mask = 0x02 + 0x01;
+        mask = 0x02 + 0x01; /* Brancas e vazias */
     }
 
     /* Calcula a distância necessária para a vitória,
      * incluindo os hexágonos não colocados (NONE) com um peso diferente... */
     djkS = dijkstra(board, start, end, mask, 15, 0, 0);
     djkPath = djkGetPath(djkS, -1);
-    if(djkPath->length < 0) return 0;
+    if(djkPath->length < 0) {
+        djkDestroyPath(djkPath);
+        djkDestroy(djkS);
+        return 0;
+    }
 
     /* Calcula o valor/peso */
     value = 300 - djkPath->length;
@@ -209,7 +265,17 @@ int abGetVal(HexBoard *board, color player, int depth) {
 
     return value;
 }
-
+/*
+ * Function: abNewChild
+ * --------------------------------------------------------
+ * Adiciona um novo Node na árvore alphaBeta, ou seja, uma nova jogada é feita,
+ * e esse tabuleiro é retornado.
+ *
+ * @args    board : O tabuleiro do jogo
+ *          i: o ID do hexágono para mudar a cor
+ *
+ * @return O tabuleiro com a jogada executada
+ */
 HexBoard * abNewChild(HexBoard *board, int i) {
     HexBoard *child;
 
@@ -223,7 +289,17 @@ HexBoard * abNewChild(HexBoard *board, int i) {
 
     return child;
 }
-
+/*
+ * Function: max
+ * --------------------------------------------------------
+ * Retorna o máximo entre dois números, e se o primeiro é maior que o segundo.
+ *
+ * @args    x: Um número
+ *          y: Um número
+ *          xLower: Um ponteiro para um inteiro que será o indicador
+ *
+ * @return O máximo entre x e y, e *xLower indica qual deles foi o menor.
+ */
 int max(int x, int y, int * xLower) {
     if(x < y) {
         if(xLower != 0) *xLower = 1;
@@ -233,7 +309,17 @@ int max(int x, int y, int * xLower) {
         return x;
     }
 }
-
+/*
+ * Function: min
+ * --------------------------------------------------------
+ * Retorna o mínimo entre dois números, e se o primeiro é maior que o segundo.
+ *
+ * @args    x: Um número
+ *          y: Um número
+ *          xHigher: Um ponteiro para um inteiro que será o indicador
+ *
+ * @return O mínimo entre x e y, e *xHigher indica qual deles foi o maior.
+ */
 int min(int x, int y, int * xHigher) {
     if(x < y) {
         if(xHigher != 0) *xHigher = 0;

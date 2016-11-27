@@ -8,16 +8,6 @@ int getMinDistance_Q(s_Int *Q, int *dist, int hexCount, HexBoard *board,
     unsigned char c_mask);
 
 
-/* Calcula o menor caminho para um Node, ou para todos os Nodes no HexBoard,
- * usando apenas hexágonos que combinam com a c_mask!
- * args: start: O hexágono inicial
- *       final: Hexágono final, ou uma posição inválida (id < 0) para
- *              calcular o caminho de todos os Nodes.
- *       c_mask: (color)Bitmask das cores para saber em quais Nodes é o
- *              algoritmo pode percorrer (ver verifyColorsMask).
- */
- /* Impl https://pt.wikipedia.org/wiki/Algoritmo_de_Dijkstra */
-
 DjkStorage *dijkstra(HexBoard *board, int start, int final,
     unsigned char c_mask, int noneWeight, int blackWeight, int whiteWeight) {
     int hexCount, i, QNb, u, tmpDist, *dist, *previous, *n_Nodes, *v;
@@ -106,10 +96,8 @@ DjkStorage *dijkstra(HexBoard *board, int start, int final,
                 n_Nodes[v[i]] = n_Nodes[u] + 1;
             }
         }
-
         free(v);
     }
-
     free(Q);
 
     /* Cria um DjkStorage com as informações */
@@ -122,11 +110,9 @@ DjkStorage *dijkstra(HexBoard *board, int start, int final,
     djkS->previous = previous;
     djkS->n_Nodes = n_Nodes;
 
-    /* imprimir dijkstra: dijkstraPrint(djkS); */
     return djkS;
 }
 
-/* Retorna o caminho (legível) para o node 'final'. */
 DjkPath *djkGetPath(DjkStorage *storage, int final) {
     int u, i;
     DjkPath *path;
@@ -138,6 +124,7 @@ DjkPath *djkGetPath(DjkStorage *storage, int final) {
        !isHexagonValid(storage->final, storage->board))
         return NULL;
 
+    /* Extrai as informações do storage */
     path = emalloc(sizeof(DjkPath));
     path->start = storage->start;
     if(final >= 0)
@@ -178,16 +165,19 @@ void djkDestroy(DjkStorage *djkS) {
     free(djkS->n_Nodes);
     free(djkS);
 }
-
-/* Retorna o Node em 'Q' que possui a menor distância e combina com a c_mask,
- * além de considerar caso seja uma borda.
- */
 /*
- * Q = Um conjunto de Nodes , possui Nodes na c_mask
- * dist = Array com a distância dos Nodes
- * hexCount = Número de hexágonos em Q e em dist
- * board = O tabuleiro hexagonal para procurar as cores
- * c_mask = Bitmask com as cores aceitas
+ * Function: getMinDistance_Q
+ * --------------------------------------------------------
+ * Retorna o hexágono do vetor 'Q' que possui a menor distância e que
+ * satisfaz a bitmask de cores (c_mask)
+ *
+ * @args    Q: O vetor Q com os Nodes
+ *          dist: O vetor com as distâncias dos nodes Q
+ *          hexCount: A quantidade de hexágonos
+ *          board: O tabuleiro com os hexágonos
+ *          c_mask: Uma bitmask com as cores
+ *
+ * @return O número do hexágono que tem a menor distância
  */
 int getMinDistance_Q(s_Int *Q, int *dist, int hexCount, HexBoard *board,
     unsigned char c_mask) {
@@ -207,21 +197,22 @@ int getMinDistance_Q(s_Int *Q, int *dist, int hexCount, HexBoard *board,
 
     return min;
 }
-
-/* Check if a hexagon in the board match the colorMask.
- * Returns true if the c_mask is matched or the Hexagon is from the border.
- *         false if not.
- */
-/* about the c_mask:
- * It's a bitmask. It uses the 3 bits;
- * The last significant bit is for the 'NONE' color.
- * The second bit is for the 'WHITE' color;
- * The most significant bit is for the 'BLACK' color;
- * For example: 1)the c_mask = 0b111 : the function returns true if the hexagon
- *              is NONE or WHITE or BLACK.
- *              2)the c_mask = 0b101 : the function returs true if the hexagon
- *              is BLACK or NONE.
- */
+/*
+* Function: verifyColorsMask
+* --------------------------------------------------------
+* Verifica se um hexágono de número = id satisfaz a máscara de cores.
+* A bitmask de cores funciona assim:
+* O dígito menos significativo é para o 'NONE'
+* O dígito do meio é para a cor 'WHITE'
+* O diǵito menos significativo é para a cor 'BLACK'
+* Exemplo, c_mask = 0b011: Permite WHITE e NONE, mas não BLACK.
+*
+* @args    board: O tabuleiro com os hexágonos
+*          id: O número do hexágono
+*         c_mask: A bitmask das cores
+*
+* @return true se o hexágono satisfaz a máscara, false caso contrário
+*/
 bool verifyColorsMask(HexBoard *board, int id, unsigned char c_mask) {
     if(     ((c_mask & 0x01) && getHexagonColor(id, board) == NONE)
         ||  ((c_mask & 0x02) && getHexagonColor(id, board) == WHITE)

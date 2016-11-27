@@ -1,7 +1,12 @@
+/*
+ * Implementação da HashTable. (ver http://www.pomakis.com/)
+ */
 #include <stdlib.h>
 #include <stdio.h>
 #include "error.h"
 #include "hashTable.h"
+
+/* Protótipo de funções locais */
 static int pointercmp(const void *pointer1, const void *pointer2);
 static unsigned long pointerHashFunction(const void *pointer);
 static long getNumBuckets(HashTable *hashTable);
@@ -32,14 +37,6 @@ HashTable *HashTableCreate(long numOfBuckets) {
     hTable->valueDeallocator = NULL;
 
     return hTable;
-}
-
-static int pointercmp(const void *pointer1, const void *pointer2) {
-    return (pointer1 != pointer2);
-}
-
-static unsigned long pointerHashFunction(const void *pointer) {
-    return ((unsigned long) pointer) >> 4;
 }
 
 void HashTableSetHashFunction(HashTable *hashTable,
@@ -178,7 +175,7 @@ void HashTableRehash(HashTable *hashTable, long numOfBuckets) {
     if (numOfBuckets == hashTable->numOfBuckets)
         return; /* Já está no tamanho correto */
 
-    newBucketArray = malloc(numOfBuckets * sizeof(KeyValuePair *));
+    newBucketArray = malloc(numOfBuckets*sizeof(KeyValuePair *));
     if (newBucketArray == NULL) return; /* Não é possível rehash */
 
     for (i = 0; i < numOfBuckets; i++)
@@ -201,6 +198,16 @@ void HashTableRehash(HashTable *hashTable, long numOfBuckets) {
     hashTable->numOfBuckets = numOfBuckets;
 }
 
+/*
+ * Function: getNumBuckets
+ * --------------------------------------------------------
+ * Retorna o número ideal de "buckets" (quantidade de hashes na tabela)
+ * usando o 'idealRatio' da hashTable. O padrão para o idealRatio é de 3.
+ *
+ * @args    hashTable: A hashTable
+ *
+ * @return o número ideal calculado
+ */
 static long getNumBuckets(HashTable *hashTable) {
     long idealNum = hashTable->numOfElements / hashTable->idealRatio;
     if (idealNum < 5)
@@ -213,6 +220,16 @@ static long getNumBuckets(HashTable *hashTable) {
     return idealNum;
 }
 
+/*
+ * Function: isProbablePrime
+ * --------------------------------------------------------
+ * Verifica se um número é provavelmetne primo, fazendo a multiplicação
+ * e verificando a divisão com os números até 51...
+ *
+ * @args    number: O número a ser avaliado
+ *
+ * @return 1 se tem chance de ser primo, 0 caso contrário
+ */
 static int isProbablePrime(long number) {
     long i;
     for(i = 3; i < 51; i+= 2)
@@ -221,4 +238,31 @@ static int isProbablePrime(long number) {
         else if(number%i == 0)
             return 0;
     return 1; /* Provavelmente D: */
+}
+
+/*
+ * Function: pointercmp
+ * --------------------------------------------------------
+ * Compara dois ponteiros
+ *
+ * @args    pointer1: O primeiro ponteiros
+ *          pointer2: O segundo ponteiro
+ *
+ * @return 1 se são iguais, 0 caso contrário
+ */
+static int pointercmp(const void *pointer1, const void *pointer2) {
+    return (pointer1 != pointer2);
+}
+
+/*
+ * Function: pointerHashFunction
+ * --------------------------------------------------------
+ * Função de Hash para um ponteiro, apenas faz 2^4 no valor inteiro
+ *
+ * @args    pointer: o ponteiro para calcular o hash
+ *
+ * @return O HASH do ponteiro
+ */
+static unsigned long pointerHashFunction(const void *pointer) {
+    return ((unsigned long) pointer) >> 4;
 }
