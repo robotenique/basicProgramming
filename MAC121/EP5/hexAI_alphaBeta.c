@@ -18,6 +18,8 @@ transTEntry * getCache(HexBoard *board, HashTable *transTable);
 void abCache(HexBoard *board, HashTable *transTable, int type, int score, int depth);
 HexBoard * abNewChild(HexBoard *board, int i);
 
+float timeLen;
+clock_t tSpent;
 int alphaBetaAlgorithm(HexBoard * board, int alpha, int beta, int depth,
     int maxDepth, color player, char type, HashTable *transTable,
     int *bestM) {
@@ -36,7 +38,6 @@ int alphaBetaAlgorithm(HexBoard * board, int alpha, int beta, int depth,
 
     cache = getCache(board, transTable);
     if(cache != NULL && cache->depth >= depth) {
-        stats_cacheAccess++;
         switch (cache->type) {
             case LOWERBOUND:
                 if(cache->score >= beta)
@@ -69,6 +70,10 @@ int alphaBetaAlgorithm(HexBoard * board, int alpha, int beta, int depth,
 
     if(type == MIN) {
         value = +INT_MAX;
+        tSpent = clock() - t;
+        timeLen = ((double)tSpent)/CLOCKS_PER_SEC;
+        if((timeLen/10) > 0.285)
+            return value;
         i = 0;
         b = beta; /* Salva o valor original de beta */
         /* Para cada elemento da árvore, até o prunning */
@@ -89,6 +94,10 @@ int alphaBetaAlgorithm(HexBoard * board, int alpha, int beta, int depth,
     }
     else {
         value = -INT_MAX;
+        tSpent = clock() - t;
+        timeLen = ((double)tSpent)/CLOCKS_PER_SEC;
+        if((timeLen/10) > 0.285)
+            return value;
         i = 0;
         a = alpha; /* Salva o valor original de alpha */
         while(i <= nHexs && value < beta) {
@@ -143,7 +152,6 @@ void abCache(HexBoard *board, HashTable *transTable, int type, int score, int de
     transTEntry *entry;
 
     if(transTable == NULL) return;
-    stats_newCached++;
     str = stringfyBoard(board);
 
     entry = emalloc(sizeof(transTEntry));
@@ -164,7 +172,6 @@ int abGetVal(HexBoard *board, color player, int depth) {
     color winner;
     DjkStorage *djkS;
     DjkPath *djkPath;
-    stats_evalLeaf++;
 
     /* Inicialmente, verifica a vitória */
     winner = checkVictory(board);
@@ -205,7 +212,6 @@ int abGetVal(HexBoard *board, color player, int depth) {
 
 HexBoard * abNewChild(HexBoard *board, int i) {
     HexBoard *child;
-    stats_nodes++;
 
     child = cloneHexBoard(board);
     child->hexs[i].color = child->player;

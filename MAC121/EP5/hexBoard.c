@@ -292,7 +292,7 @@ char getBoardChar(int c) {
 void boardPrint(HexBoard *board) {
     int i, j, k, len;
     char **list;
-    if(debug) return;
+    if(!debug) return;
     len = board->size;
     list = emalloc(sizeof(char*)*len);
     for(i = 0; i < len; i++)

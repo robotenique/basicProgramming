@@ -1,15 +1,11 @@
 #ifndef __HEX_AI_ALPHA_BETA_H__
 #define __HEX_AI_ALPHA_BETA_H__
+#include <time.h>
 #include "hashTable.h"
 #include "hexBoard.h"
 #define MIN 0
 #define MAX 1
-
-long stats_mtdfRun;
-long stats_evalLeaf;
-long stats_cacheAccess;
-long stats_newCached;
-long stats_nodes;
+clock_t t;
 
 /* Uma entry da Transposition Table */
 typedef struct {

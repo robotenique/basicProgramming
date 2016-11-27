@@ -5,5 +5,6 @@
 
 void gameLoop(HexBoard *board, color myPlayer);
 color checkVictory(HexBoard *board);
+int getOponentMove(HexBoard *board, color p2);
 
 #endif
